@@ -1,0 +1,45 @@
+# Local dev only. Production uses docker-compose.blue.yml / docker-compose.green.yml.
+services:
+  shop-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shop-assistant
+    ports:
+      - "${PORT:-4500}:${PORT:-4500}"
+    env_file:
+      - .env
+    environment:
+      - PORT=${PORT:-4500}
+      - COMPANY_LEGAL_NAME=${COMPANY_LEGAL_NAME:-Alfares s.r.o.}
+      - COMPANY_ICO=${COMPANY_ICO:-27138038}
+      - COMPANY_DIC=${COMPANY_DIC:-CZ27138038}
+      - COMPANY_ADDRESS=${COMPANY_ADDRESS:-Cetechovice 70, Cetechovice, 768 02, Czech Republic}
+      - COMPANY_PHONE=${COMPANY_PHONE:-+420 774 287 541}
+      - LEGAL_EMAIL=${LEGAL_EMAIL:-ssfskype@gmail.com}
+      - PRIVACY_EMAIL=${PRIVACY_EMAIL:-ssfskype@gmail.com}
+      - DPO_EMAIL=${DPO_EMAIL:-ssfskype@gmail.com}
+      - LEGAL_JURISDICTION=${LEGAL_JURISDICTION:-Czech Republic}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DATABASE_URL=${DATABASE_URL}
+      - LOGGING_SERVICE_URL=${LOGGING_SERVICE_URL}
+      - AI_SERVICE_URL=${AI_SERVICE_URL}
+      - SEARCH_API_URL=${SEARCH_API_URL}
+      - SEARCH_API_KEY=${SEARCH_API_KEY}
+    networks:
+      - nginx-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4500/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+
+networks:
+  nginx-network:
+    external: true
+    name: nginx-network
