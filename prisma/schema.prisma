@@ -1,0 +1,176 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String?
+  priorityOrder Json?   // User priority order: ["price","quality","location"] or similar (10.1)
+  profileId    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  messages     Message[]
+  searchRuns   SearchRun[]
+  choices      Choice[]
+  agentCommunications AgentCommunication[]
+  profile      AccountProfile? @relation(fields: [profileId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([profileId])
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  sessionId   String
+  role        String
+  contentType String
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+model SearchRun {
+  id                String   @id @default(uuid())
+  sessionId         String
+  queryText         String   @db.Text
+  refinedParams      Json?
+  rawSearchResponse Json?
+  createdAt         DateTime @default(now())
+  session           Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  searchResults     SearchResult[]
+
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+model SearchResult {
+  id          String    @id @default(uuid())
+  searchRunId String
+  title       String    @db.Text
+  url         String    @db.Text
+  price       String?
+  source      String?
+  position    Int
+  snippet     String?   @db.Text
+  createdAt   DateTime  @default(now())
+  searchRun   SearchRun @relation(fields: [searchRunId], references: [id], onDelete: Cascade)
+  choices     Choice[]
+
+  @@index([searchRunId])
+}
+
+model Choice {
+  id              String   @id @default(uuid())
+  sessionId       String
+  searchResultId  String
+  productUrl      String   @db.Text
+  chosenAt        DateTime @default(now())
+  session         Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  searchResult    SearchResult @relation(fields: [searchResultId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([chosenAt])
+}
+
+// AI agent types for prompt management (admin section)
+enum AgentType {
+  SEARCH        // browse internet, search for goods
+  COMPARISON    // compare prices
+  LOCATION      // work with locations
+  COMMUNICATION // communicate with the user
+  PRESENTATION  // present results in different formats
+}
+
+model AgentPrompt {
+  id        String   @id @default(uuid())
+  agentType AgentType
+  name      String   @db.VarChar(255)
+  content   String   @db.Text
+  model     String?  @db.VarChar(255)
+  role      String?  @db.VarChar(64)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([agentType])
+  @@index([agentType, isActive])
+  @@index([agentType, role])
+  @@index([agentType, role, isActive])
+}
+
+// User leave requests (voice or form) - saved on server, then sent to leads-microservice and ai-microservice
+model LeadRequest {
+  id              String   @id @default(uuid())
+  sourceService   String   @db.VarChar(64)
+  sourceUrl       String?  @db.Text
+  sourceLabel     String?  @db.VarChar(64)
+  message         String   @db.Text
+  contactMethods  Json     // [{ type, value }]
+  metadata        Json?    // { name, page, locale, hasVoiceRecording, filesCount, ... }
+  leadId          String?  @db.VarChar(255)  // from leads-microservice
+  aiSubmissionId  String?  @db.VarChar(255)  // from ai-microservice
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([sourceService])
+}
+
+// Agent-to-agent communication logs for debugging
+model AgentCommunication {
+  id          String   @id @default(uuid())
+  sessionId   String
+  fromAgent   String   @db.VarChar(255)  // Source agent name/type
+  toAgent     String   @db.VarChar(255)  // Target agent name/type
+  messageType String   @db.VarChar(64)   // request, response, task, result, error
+  content     String   @db.Text          // Message content
+  metadata    Json?    // Additional context (taskId, workflowId, etc.)
+  createdAt   DateTime @default(now())
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([createdAt])
+  @@index([fromAgent])
+  @@index([toAgent])
+  @@index([sessionId, createdAt])
+}
+
+/// Account-level profile (multi-user per account, e.g. mom/dad/child) (10.3).
+model AccountProfile {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  role      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessions  Session[]
+  savedCriteria SavedSearchCriteria[]
+
+  @@index([userId])
+}
+
+/// Saved search criteria template (priorities, intents, filters, optional profile) (10.4).
+model SavedSearchCriteria {
+  id             String   @id @default(uuid())
+  userId         String
+  name           String
+  priorities     Json?
+  productIntents Json?
+  filters        Json?
+  profileId      String?
+  profile        AccountProfile? @relation(fields: [profileId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([profileId])
+}
