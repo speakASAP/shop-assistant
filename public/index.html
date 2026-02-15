@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Assistant — AI Shopping. Voice or Text. Best Price.</title>
+  <meta name="description" content="Say what you want. AI searches the web, refines with feedback, finds the best price. Integrate into your app or use as a service.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal-900: #0f766e;
+      --teal-700: #0d9488;
+      --teal-500: #14b8a6;
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-500: #64748b;
+      --slate-100: #f1f5f9;
+      --white: #ffffff;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      color: var(--slate-900);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    .bg-pattern {
+      background-color: var(--slate-100);
+      background-image: radial-gradient(circle at 25% 25%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(217, 119, 6, 0.06) 0%, transparent 50%);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    /* Navigation */
+    nav {
+      padding: 1.25rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--teal-900);
+    }
+    .logo span {
+      color: var(--amber-600);
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+    .nav-links a {
+      color: var(--slate-700);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--teal-700);
+    }
+    /* Hero */
+    .hero {
+      padding: 4rem 0 5rem;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+      color: white;
+      padding: 0.35rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.02em;
+    }
+    .hero h1 {
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.25rem;
+      color: var(--slate-900);
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--teal-700), var(--amber-600));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--slate-700);
+      max-width: 36rem;
+      margin: 0 auto 2rem;
+    }
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
+      color: white;
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4);
+    }
+    .btn-secondary {
+      background: white;
+      color: var(--teal-700);
+      border: 2px solid var(--teal-500);
+    }
+    .btn-secondary:hover {
+      background: var(--teal-50, #f0fdfa);
+      transform: translateY(-2px);
+    }
+    /* Features */
+    .section {
+      padding: 4rem 0;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 3rem;
+      color: var(--slate-900);
+    }
+    .section-title span {
+      color: var(--teal-700);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    .feature-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+      border: 1px solid rgba(20, 184, 166, 0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
+    }
+    .feature-icon {
+      width: 3rem;
+      height: 3rem;
+      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .feature-icon svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      color: white;
+    }
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--slate-900);
+    }
+    .feature-card p {
+      color: var(--slate-500);
+      font-size: 0.95rem;
+    }
+    /* How it works */
+    .how-section {
+      background: white;
+    }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: var(--teal-700);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .step h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+      color: var(--slate-900);
+    }
+    .step p {
+      color: var(--slate-500);
+      font-size: 0.95rem;
+    }
+    /* API / Integrate */
+    .api-section {
+      background: linear-gradient(135deg, var(--teal-900), #115e59);
+      color: white;
+      padding: 4rem 0;
+      text-align: center;
+    }
+    .api-section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .api-section p {
+      opacity: 0.9;
+      max-width: 32rem;
+      margin: 0 auto 2rem;
+    }
+    .api-section .btn-secondary {
+      border-color: white;
+      color: white;
+      background: transparent;
+    }
+    .api-section .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    /* Footer */
+    footer {
+      padding: 2rem 0;
+      text-align: center;
+      color: var(--slate-500);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--slate-100);
+    }
+    footer a {
+      color: var(--teal-700);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+    /* EU AI Act transparency notice */
+    .ai-notice {
+      background: rgba(15, 118, 110, 0.08);
+      border: 1px solid rgba(15, 118, 110, 0.3);
+      border-radius: 0.5rem;
+      padding: 1rem 1.5rem;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+    }
+    .ai-notice strong { color: var(--teal-900); }
+    /* Cookie consent banner */
+    #cookie-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--slate-900);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 9999;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    }
+    #cookie-banner.hidden { display: none; }
+    #cookie-banner p { margin: 0; flex: 1; min-width: 200px; }
+    #cookie-banner a { color: var(--teal-500); }
+    #cookie-banner .btn-row { display: flex; gap: 0.5rem; }
+    #cookie-banner button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    #cookie-banner .btn-accept {
+      background: var(--teal-500);
+      color: white;
+    }
+    #cookie-banner .btn-decline {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+    /* Contact form */
+    .contact-section {
+      background: white;
+    }
+    .contact-form {
+      max-width: 36rem;
+      margin: 0 auto;
+      padding: 2rem;
+      background: var(--slate-100);
+      border-radius: 1rem;
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+    .contact-form label {
+      display: block;
+      font-weight: 600;
+      color: var(--slate-900);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .contact-form textarea,
+    .contact-form input,
+    .contact-form select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 1rem;
+      border: 1px solid var(--slate-300);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .contact-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .contact-form .form-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+      margin-bottom: 1rem;
+    }
+    .contact-form .form-row .flex-1 { flex: 1; }
+    .contact-form .form-row .flex-2 { flex: 2; }
+    .contact-form .media-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .contact-form .media-btn {
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      border: 2px solid var(--teal-500);
+      background: white;
+      color: var(--teal-700);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .contact-form .media-btn:hover {
+      background: var(--teal-50, #f0fdfa);
+    }
+    .contact-form .media-btn.recording {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #b91c1c;
+    }
+    .contact-form .file-zone {
+      border: 2px dashed var(--teal-400);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      background: white;
+      transition: background 0.2s;
+    }
+    .contact-form .file-zone:hover, .contact-form .file-zone.dragover {
+      background: rgba(20, 184, 166, 0.05);
+    }
+    .contact-form .file-list {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--slate-600);
+    }
+    .contact-form .file-list span {
+      display: inline-block;
+      margin-right: 1rem;
+      margin-bottom: 0.25rem;
+    }
+    .contact-form .add-contact-btn {
+      padding: 0.5rem 1rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      border: 2px dashed var(--teal-400);
+      background: white;
+      color: var(--teal-700);
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .contact-form .add-contact-btn:hover {
+      background: var(--teal-50, #f0fdfa);
+    }
+    .contact-form .submit-lead {
+      width: 100%;
+      padding: 1rem;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .contact-form .submit-lead:hover:not(:disabled) {
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
+    }
+    .contact-form .submit-lead:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .contact-form .form-status {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .contact-form .form-status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .contact-form .form-status.error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    /* Main request form at top (MVP) */
+    .main-request {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+    .landing-profile-row { margin-bottom: 0.75rem; }
+    .landing-profile-row select { min-width: 200px; padding: 0.5rem; border: 2px solid var(--slate-200); border-radius: 0.5rem; }
+    .main-request label {
+      display: block;
+      font-weight: 600;
+      color: var(--slate-900);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .main-request .request-input {
+      width: 100%;
+      min-height: 100px;
+      padding: 1rem 1.25rem;
+      font-family: inherit;
+      font-size: 1rem;
+      border: 2px solid var(--slate-300);
+      border-radius: 0.5rem;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+    .main-request .request-input:focus {
+      outline: none;
+      border-color: var(--teal-500);
+    }
+    .main-request .request-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .main-request .btn-want {
+      padding: 0.875rem 1.75rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .main-request .btn-want:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
+    }
+    .main-request .btn-want:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .main-request .request-status {
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+    .main-request .request-status.error {
+      color: #b91c1c;
+    }
+    .main-request .request-status.loading {
+      color: var(--teal-700);
+    }
+  </style>
+</head>
+<body class="bg-pattern">
+  <header class="container">
+    <nav>
+      <div class="logo">Shop <span>Assistant</span></div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#contact">Contact</a>
+        <a href="#api">API</a>
+        <a href="test.html">Test</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="/health" target="_blank" rel="noopener">API Status</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <form id="main-request-form" class="main-request" aria-label="Main search request">
+        <div id="landing-profile-row" class="landing-profile-row" style="display: none;">
+          <label for="landing-profile-select">Who is this for?</label>
+          <select id="landing-profile-select">
+            <option value="">Default</option>
+          </select>
+        </div>
+        <p id="landing-profile-hint" class="landing-profile-hint" style="display: none; font-size: 0.875rem; color: var(--slate-500); margin-bottom: 0.75rem;">Optional: sign in (save token in <a href="admin.html">Admin</a> or use <code>?token=…</code> in the URL) to choose who this search is for (e.g. family profiles).</p>
+        <label for="main-request-input">What do you want?</label>
+        <textarea id="main-request-input" class="request-input" name="request" required placeholder="Describe what you want to find...">Find a red silk skirt size 52, 48 cm long. Find a shop which delivers in the Czech Republic. Find the best quality skirt with the cheapest price and delivery.</textarea>
+        <div class="request-row">
+          <button type="submit" class="btn-want" id="main-request-btn">I want it</button>
+        </div>
+        <div id="main-request-status" class="request-status" style="display: none;" role="status"></div>
+      </form>
+      <div class="badge">AI-powered shopping</div>
+      <div class="ai-notice" role="note" aria-label="AI transparency">
+        <strong>EU AI Act (Art. 50):</strong> You are interacting with an AI system. Shop Assistant uses AI (speech-to-text, language models, search) to process your requests and find products. Results are generated automatically and should be verified before purchase.
+      </div>
+      <h1>Say what you want.<br><span class="highlight">Find the best price.</span></h1>
+      <p>Voice or text input. AI refines your search with feedback. Global web search. Direct redirect to the merchant. Simple.</p>
+      <div class="cta-group">
+        <a href="#api" class="btn btn-primary">Integrate now</a>
+        <a href="#how" class="btn btn-secondary">See how it works</a>
+        <a href="test.html" class="btn btn-secondary">Test Interface</a>
+      </div>
+    </section>
+
+    <section id="features" class="section container">
+      <h2 class="section-title">Why <span>Shop Assistant</span></h2>
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+          </div>
+          <h3>Voice or text</h3>
+          <p>"Я хочу" — say or type what you need. ASR transcribes voice; LLM extracts intent. Natural language in, products out.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </div>
+          <h3>Iterative refinement</h3>
+          <p>Give feedback. AI refines constraints and searches again. Zero-effort refinement until you see the right offer.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <h3>Global web search</h3>
+          <p>Serper, Brave, SerpAPI — we search across the web. Best price, best source. One choice, one redirect.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="how" class="section how-section container">
+      <h2 class="section-title">How it <span>works</span></h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div>
+            <h4>Create session</h4>
+            <p>POST /api/sessions — get a sessionId. Optional userId for user-bound sessions.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div>
+            <h4>Send query (text or voice URL)</h4>
+            <p>POST /api/sessions/:id/query with text or audioUrl. Receive search results with title, price, source, snippet.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div>
+            <h4>Refine with feedback</h4>
+            <p>POST /api/sessions/:id/feedback with message and selectedIndices. AI refines and returns new results.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <div>
+            <h4>Redirect to product</h4>
+            <p>GET /api/sessions/:id/choice/:productId/redirect — 302 redirect to the merchant product page.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact-section container">
+      <h2 class="section-title">Tell us what you <span>want to buy</span></h2>
+      <p style="text-align: center; color: var(--slate-600); max-width: 32rem; margin: 0 auto 2rem;">
+        Leave your request and contact details. We'll help you find the best price. Voice, text, or documents — your choice.
+      </p>
+      <form id="lead-form" class="contact-form">
+        <label for="lead-message">What goods do you want to buy? *</label>
+        <textarea id="lead-message" name="message" required placeholder="Describe your request: product name, category, budget, preferred merchants, etc."></textarea>
+
+        <label for="lead-name">Your name (optional)</label>
+        <input type="text" id="lead-name" name="name" placeholder="Your name">
+
+        <label>Contact method(s) * — add how we can reach you</label>
+        <div id="contact-methods">
+          <div class="form-row contact-row">
+            <div class="flex-1">
+              <select name="contact_type_1" class="contact-type">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+                <option value="telegram">Telegram</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </div>
+            <div class="flex-2">
+              <input type="text" name="contact_value_1" class="contact-value" placeholder="your@email.com" required>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="add-contact-btn" id="add-contact-btn">+ Add another contact</button>
+
+        <div class="media-row" style="margin-top: 1.5rem;">
+          <div>
+            <button type="button" class="media-btn" id="voice-btn">Record voice message</button>
+            <span id="recording-info" style="display: none; margin-left: 0.5rem; font-size: 0.9rem; color: var(--slate-600);"></span>
+          </div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <div class="file-zone" id="file-zone">
+            <p>Attach documents (optional)</p>
+            <p style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.5rem;">PDF, images, spreadsheets — drag & drop or click</p>
+          </div>
+          <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.jpg,.png,.txt,.xlsx,.xls" style="display: none;">
+          <div class="file-list" id="file-list"></div>
+        </div>
+
+        <button type="submit" class="submit-lead" id="submit-lead">Send request</button>
+        <div id="form-status" class="form-status" style="display: none;"></div>
+      </form>
+      <p style="text-align: center; font-size: 0.85rem; color: var(--slate-500); margin-top: 1rem;">
+        Your data is protected in accordance with GDPR. Confidentiality guaranteed.
+      </p>
+    </section>
+
+    <section id="api" class="api-section">
+      <div class="container">
+        <h2>Integrate Shop Assistant</h2>
+        <p>Add AI shopping to your app, voice assistant, or e-commerce flow. REST API. Optional JWT auth. Session-based.</p>
+        <div class="cta-group" style="justify-content: center; margin-top: 1.5rem;">
+          <a href="/health" class="btn btn-secondary" target="_blank" rel="noopener">API Status</a>
+          <a href="test.html" class="btn btn-primary">Test Interface</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <p>Shop Assistant — AI shopping assistant. Voice or text. Best price.</p>
+    <p style="margin-top: 0.5rem;">
+      <a href="privacy.html">Privacy Policy</a> · <a href="cookies.html">Cookie Policy</a> · <a href="terms.html">Terms of Service</a>
+    </p>
+  </footer>
+
+  <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
+    <p>We use cookies to remember your preferences and improve our service. By clicking "Accept" you consent to our use of cookies. See our <a href="cookies.html">Cookie Policy</a>.</p>
+    <div class="btn-row">
+      <button type="button" class="btn-decline" id="cookie-decline">Decline</button>
+      <button type="button" class="btn-accept" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var banner = document.getElementById('cookie-banner');
+      var key = 'shop_assistant_cookie_consent';
+      function hide() { banner.classList.add('hidden'); }
+      function save(val) { try { localStorage.setItem(key, val); } catch (e) {} }
+      if (localStorage.getItem(key)) { hide(); return; }
+      document.getElementById('cookie-accept').onclick = function() { save('accepted'); hide(); };
+      document.getElementById('cookie-decline').onclick = function() { save('declined'); hide(); };
+    })();
+
+    (function() {
+      var TOKEN_KEY = 'shop_assistant_admin_token';
+      function getToken() {
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('token')) return p.get('token').trim();
+        return (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+      }
+      function authHeaders() {
+        var t = getToken();
+        var h = { 'Content-Type': 'application/json' };
+        if (t) h['Authorization'] = 'Bearer ' + t;
+        return h;
+      }
+      var apiBase = window.location.origin + '/api';
+      var profileRow = document.getElementById('landing-profile-row');
+      var profileSelect = document.getElementById('landing-profile-select');
+      var profileHint = document.getElementById('landing-profile-hint');
+      if (getToken()) {
+        if (profileRow) profileRow.style.display = 'block';
+        if (profileHint) profileHint.style.display = 'none';
+        fetch(apiBase + '/profiles', { headers: { 'Authorization': 'Bearer ' + getToken() } })
+          .then(function(r) { return r.ok ? r.json() : null; })
+          .then(function(data) {
+            if (!profileSelect || !data) return;
+            var items = data.items || data || [];
+            profileSelect.innerHTML = '<option value="">Default</option>' + items.map(function(p) {
+              return '<option value="' + (p.id || '') + '">' + (p.name || p.id || '') + (p.role ? ' (' + p.role + ')' : '') + '</option>';
+            }).join('');
+          })
+          .catch(function() {});
+      } else {
+        if (profileHint) profileHint.style.display = 'block';
+      }
+
+      var mainForm = document.getElementById('main-request-form');
+      var mainBtn = document.getElementById('main-request-btn');
+      var mainStatus = document.getElementById('main-request-status');
+
+      mainForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var text = (document.getElementById('main-request-input').value || '').trim();
+        if (!text) {
+          mainStatus.textContent = 'Please enter your request.';
+          mainStatus.className = 'request-status error';
+          mainStatus.style.display = 'block';
+          return;
+        }
+
+        var profileId = (profileSelect && profileSelect.value && profileSelect.value.trim()) ? profileSelect.value.trim() : undefined;
+        var sessionBody = profileId ? { profileId: profileId } : {};
+        var queryBody = { text: text };
+        if (profileId) queryBody.profileId = profileId;
+
+        mainBtn.disabled = true;
+        mainStatus.textContent = 'Analyzing request…';
+        mainStatus.className = 'request-status loading';
+        mainStatus.style.display = 'block';
+
+        fetch(apiBase + '/sessions', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(sessionBody)
+        })
+          .then(function(r) {
+            if (!r.ok) throw new Error('Failed to create session');
+            return r.json();
+          })
+          .then(function(data) {
+            var sessionId = data.sessionId;
+            mainStatus.textContent = 'Searching…';
+            return fetch(apiBase + '/sessions/' + sessionId + '/query', {
+              method: 'POST',
+              headers: authHeaders(),
+              body: JSON.stringify(queryBody)
+            }).then(function(r) {
+              if (!r.ok) return r.text().then(function(t) { throw new Error(t || 'Search failed'); });
+              return r.json().then(function() { return sessionId; });
+            });
+          })
+          .then(function(sessionId) {
+            mainStatus.textContent = 'Preparing results…';
+            var url = 'test.html?sessionId=' + encodeURIComponent(sessionId);
+            if (getToken()) url += '&token=' + encodeURIComponent(getToken());
+            window.location.href = url;
+          })
+          .catch(function(err) {
+            mainStatus.textContent = err.message || 'Something went wrong. Please try again.';
+            mainStatus.className = 'request-status error';
+            mainStatus.style.display = 'block';
+            mainBtn.disabled = false;
+          });
+      });
+    })();
+
+    (function() {
+      var form = document.getElementById('lead-form');
+      var voiceBtn = document.getElementById('voice-btn');
+      var recordingInfo = document.getElementById('recording-info');
+      var fileZone = document.getElementById('file-zone');
+      var fileInput = document.getElementById('file-input');
+      var fileList = document.getElementById('file-list');
+      var addContactBtn = document.getElementById('add-contact-btn');
+      var contactMethods = document.getElementById('contact-methods');
+      var submitBtn = document.getElementById('submit-lead');
+      var formStatus = document.getElementById('form-status');
+
+      var voiceBlob = null;
+      var mediaRecorder = null;
+      var recordedChunks = [];
+      var isRecording = false;
+      var recordingStart = 0;
+      var recordingInterval = null;
+      var selectedFiles = [];
+
+      function updateContactPlaceholder(select) {
+        var input = select.closest('.contact-row').querySelector('.contact-value');
+        var placeholders = { email: 'your@email.com', phone: '+420 123 456 789', telegram: '@username', whatsapp: '+420 123 456 789' };
+        input.placeholder = placeholders[select.value] || '';
+      }
+
+      contactMethods.querySelectorAll('.contact-type').forEach(function(s) {
+        s.addEventListener('change', function() { updateContactPlaceholder(s); });
+      });
+
+      addContactBtn.addEventListener('click', function() {
+        var rows = contactMethods.querySelectorAll('.contact-row');
+        if (rows.length >= 5) return;
+        var n = rows.length + 1;
+        var row = document.createElement('div');
+        row.className = 'form-row contact-row';
+        row.innerHTML = '<div class="flex-1"><select name="contact_type_' + n + '" class="contact-type"><option value="email">Email</option><option value="phone">Phone</option><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option></select></div><div class="flex-2"><input type="text" name="contact_value_' + n + '" class="contact-value" placeholder="your@email.com"></div>';
+        row.querySelector('.contact-type').addEventListener('change', function() { updateContactPlaceholder(this); });
+        contactMethods.appendChild(row);
+      });
+
+      function startRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('Voice recording is not supported in this browser.');
+          return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+          recordedChunks = [];
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = function(e) { if (e.data.size) recordedChunks.push(e.data); };
+          mediaRecorder.onstop = function() {
+            stream.getTracks().forEach(function(t) { t.stop(); });
+            if (recordedChunks.length) voiceBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+          };
+          mediaRecorder.start();
+          isRecording = true;
+          voiceBtn.textContent = 'Stop recording';
+          voiceBtn.classList.add('recording');
+          recordingStart = Date.now();
+          recordingInterval = setInterval(function() {
+            var s = Math.floor((Date.now() - recordingStart) / 1000);
+            recordingInfo.textContent = s + 's';
+            recordingInfo.style.display = 'inline';
+          }, 1000);
+        }).catch(function(err) {
+          alert('Microphone access denied: ' + (err.message || 'Please allow microphone access.'));
+        });
+      }
+
+      function stopRecording() {
+        if (!mediaRecorder || !isRecording) return;
+        mediaRecorder.stop();
+        isRecording = false;
+        voiceBtn.textContent = 'Record voice message';
+        voiceBtn.classList.remove('recording');
+        clearInterval(recordingInterval);
+        recordingInfo.style.display = 'none';
+      }
+
+      voiceBtn.addEventListener('click', function() {
+        if (isRecording) stopRecording();
+        else startRecording();
+      });
+
+      fileZone.addEventListener('click', function() { fileInput.click(); });
+      fileZone.addEventListener('dragover', function(e) { e.preventDefault(); fileZone.classList.add('dragover'); });
+      fileZone.addEventListener('dragleave', function() { fileZone.classList.remove('dragover'); });
+      fileZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        fileZone.classList.remove('dragover');
+        if (e.dataTransfer.files) addFiles(Array.from(e.dataTransfer.files));
+      });
+      fileInput.addEventListener('change', function() {
+        if (this.files) addFiles(Array.from(this.files));
+        this.value = '';
+      });
+
+      function addFiles(files) {
+        var max = 10;
+        files.slice(0, max - selectedFiles.length).forEach(function(f) {
+          if (f.size > 10 * 1024 * 1024) return;
+          selectedFiles.push(f);
+        });
+        renderFileList();
+      }
+
+      function renderFileList() {
+        fileList.innerHTML = selectedFiles.map(function(f, i) {
+          return '<span>📄 ' + f.name + ' (' + (f.size < 1024 ? f.size + ' B' : (f.size < 1048576 ? (f.size / 1024).toFixed(1) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB')) + ') <button type="button" onclick="window.removeLeadFile(' + i + ')" style="margin-left:0.5rem;cursor:pointer;background:none;border:none;color:var(--teal-700);">×</button></span>';
+        }).join('');
+      }
+
+      window.removeLeadFile = function(i) {
+        selectedFiles.splice(i, 1);
+        renderFileList();
+      };
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (isRecording) stopRecording();
+
+        var message = document.getElementById('lead-message').value.trim();
+        var name = document.getElementById('lead-name').value.trim();
+        var cm = [];
+        contactMethods.querySelectorAll('.contact-row').forEach(function(row) {
+          var type = row.querySelector('.contact-type').value;
+          var val = (row.querySelector('.contact-value').value || '').trim();
+          if (val) cm.push({ type: type, value: val });
+        });
+        if (!cm.length) {
+          formStatus.textContent = 'Please add at least one contact method.';
+          formStatus.className = 'form-status error';
+          formStatus.style.display = 'block';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        formStatus.style.display = 'none';
+
+        var useFormData = (voiceBlob || selectedFiles.length > 0);
+        var url = '/api/leads/submit';
+
+        function showSuccess() {
+          formStatus.textContent = 'Request sent! We\'ll get back to you soon.';
+          formStatus.className = 'form-status success';
+          formStatus.style.display = 'block';
+          form.reset();
+          voiceBlob = null;
+          selectedFiles = [];
+          renderFileList();
+        }
+
+        function showError(msg) {
+          formStatus.textContent = msg || 'Failed to send. Please try again.';
+          formStatus.className = 'form-status error';
+          formStatus.style.display = 'block';
+        }
+
+        if (useFormData) {
+          var fd = new FormData();
+          fd.append('message', message);
+          if (name) fd.append('name', name);
+          fd.append('contactMethods', JSON.stringify(cm));
+          if (voiceBlob) fd.append('voice_file', voiceBlob, 'voice.webm');
+          selectedFiles.forEach(function(f) { fd.append('files', f); });
+
+          fetch(url, { method: 'POST', body: fd })
+            .then(function(r) {
+              if (r.ok) return r.json();
+              return r.text().then(function(t) { throw new Error(t || 'Request failed'); });
+            })
+            .then(function() { showSuccess(); })
+            .catch(function(err) { showError(err.message); })
+            .finally(function() { submitBtn.disabled = false; });
+        } else {
+          fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message, name: name, contactMethods: cm })
+          })
+            .then(function(r) {
+              if (r.ok) return r.json();
+              return r.text().then(function(t) { throw new Error(t || 'Request failed'); });
+            })
+            .then(function() { showSuccess(); })
+            .catch(function(err) { showError(err.message); })
+            .finally(function() { submitBtn.disabled = false; });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

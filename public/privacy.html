@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Shop Assistant</title>
+  <meta name="description" content="Shop Assistant Privacy Policy. GDPR-compliant data protection for our AI shopping assistant service.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="legal.css">
+</head>
+<body>
+  <div class="legal-page">
+    <header class="legal-header">
+      <a href="/" class="logo">Shop <span>Assistant</span></a>
+      <nav><a href="/">Back to Home</a></nav>
+    </header>
+    <main class="legal-main container">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last updated: February 2025</p>
+
+      <section>
+        <h2>1. Introduction</h2>
+        <p>This Privacy Policy explains how we collect, use, process, and protect your personal data when you use the Shop Assistant AI shopping service, in compliance with the General Data Protection Regulation (GDPR) (EU) 2016/679 and applicable European data protection laws.</p>
+      </section>
+
+      <section>
+        <h2>2. Data Controller</h2>
+        <p><strong>Data Controller:</strong> {{COMPANY_LEGAL_NAME}} (IČ: {{COMPANY_ICO}}, DIČ: {{COMPANY_DIC}})</p>
+        <p><strong>Address:</strong> {{COMPANY_ADDRESS}}</p>
+        <p><strong>Contact:</strong> <a href="mailto:{{PRIVACY_EMAIL}}">{{PRIVACY_EMAIL}}</a> · {{COMPANY_PHONE}}</p>
+        <p><strong>Data Protection Officer:</strong> <a href="mailto:{{DPO_EMAIL}}">{{DPO_EMAIL}}</a></p>
+      </section>
+
+      <section>
+        <h2>3. Personal Data We Process</h2>
+        <h3>3.1 Session and Query Data</h3>
+        <ul>
+          <li>Session identifiers</li>
+          <li>Query text (natural language search requests)</li>
+          <li>Voice audio URLs (if provided; processed via ASR for transcription)</li>
+          <li>Feedback messages and selected product indices</li>
+          <li>Search results and choices</li>
+        </ul>
+        <h3>3.2 Technical Data</h3>
+        <ul>
+          <li>IP address, browser, device information</li>
+          <li>Logs (service, level, message, timestamp) sent to central logging</li>
+        </ul>
+        <h3>3.3 Optional User Identification</h3>
+        <ul>
+          <li>userId (if provided when creating a session via optional JWT auth)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Legal Basis for Processing</h2>
+        <ul>
+          <li><strong>Contract performance:</strong> Providing the AI shopping assistant service</li>
+          <li><strong>Legitimate interests:</strong> Security, fraud prevention, service improvement</li>
+          <li><strong>Consent:</strong> Where applicable (e.g. optional analytics, marketing)</li>
+          <li><strong>Legal obligations:</strong> Compliance with applicable law</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. How We Use Your Data</h2>
+        <ul>
+          <li>To operate the AI assistant (ASR, LLM, search, refinement)</li>
+          <li>To redirect you to merchant product pages when you choose a result</li>
+          <li>To improve and maintain the service</li>
+          <li>To comply with legal obligations and protect our rights</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. Data Sharing and Third Parties</h2>
+        <p>We may share data with:</p>
+        <ul>
+          <li><strong>AI microservice:</strong> For speech-to-text (ASR) and LLM query refinement</li>
+          <li><strong>External search APIs:</strong> (e.g. Serper) to perform product searches</li>
+          <li><strong>Logging service:</strong> Central logging for operational logs</li>
+          <li><strong>Database:</strong> Shared PostgreSQL for session and result storage</li>
+        </ul>
+        <p>We do not sell your personal data. Third-party processors are bound by data processing agreements where required by GDPR.</p>
+      </section>
+
+      <section>
+        <h2>7. International Transfers</h2>
+        <p>If data is transferred outside the EEA, we use appropriate safeguards such as Standard Contractual Clauses (SCCs) or adequacy decisions.</p>
+      </section>
+
+      <section>
+        <h2>8. Data Retention</h2>
+        <ul>
+          <li><strong>Session data:</strong> As long as needed for the session and for a limited period thereafter (e.g. for debugging or legal compliance)</li>
+          <li><strong>Logs:</strong> As per central logging retention policy</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9. Your Rights (GDPR)</h2>
+        <p>You have the right to:</p>
+        <ul>
+          <li><strong>Access:</strong> Request a copy of your personal data</li>
+          <li><strong>Rectification:</strong> Correct inaccurate or incomplete data</li>
+          <li><strong>Erasure:</strong> Request deletion ("right to be forgotten")</li>
+          <li><strong>Restriction:</strong> Limit processing in certain cases</li>
+          <li><strong>Portability:</strong> Receive your data in a structured, machine-readable format</li>
+          <li><strong>Object:</strong> Object to processing based on legitimate interests</li>
+          <li><strong>Withdraw consent:</strong> Where processing is based on consent</li>
+        </ul>
+        <p>To exercise these rights, contact us at <a href="mailto:{{PRIVACY_EMAIL}}">{{PRIVACY_EMAIL}}</a> or {{COMPANY_PHONE}}. You also have the right to lodge a complaint with your supervisory authority.</p>
+      </section>
+
+      <section>
+        <h2>10. Security</h2>
+        <p>We implement technical and organizational measures to protect your data, including encryption in transit and at rest, access controls, and secure infrastructure.</p>
+      </section>
+
+      <section>
+        <h2>11. Children</h2>
+        <p>Our service is not directed at children under 16. We do not knowingly collect data from children. If you believe we have collected such data, please contact us.</p>
+      </section>
+
+      <section>
+        <h2>12. Changes</h2>
+        <p>We may update this Privacy Policy. The "Last updated" date will be revised. Continued use after changes constitutes acceptance.</p>
+      </section>
+
+      <section>
+        <h2>13. Contact</h2>
+        <p>For privacy inquiries: <a href="mailto:{{PRIVACY_EMAIL}}">{{PRIVACY_EMAIL}}</a> · {{COMPANY_PHONE}}</p>
+        <p>EU supervisory authority: Your local data protection authority</p>
+      </section>
+    </main>
+    <footer class="legal-footer">
+      <a href="/">Home</a> · <a href="privacy.html">Privacy</a> · <a href="cookies.html">Cookies</a> · <a href="terms.html">Terms</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Assistant — Admin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      line-height: 1.5;
+      padding: 1rem 2rem 2rem;
+    }
+    .header {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header h1 { font-size: 1.5rem; font-weight: 600; }
+    .auth-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .auth-row input {
+      width: 280px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    .auth-row input:focus { outline: none; border-color: #14b8a6; }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .btn-primary { background: #14b8a6; color: white; }
+    .btn-primary:hover:not(:disabled) { background: #0d9488; }
+    .btn-secondary { background: #64748b; color: white; }
+    .btn-secondary:hover:not(:disabled) { background: #475569; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover:not(:disabled) { background: #b91c1c; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .tabs {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+    }
+    .tabs button {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e2e8f0;
+      background: white;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .tabs button.active { background: #14b8a6; color: white; border-color: #14b8a6; }
+    .tabs button:hover:not(.active) { background: #f1f5f9; }
+    .panel { display: none; background: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .panel.active { display: block; }
+    .panel h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; font-weight: 600; color: #475569; }
+    tr:hover { background: #f8fafc; }
+    .form-grid { display: grid; gap: 1rem; max-width: 600px; margin-bottom: 1rem; }
+    .form-grid label { display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 0.875rem; }
+    .form-grid input, .form-grid select, .form-grid textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    .form-grid textarea { min-height: 120px; resize: vertical; }
+    .form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus {
+      outline: none; border-color: #14b8a6;
+    }
+    .status { padding: 0.5rem 0.75rem; border-radius: 0.375rem; margin-bottom: 1rem; font-size: 0.875rem; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.info { background: #dbeafe; color: #1e40af; }
+    .hint { display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.75rem; }
+    .agent-flow-section { margin-top: 1rem; }
+    .agent-flow-section input { width: 320px; padding: 0.5rem 0.75rem; margin-right: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; }
+    .agent-message {
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: #f1f5f9;
+      border-radius: 0.5rem;
+      border-left: 3px solid #8b5cf6;
+      font-size: 0.875rem;
+    }
+    .agent-message.request { border-left-color: #f59e0b; }
+    .agent-message.response { border-left-color: #10b981; }
+    .agent-message.task { border-left-color: #3b82f6; }
+    .agent-message.error { border-left-color: #ef4444; }
+    .agent-message-header { margin-bottom: 0.5rem; font-weight: 600; color: #475569; }
+    .agent-message-content { white-space: pre-wrap; word-break: break-word; }
+    .empty-state { text-align: center; padding: 2rem; color: #64748b; }
+    .actions { display: flex; gap: 0.5rem; }
+    .onboarding {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      color: #475569;
+    }
+    .onboarding h2 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: #0f172a;
+    }
+    .onboarding ol {
+      padding-left: 1.25rem;
+    }
+    .onboarding li {
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Shop Assistant — Admin</h1>
+    <div class="auth-row">
+      <input type="password" id="tokenInput" placeholder="JWT token (from auth-microservice)" />
+      <button type="button" class="btn btn-primary" id="saveTokenBtn">Save token</button>
+      <span id="tokenStatus" style="font-size: 0.8rem; color: #64748b;"></span>
+    </div>
+  </div>
+
+  <div class="onboarding">
+    <h2>First-time setup (after deploy)</h2>
+    <ol>
+      <li><strong>Get an admin JWT token</strong> from <code>auth-microservice</code> (see docs) and paste it into the field above, then click <strong>“Save token”</strong>. Without a token you can only view the Agent flow.</li>
+      <li><strong>Configure agent prompts</strong> in the <strong>“Prompts (CRUD)”</strong> tab: create at least one <strong>active</strong> prompt for each type: <code>COMMUNICATION</code>, <code>SEARCH</code>, <code>COMPARISON</code>, <code>LOCATION</code>, <code>PRESENTATION</code>. Use placeholders like <code>{{userInput}}</code>, <code>{{queryText}}</code>, <code>{{searchResults}}</code>, <code>{{previousParams}}</code> as described in the docs.</li>
+      <li><strong>Select AI models</strong> in the <strong>“AI Models”</strong> tab (load models from ai-microservice) and assign the desired model to each prompt.</li>
+      <li><strong>Choose execution mode</strong> in the <strong>“Execution mode”</strong> tab: start with <code>sync</code> for simple setups, or <code>queue</code> to enable the in-memory AgentQueue with limited concurrency.</li>
+      <li><strong>Test the assistant UI</strong>: open <code>/test.html?token=YOUR_TOKEN</code> or the main landing page with <code>?token=YOUR_TOKEN</code>. On the Test page you can create sessions, chat with the assistant, and see progress/intermediary/final results.</li>
+      <li><strong>Set up profiles and saved searches</strong> (optional): on <code>test.html</code> with a token, use the <strong>Account</strong> and <strong>Saved searches</strong> sections to create profiles (e.g. Mom/Dad/Child) and reusable search templates.</li>
+    </ol>
+  </div>
+
+  <div id="authRequired" class="status info" style="display: none;">
+    Save a valid JWT token to use Prompts and AI Models. Agent flow can be viewed without token.
+  </div>
+
+  <div class="tabs">
+    <button type="button" data-tab="prompts" class="active">Prompts (CRUD)</button>
+    <button type="button" data-tab="models">AI Models</button>
+    <button type="button" data-tab="profiles">Profiles</button>
+    <button type="button" data-tab="mode">Execution mode</button>
+    <button type="button" data-tab="flow">Agent communication flow</button>
+  </div>
+
+  <div id="panel-prompts" class="panel active">
+    <h2>Agent prompts</h2>
+    <div class="form-grid">
+      <div>
+        <label>Filter by type</label>
+        <select id="filterAgentType">
+          <option value="">All</option>
+          <option value="SEARCH">SEARCH</option>
+          <option value="COMPARISON">COMPARISON</option>
+          <option value="LOCATION">LOCATION</option>
+          <option value="COMMUNICATION">COMMUNICATION</option>
+          <option value="PRESENTATION">PRESENTATION</option>
+        </select>
+      </div>
+      <div><button type="button" class="btn btn-primary" id="loadPromptsBtn">Refresh list</button></div>
+    </div>
+    <div id="promptsStatus" class="status" style="display: none;"></div>
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Type</th><th>Model</th><th>Role</th><th>Active</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="promptsTableBody"></tbody>
+    </table>
+    <h3 style="margin-top: 2rem; margin-bottom: 0.5rem;">Add / Edit prompt</h3>
+    <form id="promptForm" class="form-grid">
+      <input type="hidden" id="promptId" />
+      <div>
+        <label>Agent type *</label>
+        <select id="promptAgentType" required>
+          <option value="COMMUNICATION">COMMUNICATION</option>
+          <option value="SEARCH">SEARCH</option>
+          <option value="COMPARISON">COMPARISON</option>
+          <option value="LOCATION">LOCATION</option>
+          <option value="PRESENTATION">PRESENTATION</option>
+        </select>
+      </div>
+      <div>
+        <label>Name *</label>
+        <input type="text" id="promptName" required placeholder="e.g. Communication Agent Polite" />
+      </div>
+      <div>
+        <label>Prompt content *</label>
+        <textarea id="promptContent" required placeholder="Use {{userInput}}, {{queryText}}, {{searchResults}}, {{previousParams}} as needed."></textarea>
+      </div>
+      <div>
+        <label>Model (from AI microservice)</label>
+        <select id="promptModel">
+          <option value="">— Auto —</option>
+        </select>
+      </div>
+      <div>
+        <label>Role</label>
+        <input type="text" id="promptRole" placeholder="default" title="Used to switch sets: only one active prompt per (type, role) is used (e.g. default, premium)." />
+        <small class="hint">Switch sets by role: e.g. default vs premium; one active per (type, role).</small>
+      </div>
+      <div>
+        <label><input type="checkbox" id="promptIsActive" checked /> Active</label>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">Save prompt</button>
+        <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel edit</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="panel-profiles" class="panel">
+    <h2>Account profiles (10.3 multi-user)</h2>
+    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">Create profiles (e.g. Mom, Dad, Child) for the current user. Sessions and saved searches can be linked to a profile.</p>
+    <div id="profilesStatus" class="status" style="display: none;"></div>
+    <button type="button" class="btn btn-primary" id="loadProfilesBtn">Refresh list</button>
+    <table style="margin-top: 1rem;">
+      <thead>
+        <tr><th>Name</th><th>Role</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="profilesTableBody"></tbody>
+    </table>
+    <h3 style="margin-top: 2rem; margin-bottom: 0.5rem;">Add profile</h3>
+    <div class="form-grid" style="max-width: 400px;">
+      <div>
+        <label for="profileName">Name *</label>
+        <input type="text" id="profileName" placeholder="e.g. Mom" />
+      </div>
+      <div>
+        <label for="profileRole">Role</label>
+        <input type="text" id="profileRole" placeholder="e.g. mom" />
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary" id="addProfileBtn">Add profile</button>
+        <button type="button" class="btn btn-secondary" id="cancelProfileEditBtn" style="display: none;">Cancel edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-models" class="panel">
+    <h2>AI models (from ai-microservice)</h2>
+    <div id="modelsStatus" class="status" style="display: none;"></div>
+    <button type="button" class="btn btn-primary" id="loadModelsBtn">Load models</button>
+    <table style="margin-top: 1rem;">
+      <thead>
+        <tr><th>Provider</th><th>Model ID / name</th><th>Description</th></tr>
+      </thead>
+      <tbody id="modelsTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="panel-mode" class="panel">
+    <h2>Agent execution mode (Option A / B)</h2>
+    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">
+      Choose how agents execute tasks internally: <strong>sync</strong> (direct calls, Option B) or <strong>queue</strong> (in-memory queue with limited concurrency, Option A).
+    </p>
+    <div id="modeStatus" class="status" style="display: none;"></div>
+    <div class="form-grid" style="max-width: 320px;">
+      <div>
+        <label>Execution mode</label>
+        <select id="executionModeSelect">
+          <option value="sync">sync (synchronous handoffs)</option>
+          <option value="queue">queue (in-memory queue)</option>
+        </select>
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary" id="saveModeBtn">Save mode</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-flow" class="panel">
+    <h2>Agent communication flow</h2>
+    <p style="margin-bottom: 0.5rem; font-size: 0.875rem; color: #64748b;">Enter a session ID to view agent-to-agent communications (no JWT required).</p>
+    <div class="agent-flow-section">
+      <input type="text" id="flowSessionId" placeholder="Session ID" />
+      <button type="button" class="btn btn-primary" id="loadFlowBtn">Load</button>
+    </div>
+    <div id="flowStatus" class="status" style="display: none;"></div>
+    <div id="flowContent" style="margin-top: 1rem;"></div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin + '/api';
+    const TOKEN_KEY = 'shop_assistant_admin_token';
+
+    function getToken() {
+      return sessionStorage.getItem(TOKEN_KEY) || '';
+    }
+
+    function setToken(token) {
+      token = (token || '').trim();
+      if (token) sessionStorage.setItem(TOKEN_KEY, token);
+      else sessionStorage.removeItem(TOKEN_KEY);
+      document.getElementById('tokenInput').value = token;
+      document.getElementById('tokenStatus').textContent = token ? 'Token saved' : '';
+    }
+
+    document.getElementById('saveTokenBtn').onclick = function() {
+      const t = document.getElementById('tokenInput').value.trim();
+      setToken(t);
+      document.getElementById('tokenStatus').textContent = t
+        ? 'Token saved. You can now manage prompts and models.'
+        : 'Token cleared. Set a valid JWT to use admin actions.';
+    };
+
+    if (window.location.search) {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('token')) {
+        setToken(p.get('token'));
+        document.getElementById('tokenStatus').textContent = 'Token from URL saved. You can now use admin actions.';
+      }
+      var sid = p.get('sessionId');
+      if (sid && window.location.hash === '#flow') {
+        document.getElementById('flowSessionId').value = sid;
+        document.querySelectorAll('.tabs button').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelector('.tabs button[data-tab="flow"]').classList.add('active');
+        document.getElementById('panel-flow').classList.add('active');
+        document.getElementById('loadFlowBtn').click();
+      }
+    } else if (getToken()) {
+      document.getElementById('tokenInput').value = getToken();
+      document.getElementById('tokenStatus').textContent = 'Token in use. You can manage prompts and models.';
+    } else {
+      document.getElementById('tokenStatus').textContent = 'Token required for admin actions. Paste a JWT and click "Save token".';
+    }
+
+    function authHeaders() {
+      const t = getToken();
+      const h = { 'Content-Type': 'application/json' };
+      if (t) h['Authorization'] = 'Bearer ' + t;
+      return h;
+    }
+
+    // Tabs
+    document.querySelectorAll('.tabs button').forEach(function(btn) {
+      btn.onclick = function() {
+        document.querySelectorAll('.tabs button').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'models') loadModels();
+        if (btn.dataset.tab === 'profiles') loadProfilesList();
+        if (btn.dataset.tab === 'mode') loadExecutionMode();
+      };
+    });
+
+    // Prompts list
+    function showPromptsStatus(msg, type) {
+      const el = document.getElementById('promptsStatus');
+      el.textContent = msg;
+      el.className = 'status ' + (type || 'info');
+      el.style.display = 'block';
+    }
+
+    async function loadPrompts() {
+      if (!getToken()) {
+        const authEl = document.getElementById('authRequired');
+        if (authEl) authEl.style.display = 'block';
+        showPromptsStatus('Save a valid JWT token to load prompts.', 'error');
+        return;
+      }
+      const filter = document.getElementById('filterAgentType').value;
+      const url = filter ? API_BASE + '/admin/prompts?agentType=' + encodeURIComponent(filter) : API_BASE + '/admin/prompts';
+      try {
+        const r = await fetch(url, { headers: authHeaders() });
+        if (r.status === 401) {
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+          showPromptsStatus('Invalid or missing JWT. Save a valid token.', 'error');
+          return;
+        }
+        if (!r.ok) throw new Error(r.statusText);
+        const data = await r.json();
+        const tbody = document.getElementById('promptsTableBody');
+        tbody.innerHTML = (data.items || []).map(function(p) {
+          return '<tr>' +
+            '<td>' + escapeHtml(p.name) + '</td>' +
+            '<td>' + escapeHtml(p.agentType) + '</td>' +
+            '<td>' + escapeHtml(p.model || '—') + '</td>' +
+            '<td>' + escapeHtml(p.role || 'default') + '</td>' +
+            '<td>' + (p.isActive ? 'Yes' : 'No') + '</td>' +
+            '<td class="actions">' +
+              '<button type="button" class="btn btn-secondary" onclick="editPrompt(\'' + p.id + '\')">Edit</button>' +
+              '<button type="button" class="btn btn-danger" onclick="deletePrompt(\'' + p.id + '\')">Delete</button>' +
+            '</td></tr>';
+        }).join('') || '<tr><td colspan="6">No prompts. Add one below.</td></tr>';
+        showPromptsStatus('Loaded ' + (data.items || []).length + ' prompt(s).', 'success');
+      } catch (e) {
+        showPromptsStatus('Error: ' + e.message, 'error');
+      }
+    }
+
+    document.getElementById('loadPromptsBtn').onclick = loadPrompts;
+    document.getElementById('filterAgentType').onchange = loadPrompts;
+
+    function escapeHtml(text) {
+      if (text == null) return '';
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function loadModelsForDropdown() {
+      try {
+        const r = await fetch(API_BASE + '/admin/ai-models?limit=50', { headers: authHeaders() });
+        if (!r.ok) return;
+        const data = await r.json();
+        const list = data.modelList || [];
+        const sel = document.getElementById('promptModel');
+        const current = sel.value;
+        sel.innerHTML = '<option value="">— Auto —</option>' + list.map(function(m) {
+          return '<option value="' + escapeHtml(m.name) + '">' + escapeHtml(m.provider + ': ' + (m.name || '').slice(0, 50)) + '</option>';
+        }).join('');
+        if (current) sel.value = current;
+      } catch (e) {}
+    }
+
+    async function loadModels() {
+      if (!getToken()) {
+        const authEl = document.getElementById('authRequired');
+        if (authEl) authEl.style.display = 'block';
+        const statusEl = document.getElementById('modelsStatus');
+        statusEl.textContent = 'Save a valid JWT token to load models.';
+        statusEl.className = 'status error';
+        statusEl.style.display = 'block';
+        return;
+      }
+      document.getElementById('modelsStatus').style.display = 'none';
+      try {
+        const r = await fetch(API_BASE + '/admin/ai-models?limit=100', { headers: authHeaders() });
+        if (r.status === 401) {
+          const statusEl = document.getElementById('modelsStatus');
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+          statusEl.textContent = 'Invalid or missing JWT. Save a valid token.';
+          statusEl.className = 'status error';
+          statusEl.style.display = 'block';
+          return;
+        }
+        if (!r.ok) throw new Error(r.statusText);
+        const data = await r.json();
+        const list = data.modelList || [];
+        const tbody = document.getElementById('modelsTableBody');
+        tbody.innerHTML = list.map(function(m) {
+          return '<tr><td>' + escapeHtml(m.provider) + '</td><td>' + escapeHtml(m.name) + '</td><td>' + escapeHtml(m.description || '') + '</td></tr>';
+        }).join('') || '<tr><td colspan="3">No models returned.</td></tr>';
+        document.getElementById('modelsStatus').textContent = 'Loaded ' + list.length + ' model(s).';
+        document.getElementById('modelsStatus').className = 'status success';
+        document.getElementById('modelsStatus').style.display = 'block';
+      } catch (e) {
+        document.getElementById('modelsStatus').textContent = 'Error: ' + e.message;
+        document.getElementById('modelsStatus').className = 'status error';
+        document.getElementById('modelsStatus').style.display = 'block';
+      }
+    }
+
+    document.getElementById('loadModelsBtn').onclick = loadModels;
+
+    // Profiles (10.3)
+    var editingProfileId = null;
+
+    function showProfilesStatus(msg, type) {
+      const el = document.getElementById('profilesStatus');
+      el.textContent = msg;
+      el.className = 'status ' + (type || 'info');
+      el.style.display = 'block';
+    }
+
+    async function loadProfilesList() {
+      if (!getToken()) {
+        const authEl = document.getElementById('authRequired');
+        if (authEl) authEl.style.display = 'block';
+        showProfilesStatus('Save a valid JWT token to load profiles.', 'error');
+        return;
+      }
+      try {
+        const r = await fetch(API_BASE + '/profiles', { headers: authHeaders() });
+        if (r.status === 401) {
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+          showProfilesStatus('Invalid or missing JWT. Save a valid token.', 'error');
+          return;
+        }
+        if (!r.ok) throw new Error(r.statusText);
+        const data = await r.json();
+        const items = (data.items || data || []);
+        const tbody = document.getElementById('profilesTableBody');
+        tbody.innerHTML = items.map(function(p) {
+          var tr = document.createElement('tr');
+          tr.setAttribute('data-profile-id', p.id);
+          tr.setAttribute('data-profile-name', p.name || '');
+          tr.setAttribute('data-profile-role', p.role || '');
+          tr.innerHTML = '<td>' + escapeHtml(p.name || '') + '</td>' +
+            '<td>' + escapeHtml(p.role || '') + '</td>' +
+            '<td class="actions">' +
+              '<button type="button" class="btn btn-secondary" data-action="edit">Edit</button> ' +
+              '<button type="button" class="btn btn-danger" data-action="delete">Delete</button>' +
+            '</td>';
+          return tr.outerHTML;
+        }).join('') || '<tr><td colspan="3">No profiles. Add one below.</td></tr>';
+        tbody.querySelectorAll('button[data-action="edit"]').forEach(function(btn) {
+          btn.onclick = function() {
+            var tr = btn.closest('tr');
+            if (!tr) return;
+            editProfile(tr.getAttribute('data-profile-id'), tr.getAttribute('data-profile-name') || '', tr.getAttribute('data-profile-role') || '');
+          };
+        });
+        tbody.querySelectorAll('button[data-action="delete"]').forEach(function(btn) {
+          btn.onclick = function() {
+            var tr = btn.closest('tr');
+            if (!tr) return;
+            deleteProfile(tr.getAttribute('data-profile-id'));
+          };
+        });
+        showProfilesStatus('Loaded ' + items.length + ' profile(s).', 'success');
+      } catch (e) {
+        showProfilesStatus('Error: ' + e.message, 'error');
+      }
+    }
+
+    function editProfile(id, name, role) {
+      editingProfileId = id;
+      document.getElementById('profileName').value = name || '';
+      document.getElementById('profileRole').value = role || '';
+      document.getElementById('addProfileBtn').textContent = 'Update profile';
+      document.getElementById('cancelProfileEditBtn').style.display = 'inline-block';
+    }
+
+    window.editProfile = editProfile;
+
+    async function deleteProfile(id) {
+      if (!confirm('Delete this profile?')) return;
+      try {
+        const r = await fetch(API_BASE + '/profiles/' + encodeURIComponent(id), { method: 'DELETE', headers: authHeaders() });
+        if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
+        if (!r.ok) throw new Error(r.statusText);
+        showProfilesStatus('Profile deleted.', 'success');
+        if (editingProfileId === id) {
+          editingProfileId = null;
+          document.getElementById('profileName').value = '';
+          document.getElementById('profileRole').value = '';
+          document.getElementById('addProfileBtn').textContent = 'Add profile';
+          document.getElementById('cancelProfileEditBtn').style.display = 'none';
+        }
+        loadProfilesList();
+      } catch (e) {
+        showProfilesStatus('Error: ' + e.message, 'error');
+      }
+    }
+
+    window.deleteProfile = deleteProfile;
+
+    document.getElementById('loadProfilesBtn').onclick = loadProfilesList;
+
+    document.getElementById('addProfileBtn').onclick = async function() {
+      const name = (document.getElementById('profileName').value || '').trim();
+      if (!name) {
+        showProfilesStatus('Name is required.', 'error');
+        return;
+      }
+      const role = (document.getElementById('profileRole').value || '').trim();
+      const id = editingProfileId;
+      try {
+        if (id) {
+          const r = await fetch(API_BASE + '/profiles/' + encodeURIComponent(id), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ name: name, role: role || undefined }),
+          });
+          if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
+          if (!r.ok) throw new Error(r.statusText);
+          showProfilesStatus('Profile updated.', 'success');
+        } else {
+          const r = await fetch(API_BASE + '/profiles', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ name: name, role: role || undefined }),
+          });
+          if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
+          if (!r.ok) throw new Error(r.statusText);
+          showProfilesStatus('Profile created.', 'success');
+        }
+        editingProfileId = null;
+        document.getElementById('profileName').value = '';
+        document.getElementById('profileRole').value = '';
+        document.getElementById('addProfileBtn').textContent = 'Add profile';
+        document.getElementById('cancelProfileEditBtn').style.display = 'none';
+        loadProfilesList();
+      } catch (e) {
+        showProfilesStatus('Error: ' + e.message, 'error');
+      }
+    };
+
+    document.getElementById('cancelProfileEditBtn').onclick = function() {
+      editingProfileId = null;
+      document.getElementById('profileName').value = '';
+      document.getElementById('profileRole').value = '';
+      document.getElementById('addProfileBtn').textContent = 'Add profile';
+      document.getElementById('cancelProfileEditBtn').style.display = 'none';
+      showProfilesStatus('', 'info');
+      document.getElementById('profilesStatus').style.display = 'none';
+    };
+
+    // Execution mode
+    function showModeStatus(msg, type) {
+      const el = document.getElementById('modeStatus');
+      el.textContent = msg;
+      el.className = 'status ' + (type || 'info');
+      el.style.display = 'block';
+    }
+
+    async function loadExecutionMode() {
+      try {
+        const r = await fetch(API_BASE + '/admin/settings/agent-execution-mode', { headers: authHeaders() });
+        if (r.status === 401) {
+          showModeStatus('Invalid or missing JWT. Save a valid token.', 'error');
+          return;
+        }
+        if (!r.ok) throw new Error(r.statusText);
+        const data = await r.json();
+        const sel = document.getElementById('executionModeSelect');
+        sel.value = data.mode === 'queue' ? 'queue' : 'sync';
+        showModeStatus('Current mode: ' + sel.value, 'success');
+      } catch (e) {
+        showModeStatus('Error: ' + e.message, 'error');
+      }
+    }
+
+    document.getElementById('saveModeBtn').onclick = async function() {
+      const mode = document.getElementById('executionModeSelect').value;
+      try {
+        const r = await fetch(API_BASE + '/admin/settings/agent-execution-mode', {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ mode }),
+        });
+        if (r.status === 401) {
+          showModeStatus('Invalid or missing JWT.', 'error');
+          return;
+        }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        showModeStatus('Mode saved: ' + mode, 'success');
+      } catch (e) {
+        showModeStatus('Error: ' + e.message, 'error');
+      }
+    };
+
+    async function editPrompt(id) {
+      try {
+        const r = await fetch(API_BASE + '/admin/prompts/' + encodeURIComponent(id), { headers: authHeaders() });
+        if (!r.ok) throw new Error(r.statusText);
+        const p = await r.json();
+        document.getElementById('promptId').value = p.id;
+        document.getElementById('promptAgentType').value = p.agentType;
+        document.getElementById('promptName').value = p.name || '';
+        document.getElementById('promptContent').value = p.content || '';
+        document.getElementById('promptModel').value = p.model || '';
+        document.getElementById('promptRole').value = p.role || 'default';
+        document.getElementById('promptIsActive').checked = p.isActive !== false;
+        loadModelsForDropdown();
+      } catch (e) {
+        showPromptsStatus('Error loading prompt: ' + e.message, 'error');
+      }
+    }
+
+    window.editPrompt = editPrompt;
+
+    async function deletePrompt(id) {
+      if (!confirm('Delete this prompt?')) return;
+      try {
+        const r = await fetch(API_BASE + '/admin/prompts/' + encodeURIComponent(id), { method: 'DELETE', headers: authHeaders() });
+        if (r.status === 401) { showPromptsStatus('Invalid or missing JWT.', 'error'); return; }
+        if (!r.ok) throw new Error(r.statusText);
+        showPromptsStatus('Deleted.', 'success');
+        document.getElementById('promptForm').reset();
+        document.getElementById('promptId').value = '';
+        loadPrompts();
+      } catch (e) {
+        showPromptsStatus('Error: ' + e.message, 'error');
+      }
+    }
+
+    window.deletePrompt = deletePrompt;
+
+    document.getElementById('cancelEditBtn').onclick = function() {
+      document.getElementById('promptForm').reset();
+      document.getElementById('promptId').value = '';
+    };
+
+    document.getElementById('promptForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('promptId').value.trim();
+      const body = {
+        agentType: document.getElementById('promptAgentType').value,
+        name: document.getElementById('promptName').value.trim(),
+        content: document.getElementById('promptContent').value.trim(),
+        model: document.getElementById('promptModel').value || undefined,
+        role: document.getElementById('promptRole').value.trim() || 'default',
+        isActive: document.getElementById('promptIsActive').checked,
+      };
+      try {
+        const url = id ? API_BASE + '/admin/prompts/' + encodeURIComponent(id) : API_BASE + '/admin/prompts';
+        const method = id ? 'PUT' : 'POST';
+        const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+        if (r.status === 401) { showPromptsStatus('Invalid or missing JWT.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        showPromptsStatus(id ? 'Updated.' : 'Created.', 'success');
+        document.getElementById('promptForm').reset();
+        document.getElementById('promptId').value = '';
+        loadPrompts();
+      } catch (e) {
+        showPromptsStatus('Error: ' + e.message, 'error');
+      }
+    };
+
+    // Agent flow (no auth)
+    document.getElementById('loadFlowBtn').onclick = async function() {
+      const sid = document.getElementById('flowSessionId').value.trim();
+      const statusEl = document.getElementById('flowStatus');
+      const contentEl = document.getElementById('flowContent');
+      if (!sid) {
+        statusEl.textContent = 'Enter a session ID.';
+        statusEl.className = 'status error';
+        statusEl.style.display = 'block';
+        contentEl.innerHTML = '';
+        return;
+      }
+      statusEl.textContent = 'Loading…';
+      statusEl.className = 'status info';
+      statusEl.style.display = 'block';
+      contentEl.innerHTML = '';
+      try {
+        const r = await fetch(API_BASE + '/sessions/' + encodeURIComponent(sid) + '/agent-communications');
+        if (!r.ok) throw new Error(r.statusText);
+        const data = await r.json();
+        const comms = data.communications || [];
+        statusEl.textContent = 'Loaded ' + comms.length + ' communication(s).';
+        statusEl.className = 'status success';
+        contentEl.innerHTML = comms.length === 0
+          ? '<div class="empty-state">No agent communications for this session.</div>'
+          : comms.map(function(c) {
+              return '<div class="agent-message ' + (c.messageType || '') + '">' +
+                '<div class="agent-message-header">' + escapeHtml(c.fromAgent) + ' → ' + escapeHtml(c.toAgent) + ' (' + escapeHtml(c.messageType) + ')</div>' +
+                '<div class="agent-message-content">' + escapeHtml(c.content) + '</div>' +
+                (c.metadata && Object.keys(c.metadata).length ? '<pre style="margin-top:0.5rem;font-size:0.75rem;color:#64748b">' + escapeHtml(JSON.stringify(c.metadata, null, 2)) + '</pre>' : '') +
+                '</div>';
+            }).join('');
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message;
+        statusEl.className = 'status error';
+      }
+    };
+
+        if (getToken()) {
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'none';
+          loadPrompts();
+          loadModelsForDropdown();
+        } else {
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+        }
+  </script>
+</body>
+</html>
