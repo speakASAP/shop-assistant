@@ -21,7 +21,8 @@ keys/*
 *.pfx
 *.p12
 *private*
-*public*
+# Do not ignore the frontend folder 'public/'; use *.pub for SSH public keys
+*.pub
 *.rsa
 *.dsa
 *.ec
