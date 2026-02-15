@@ -73,6 +73,17 @@ echo -e "${GREEN}Found nginx-microservice at: $NGINX_MICROSERVICE_PATH${NC}"
 echo -e "${GREEN}Deploying service: $SERVICE_NAME${NC}"
 echo ""
 
+# .env is required (env_file in compose; database, LOGGING_SERVICE_URL, etc.)
+if [ ! -f "$PROJECT_ROOT/.env" ]; then
+    echo -e "${RED}Error: .env not found in $PROJECT_ROOT${NC}"
+    echo "Copy .env.example to .env and set values (see docs/DEPLOYMENT.md)."
+    exit 1
+fi
+set -a
+# shellcheck source=/dev/null
+source "$PROJECT_ROOT/.env"
+set +a
+
 echo -e "${BLUE}Validating docker-compose files...${NC}"
 if [ ! -f "$PROJECT_ROOT/docker-compose.blue.yml" ]; then
     echo -e "${RED}Error: docker-compose.blue.yml not found in $PROJECT_ROOT${NC}"
