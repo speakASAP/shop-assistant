@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Assistant — Test Interface</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .header p {
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+    .session-info {
+      background: #e0f2fe;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+    }
+    .session-info strong {
+      color: #0369a1;
+    }
+    .form-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .form-section h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .account-hint { font-size: 0.875rem; color: #64748b; margin-bottom: 0.75rem; }
+    .profile-row { margin-top: 0.5rem; }
+    .profile-row select { min-width: 200px; padding: 0.5rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; }
+    .add-profile-inline { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .add-profile-inline input { padding: 0.4rem 0.5rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; width: 140px; }
+    .saved-criteria-list { margin-bottom: 0.5rem; }
+    .saved-criteria-list .sc-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; }
+    .saved-criteria-list .sc-item .sc-name { flex: 1; font-weight: 500; }
+    .saved-criteria-form-block { margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; }
+    .saved-criteria-form-block h3 { font-size: 1rem; margin-bottom: 0.75rem; }
+    .saved-criteria-form-block input[type="text"],
+    .saved-criteria-form-block textarea,
+    .saved-criteria-form-block select { width: 100%; padding: 0.5rem; border: 2px solid #e2e8f0; border-radius: 0.375rem; margin-bottom: 0.5rem; }
+    label.inline { display: inline; margin-left: 0.5rem; font-weight: normal; }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #334155;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.375rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #14b8a6;
+    }
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    button {
+      background: #14b8a6;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 0.875rem;
+    }
+    button:hover:not(:disabled) {
+      background: #0d9488;
+    }
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    button.secondary {
+      background: #64748b;
+    }
+    button.secondary:hover:not(:disabled) {
+      background: #475569;
+    }
+    .results-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .results-section h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .query-info {
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+    .query-info strong {
+      color: #0f172a;
+    }
+    .results-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      transition: box-shadow 0.2s;
+    }
+    .result-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .result-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #0f172a;
+    }
+    .result-title a {
+      color: #14b8a6;
+      text-decoration: none;
+    }
+    .result-title a:hover {
+      text-decoration: underline;
+    }
+    .result-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+    .result-price {
+      font-weight: 600;
+      color: #059669;
+    }
+    .result-snippet {
+      color: #475569;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+    .status {
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+    .status.info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #64748b;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #94a3b8;
+    }
+    .debug-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #14b8a6;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+    .debug-link:hover {
+      text-decoration: underline;
+    }
+    .progress-steps {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .progress-step {
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      background: #e2e8f0;
+      color: #64748b;
+    }
+    .progress-step.done {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .progress-step.active {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .results-intermediary {
+      margin-bottom: 1.5rem;
+    }
+    .results-intermediary p {
+      color: #64748b;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .results-intermediary .result-item {
+      margin-bottom: 0.75rem;
+    }
+    .intermediary-hint {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .results-groups {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .results-groups h3 {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+      color: #0f172a;
+    }
+    .group-section {
+      margin-bottom: 1.5rem;
+    }
+    .results-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .results-actions-bar input[type="text"] {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    .show-final-btn {
+      margin-top: 1rem;
+      background: #059669;
+    }
+    .show-final-btn:hover:not(:disabled) {
+      background: #047857;
+    }
+    .results-final {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .results-final h3 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #0f172a;
+    }
+    .result-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      transition: box-shadow 0.2s;
+    }
+    .result-card:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .result-card-image {
+      width: 80px;
+      min-width: 80px;
+      height: 80px;
+      background: #f1f5f9;
+      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 2rem;
+    }
+    .result-card-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .result-card-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .result-card-title a {
+      color: #14b8a6;
+      text-decoration: none;
+    }
+    .result-card-title a:hover {
+      text-decoration: underline;
+    }
+    .result-card-price {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #059669;
+      margin-bottom: 0.5rem;
+    }
+    .result-card-snippet {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+    .result-card-buy {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #14b8a6;
+      color: white;
+      text-decoration: none;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    .result-card-buy:hover {
+      background: #0d9488;
+    }
+    .main-and-chat {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .main-and-chat { grid-template-columns: 1fr; }
+    }
+    .communication-panel {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1rem;
+      position: sticky;
+      top: 1rem;
+    }
+    .communication-panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: #0f172a;
+    }
+    .chat-messages {
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: #f8fafc;
+    }
+    .chat-msg {
+      margin-bottom: 0.75rem;
+      font-size: 0.875rem;
+    }
+    .chat-msg.user { text-align: right; color: #0f172a; }
+    .chat-msg.assistant { color: #334155; }
+    .chat-msg .role {
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+    .chat-msg .content { word-break: break-word; }
+    .chat-msg table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+    }
+    .chat-msg th, .chat-msg td {
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.5rem;
+      text-align: left;
+    }
+    .chat-msg img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.375rem;
+      margin: 0.25rem 0;
+    }
+    .chat-msg video {
+      max-width: 100%;
+      border-radius: 0.375rem;
+      margin: 0.25rem 0;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .chat-input-row input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+    }
+    .chat-input-row button {
+      padding: 0.5rem 1rem;
+    }
+    .chat-placeholder {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 Shop Assistant — Test Interface</h1>
+      <p>Test agent communication with a prefilled request. View results and debug agent interactions.</p>
+    </div>
+
+    <div id="sessionInfo" class="session-info" style="display: none;">
+      <strong>Session ID:</strong> <span id="sessionIdDisplay"></span> |
+      <a href="#" id="adminFlowLink" class="debug-link" target="_blank">View in Admin (agent flow) →</a>
+    </div>
+
+    <div id="accountSection" class="form-section account-section" style="display: none;">
+      <h2>Account</h2>
+      <p class="account-hint">Sign in (paste JWT in <a href="admin.html">Admin</a> and save token) to use profiles and saved searches.</p>
+      <div id="profileRow" class="profile-row" style="display: none;">
+        <label for="profileSelect">Who is this for?</label>
+        <select id="profileSelect">
+          <option value="">Default</option>
+        </select>
+        <div class="add-profile-inline" style="margin-top: 0.5rem;">
+          <input type="text" id="newProfileName" placeholder="New profile name" />
+          <input type="text" id="newProfileRole" placeholder="Role (e.g. mom)" />
+          <button type="button" class="secondary" id="addProfileBtn">Add profile</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="savedCriteriaSection" class="form-section saved-criteria-section" style="display: none;">
+      <h2>Saved searches</h2>
+      <div id="savedCriteriaList" class="saved-criteria-list"></div>
+      <div class="button-group" style="margin-top: 0.5rem;">
+        <button type="button" class="secondary" id="addSavedCriteriaBtn">+ Add saved search</button>
+      </div>
+      <div id="savedCriteriaFormBlock" class="saved-criteria-form-block" style="display: none;">
+        <h3 id="savedCriteriaFormTitle">New saved search</h3>
+        <form id="savedCriteriaForm">
+          <input type="hidden" id="scId" />
+          <div>
+            <label for="scName">Name *</label>
+            <input type="text" id="scName" required placeholder="e.g. Kids school clothes" />
+          </div>
+          <div>
+            <label>Priorities (order matters)</label>
+            <label class="inline"><input type="checkbox" id="scPriPrice" value="price" /> Price</label>
+            <label class="inline"><input type="checkbox" id="scPriQuality" value="quality" /> Quality</label>
+            <label class="inline"><input type="checkbox" id="scPriLocation" value="location" /> Location</label>
+          </div>
+          <div>
+            <label for="scProductIntents">Product intents (one per line)</label>
+            <textarea id="scProductIntents" rows="3" placeholder="red skirt size 52&#10;winter boots size 42"></textarea>
+          </div>
+          <div>
+            <label for="scProfileId">For profile</label>
+            <select id="scProfileId">
+              <option value="">— None —</option>
+            </select>
+          </div>
+          <div class="button-group">
+            <button type="submit" class="btn-primary">Save</button>
+            <button type="button" class="secondary" id="cancelSavedCriteriaBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="status" class="status" style="display: none;"></div>
+
+    <div id="progressBlock" class="form-section" style="display: none;">
+      <h2>Progress</h2>
+      <div id="progressSteps" class="progress-steps">
+        <span id="step1" class="progress-step">Analyzing request…</span>
+        <span id="step2" class="progress-step">Searching…</span>
+        <span id="step3" class="progress-step">Preparing results…</span>
+      </div>
+    </div>
+
+    <div class="main-and-chat">
+      <div class="main-content">
+    <div class="form-section">
+      <h2>Test Query</h2>
+      <div id="profileRowQuery" class="profile-row" style="display: none; margin-bottom: 0.75rem;">
+        <label for="profileSelectQuery">Profile (optional)</label>
+        <select id="profileSelectQuery">
+          <option value="">Default</option>
+        </select>
+      </div>
+      <label for="queryText">Enter your search request:</label>
+      <textarea id="queryText" placeholder="Enter your search query...">Найди мне новую высококачественную красную юбку из шерсти высокогорных лам размера 54 в стиле клеш с доставкой в Самару самую дешевую по цене с доставкой до 15000руб с возможностью возврата.</textarea>
+      <div class="button-group">
+        <button id="createSessionBtn" onclick="createSession()">Create Session</button>
+        <button id="submitQueryBtn" onclick="submitQuery()" disabled>Submit Query</button>
+        <button class="secondary" onclick="clearResults()">Clear Results</button>
+      </div>
+    </div>
+
+    <div id="resultsSection" class="results-section" style="display: none;">
+      <h2>Search Results</h2>
+      <div id="queryInfo" class="query-info"></div>
+      <div id="groupsBlock" class="results-groups" style="display: none;">
+        <h3>Grouped by product</h3>
+        <div id="groupsContainer"></div>
+      </div>
+      <div id="intermediaryBlock" class="results-intermediary" style="display: none;">
+        <p class="intermediary-hint">Here are options we found. Refine (e.g. color, size) or see full list with prices.</p>
+        <div id="intermediaryList"></div>
+        <div class="results-actions-bar">
+          <input type="text" id="refineMessage" placeholder="Refine search (e.g. only red, size 52)…">
+          <button type="button" class="secondary" id="refineBtn">Refine</button>
+          <button type="button" id="seeFullListBtn" class="show-final-btn">See full list with prices</button>
+        </div>
+      </div>
+      <div id="finalBlock" class="results-final" style="display: none;">
+        <h3>Final selection — price and delivery</h3>
+        <div id="resultsContainer"></div>
+      </div>
+    </div>
+
+    <div id="communicationPanel" class="communication-panel">
+      <h2>Chat with assistant</h2>
+      <div id="chatMessages" class="chat-messages">
+        <div id="chatPlaceholder" class="chat-placeholder">Create a session and submit a query to see the dialog here.</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Refine or ask…" disabled>
+        <button type="button" id="chatSendBtn" disabled>Send</button>
+      </div>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin + '/api';
+    const TOKEN_KEY = 'shop_assistant_admin_token';
+    let currentSessionId = null;
+    let lastResults = [];
+    let lastQueryText = '';
+    let lastSessionId = null;
+
+    function getToken() {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('token')) return p.get('token').trim();
+      return (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+    }
+
+    function authHeaders() {
+      const t = getToken();
+      const h = { 'Content-Type': 'application/json' };
+      if (t) h['Authorization'] = 'Bearer ' + t;
+      return h;
+    }
+
+    function getProfileId() {
+      const sel = document.getElementById('profileSelectQuery') || document.getElementById('profileSelect');
+      if (!sel) return undefined;
+      const v = (sel.value || '').trim();
+      return v || undefined;
+    }
+
+    function showAccountSection(hasToken) {
+      const section = document.getElementById('accountSection');
+      const profileRow = document.getElementById('profileRow');
+      const savedSection = document.getElementById('savedCriteriaSection');
+      if (!section) return;
+      section.style.display = 'block';
+      profileRow.style.display = hasToken ? 'block' : 'none';
+      savedSection.style.display = hasToken ? 'block' : 'none';
+      if (hasToken) {
+        loadProfiles();
+        loadSavedCriteria();
+        var addProfileBtn = document.getElementById('addProfileBtn');
+        if (addProfileBtn) {
+          addProfileBtn.onclick = function() {
+            var name = (document.getElementById('newProfileName').value || '').trim();
+            if (!name) { showError('Profile name is required'); return; }
+            var role = (document.getElementById('newProfileRole').value || '').trim() || undefined;
+            var token = getToken();
+            if (!token) return;
+            fetch(API_BASE + '/profiles', {
+              method: 'POST',
+              headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: name, role: role })
+            }).then(function(r) {
+              if (!r.ok) return r.text().then(function(t) { throw new Error(t || 'Create failed'); });
+              return r.json();
+            }).then(function() {
+              document.getElementById('newProfileName').value = '';
+              document.getElementById('newProfileRole').value = '';
+              loadProfiles();
+              showSuccess('Profile added');
+            }).catch(function(e) {
+              showError(e.message || 'Create failed');
+            });
+          };
+        }
+      }
+    }
+
+    async function loadProfiles() {
+      const sel = document.getElementById('profileSelect');
+      const selQuery = document.getElementById('profileSelectQuery');
+      const scProfileId = document.getElementById('scProfileId');
+      const profileRowQuery = document.getElementById('profileRowQuery');
+      const token = getToken();
+      if (!token) {
+        if (profileRowQuery) profileRowQuery.style.display = 'none';
+        return;
+      }
+      if (profileRowQuery) profileRowQuery.style.display = 'block';
+      try {
+        const r = await fetch(API_BASE + '/profiles', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!r.ok) return;
+        const data = await r.json();
+        const items = (data.items || data || []);
+        const options = ['<option value="">Default</option>'].concat(items.map(function(p) {
+          return '<option value="' + (p.id || '') + '">' + (p.name || p.id || '') + (p.role ? ' (' + p.role + ')' : '') + '</option>';
+        }));
+        const optionsStr = options.join('');
+        if (sel) sel.innerHTML = optionsStr;
+        if (selQuery) selQuery.innerHTML = optionsStr;
+        if (scProfileId) {
+          scProfileId.innerHTML = '<option value="">— None —</option>' + items.map(function(p) {
+            return '<option value="' + (p.id || '') + '">' + (p.name || p.id || '') + '</option>';
+          }).join('');
+        }
+      } catch (e) {
+        console.warn('Load profiles failed', e);
+      }
+    }
+
+    async function loadSavedCriteria() {
+      const container = document.getElementById('savedCriteriaList');
+      if (!container) return;
+      const token = getToken();
+      if (!token) return;
+      try {
+        const r = await fetch(API_BASE + '/saved-criteria', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!r.ok) { container.innerHTML = '<p class="account-hint">Could not load saved searches.</p>'; return; }
+        const data = await r.json();
+        const items = (data.items || data || []);
+        if (items.length === 0) {
+          container.innerHTML = '<p class="account-hint">No saved searches yet. Add one below.</p>';
+          return;
+        }
+        container.innerHTML = items.map(function(c) {
+          const name = (c.name || 'Unnamed').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          return '<div class="sc-item" data-id="' + (c.id || '') + '">' +
+            '<span class="sc-name">' + name + '</span>' +
+            '<button type="button" class="secondary run-sc-btn" data-id="' + (c.id || '') + '">Run</button>' +
+            '<button type="button" class="secondary edit-sc-btn" data-id="' + (c.id || '') + '">Edit</button>' +
+            '<button type="button" class="secondary delete-sc-btn" data-id="' + (c.id || '') + '">Delete</button>' +
+            '</div>';
+        }).join('');
+        container.querySelectorAll('.run-sc-btn').forEach(function(btn) {
+          btn.onclick = function() { runSavedCriteria(btn.getAttribute('data-id')); };
+        });
+        container.querySelectorAll('.edit-sc-btn').forEach(function(btn) {
+          btn.onclick = function() { editSavedCriteria(btn.getAttribute('data-id')); };
+        });
+        container.querySelectorAll('.delete-sc-btn').forEach(function(btn) {
+          btn.onclick = function() { deleteSavedCriteria(btn.getAttribute('data-id')); };
+        });
+      } catch (e) {
+        container.innerHTML = '<p class="account-hint">Could not load saved searches.</p>';
+      }
+    }
+
+    async function runSavedCriteria(id) {
+      const token = getToken();
+      if (!token) { showError('Sign in to run saved search'); return; }
+      try {
+        const r = await fetch(API_BASE + '/saved-criteria/' + encodeURIComponent(id) + '/run', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+        });
+        if (!r.ok) throw new Error(await r.text() || 'Run failed');
+        const data = await r.json();
+        const sessionId = data.sessionId;
+        if (sessionId) {
+          window.location.href = 'test.html?sessionId=' + encodeURIComponent(sessionId) + (getToken() ? '&token=' + encodeURIComponent(getToken()) : '');
+        } else {
+          showError('No session returned');
+        }
+      } catch (e) {
+        showError(e.message || 'Run failed');
+      }
+    }
+
+    function showSavedCriteriaForm(editId) {
+      const block = document.getElementById('savedCriteriaFormBlock');
+      const title = document.getElementById('savedCriteriaFormTitle');
+      const form = document.getElementById('savedCriteriaForm');
+      if (!block || !form) return;
+      block.style.display = 'block';
+      if (editId) {
+        title.textContent = 'Edit saved search';
+        document.getElementById('scId').value = editId;
+        loadOneSavedCriteria(editId);
+      } else {
+        title.textContent = 'New saved search';
+        document.getElementById('scId').value = '';
+        form.reset();
+        var pSel = document.getElementById('profileSelect');
+        if (pSel) {
+          document.getElementById('scProfileId').innerHTML = '<option value="">— None —</option>' +
+            [].slice.call(pSel.options).filter(function(o) { return o.value; }).map(function(o) {
+              return '<option value="' + o.value + '">' + o.textContent + '</option>';
+            }).join('');
+        }
+      }
+    }
+
+    async function loadOneSavedCriteria(id) {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const r = await fetch(API_BASE + '/saved-criteria/' + encodeURIComponent(id), { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!r.ok) return;
+        const c = await r.json();
+        document.getElementById('scName').value = c.name || '';
+        document.getElementById('scProductIntents').value = Array.isArray(c.productIntents) ? c.productIntents.join('\n') : '';
+        document.getElementById('scProfileId').value = c.profileId || '';
+        ['price', 'quality', 'location'].forEach(function(key) {
+          const cb = document.getElementById('scPri' + key.charAt(0).toUpperCase() + key.slice(1));
+          if (cb) cb.checked = Array.isArray(c.priorities) && c.priorities.indexOf(key) >= 0;
+        });
+      } catch (e) {
+        console.warn('Load criteria failed', e);
+      }
+    }
+
+    async function editSavedCriteria(id) {
+      showSavedCriteriaForm(id);
+    }
+
+    async function deleteSavedCriteria(id) {
+      if (!confirm('Delete this saved search?')) return;
+      const token = getToken();
+      if (!token) return;
+      try {
+        const r = await fetch(API_BASE + '/saved-criteria/' + encodeURIComponent(id), { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+        if (!r.ok) throw new Error(await r.text() || 'Delete failed');
+        loadSavedCriteria();
+        document.getElementById('savedCriteriaFormBlock').style.display = 'none';
+        showSuccess('Saved search deleted');
+      } catch (e) {
+        showError(e.message || 'Delete failed');
+      }
+    }
+
+    function submitSavedCriteriaForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('scId').value.trim();
+      const name = document.getElementById('scName').value.trim();
+      if (!name) { showError('Name is required'); return; }
+      const priorities = [];
+      ['price', 'quality', 'location'].forEach(function(key) {
+        const cb = document.getElementById('scPri' + key.charAt(0).toUpperCase() + key.slice(1));
+        if (cb && cb.checked) priorities.push(key);
+      });
+      const productIntentsText = document.getElementById('scProductIntents').value || '';
+      const productIntents = productIntentsText.split(/\n/).map(function(s) { return s.trim(); }).filter(Boolean);
+      const profileId = (document.getElementById('scProfileId').value || '').trim() || undefined;
+      const token = getToken();
+      if (!token) { showError('Sign in to save'); return; }
+      const body = { name: name, priorities: priorities, productIntents: productIntents, profileId: profileId };
+      const url = id ? API_BASE + '/saved-criteria/' + encodeURIComponent(id) : API_BASE + '/saved-criteria';
+      const method = id ? 'PUT' : 'POST';
+      fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function(r) {
+          if (!r.ok) return r.text().then(function(t) { throw new Error(t || 'Save failed'); });
+          return r.json();
+        })
+        .then(function() {
+          document.getElementById('savedCriteriaFormBlock').style.display = 'none';
+          loadSavedCriteria();
+          showSuccess('Saved');
+        })
+        .catch(function(err) {
+          showError(err.message || 'Save failed');
+        });
+    }
+
+    function showStatus(message, type = 'info') {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+      statusEl.style.display = 'block';
+      setTimeout(() => {
+        statusEl.style.display = 'none';
+      }, 5000);
+    }
+
+    function showError(message) {
+      showStatus(message, 'error');
+    }
+
+    function showSuccess(message) {
+      showStatus(message, 'success');
+    }
+
+    async function createSession() {
+      const btn = document.getElementById('createSessionBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creating...';
+
+      try {
+        const profileId = getProfileId();
+        const body = profileId ? { profileId: profileId } : {};
+        const response = await fetch(`${API_BASE}/sessions`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        currentSessionId = data.sessionId;
+
+        document.getElementById('sessionIdDisplay').textContent = currentSessionId;
+        document.getElementById('sessionInfo').style.display = 'block';
+        document.getElementById('adminFlowLink').href = `admin.html?sessionId=${currentSessionId}#flow`;
+        document.getElementById('submitQueryBtn').disabled = false;
+
+        showSuccess('Session created successfully!');
+      } catch (error) {
+        console.error('Error creating session:', error);
+        showError('Failed to create session: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Session';
+      }
+    }
+
+    async function submitQuery() {
+      if (!currentSessionId) {
+        showError('Please create a session first');
+        return;
+      }
+
+      const queryText = document.getElementById('queryText').value.trim();
+      if (!queryText) {
+        showError('Please enter a query');
+        return;
+      }
+
+      const btn = document.getElementById('submitQueryBtn');
+      btn.disabled = true;
+      btn.textContent = 'Searching...';
+      setProgressSteps(false, false, false);
+
+      try {
+        const profileId = getProfileId();
+        const body = { text: queryText };
+        if (profileId) body.profileId = profileId;
+        const response = await fetch(`${API_BASE}/sessions/${currentSessionId}/query`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(body),
+        });
+
+        setProgressSteps(true, true, true);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.results && data.results.length > 0) {
+          displayResults(data.results, data.queryText, currentSessionId, data.groups || null);
+          showSuccess(`Found ${data.results.length} results!`);
+        } else {
+          showError('No results found');
+          document.getElementById('resultsSection').style.display = 'block';
+          document.getElementById('resultsContainer').innerHTML = '<div class="empty-state">No results found</div>';
+        }
+      } catch (error) {
+        console.error('Error submitting query:', error);
+        showError('Failed to submit query: ' + error.message);
+        setProgressSteps(true, true, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Query';
+      }
+    }
+
+    function displayResults(results, queryText, sessionId, groups) {
+      const section = document.getElementById('resultsSection');
+      const container = document.getElementById('resultsContainer');
+      const queryInfo = document.getElementById('queryInfo');
+      const groupsBlock = document.getElementById('groupsBlock');
+      const groupsContainer = document.getElementById('groupsContainer');
+      const intermediaryBlock = document.getElementById('intermediaryBlock');
+      const intermediaryList = document.getElementById('intermediaryList');
+      const finalBlock = document.getElementById('finalBlock');
+
+      queryInfo.innerHTML = `<strong>Refined Query:</strong> ${escapeHtml(queryText)}`;
+
+      // Grouped view per product intent (multi-product search, 10.2)
+      if (groups && Array.isArray(groups) && groups.length > 0 && groupsContainer && groupsBlock) {
+        groupsContainer.innerHTML = groups.map(function(group) {
+          const gResults = Array.isArray(group.results) ? group.results : [];
+          if (!gResults.length) return '';
+          const cards = gResults.map(function(result) {
+            const buyUrl = sessionId && result.id
+              ? `${window.location.origin}/api/sessions/${encodeURIComponent(sessionId)}/choice/${encodeURIComponent(result.id)}/redirect`
+              : result.url;
+            const priceLabel = result.price ? escapeHtml(result.price) : 'Price on site';
+            return '' +
+              '<div class="result-card">' +
+                '<div class="result-card-image" aria-hidden="true">🛒</div>' +
+                '<div class="result-card-body">' +
+                  '<div class="result-card-title">' +
+                    '<a href="' + escapeHtml(buyUrl) + '" target="_blank" rel="noopener">' + escapeHtml(result.title || 'Untitled') + '</a>' +
+                  '</div>' +
+                  '<div class="result-card-price">' + priceLabel + '</div>' +
+                  (result.snippet ? '<div class="result-card-snippet">' + escapeHtml(result.snippet) + '</div>' : '') +
+                  '<a href="' + escapeHtml(buyUrl) + '" class="result-card-buy" target="_blank" rel="noopener">Go to product</a>' +
+                '</div>' +
+              '</div>';
+          }).join('');
+          return '' +
+            '<div class="group-section">' +
+              '<h3>For: ' + escapeHtml(group.queryText || '') + '</h3>' +
+              cards +
+            '</div>';
+        }).join('');
+        groupsBlock.style.display = groupsContainer.innerHTML ? 'block' : 'none';
+      } else if (groupsBlock && groupsContainer) {
+        groupsContainer.innerHTML = '';
+        groupsBlock.style.display = 'none';
+      }
+
+      // Intermediary view: options to discuss (title, source, snippet — no price)
+      intermediaryList.innerHTML = results.map((result, index) => `
+        <div class="result-item">
+          <div class="result-title">${escapeHtml(result.title || 'Untitled')}</div>
+          <div class="result-meta">
+            ${result.source ? `<span>Source: ${escapeHtml(result.source)}</span>` : ''}
+            <span>Position: ${result.position || index + 1}</span>
+          </div>
+          ${result.snippet ? `<div class="result-snippet">${escapeHtml(result.snippet)}</div>` : ''}
+        </div>
+      `).join('');
+      intermediaryBlock.style.display = 'block';
+      finalBlock.style.display = 'none';
+
+      // Final view: cards with price and "Go to product" (redirect API records choice)
+      const basePath = window.location.origin + '/api/sessions';
+      container.innerHTML = results.map((result, index) => {
+        const buyUrl = sessionId && result.id
+          ? `${basePath}/${encodeURIComponent(sessionId)}/choice/${encodeURIComponent(result.id)}/redirect`
+          : result.url;
+        const priceLabel = result.price ? escapeHtml(result.price) : 'Price on site';
+        return `
+        <div class="result-card">
+          <div class="result-card-image" aria-hidden="true">🛒</div>
+          <div class="result-card-body">
+            <div class="result-card-title">
+              <a href="${escapeHtml(buyUrl)}" target="_blank" rel="noopener">${escapeHtml(result.title || 'Untitled')}</a>
+            </div>
+            <div class="result-card-price">${priceLabel}</div>
+            ${result.snippet ? `<div class="result-card-snippet">${escapeHtml(result.snippet)}</div>` : ''}
+            <a href="${escapeHtml(buyUrl)}" class="result-card-buy" target="_blank" rel="noopener">Go to product</a>
+          </div>
+        </div>
+      `;
+      }).join('');
+
+      document.getElementById('seeFullListBtn').onclick = function() {
+        intermediaryBlock.style.display = 'none';
+        finalBlock.style.display = 'block';
+      };
+
+      document.getElementById('refineBtn').onclick = function() { doRefine(); };
+      document.getElementById('refineMessage').onkeydown = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); doRefine(); }
+      };
+
+      if (sessionId) loadChatMessages(sessionId);
+      section.style.display = 'block';
+    }
+
+    async function doRefine() {
+      if (!currentSessionId) return;
+      const message = (document.getElementById('refineMessage').value || '').trim();
+      if (!message) {
+        showError('Enter a message to refine (e.g. only red, size 52)');
+        return;
+      }
+      const btn = document.getElementById('refineBtn');
+      btn.disabled = true;
+      btn.textContent = 'Refining…';
+      try {
+        const profileId = getProfileId();
+        const body = { message: message };
+        if (profileId) body.profileId = profileId;
+        const r = await fetch(`${API_BASE}/sessions/${currentSessionId}/feedback`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error(await r.text() || 'Refine failed');
+        const data = await r.json();
+        if (data.results && data.results.length > 0) {
+          displayResults(data.results, data.queryText, currentSessionId, data.groups || null);
+          document.getElementById('refineMessage').value = '';
+          showSuccess('Refined: ' + data.results.length + ' results');
+          loadChatMessages(currentSessionId);
+        } else {
+          showError('No results after refine');
+        }
+      } catch (e) {
+        showError(e.message || 'Refine failed');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Refine';
+      }
+    }
+
+    function renderChatMessage(msg) {
+      const role = msg.role === 'user' ? 'user' : 'assistant';
+      let content = escapeHtml(msg.content || '');
+      if (msg.contentType === 'table' && msg.content) {
+        try {
+          const data = JSON.parse(msg.content);
+          if (Array.isArray(data.rows) && data.rows.length > 0) {
+            const headers = data.headers || Object.keys(data.rows[0]);
+            let table = '<table><thead><tr>' + headers.map(h => '<th>' + escapeHtml(String(h)) + '</th>').join('') + '</tr></thead><tbody>';
+            data.rows.forEach(row => {
+              table += '<tr>' + headers.map(h => '<td>' + escapeHtml(String(row[h] != null ? row[h] : '')) + '</td>').join('') + '</tr>';
+            });
+            table += '</tbody></table>';
+            content = table;
+          }
+        } catch (e) { /* fallback to text */ }
+      }
+      const imgRegex = /https?:\/\/[^\s]+\.(jpe?g|png|gif|webp)/gi;
+      content = content.replace(imgRegex, url => '<img src="' + escapeHtml(url) + '" alt="" loading="lazy">');
+      const videoRegex = /https?:\/\/[^\s]+\.(mp4|webm|ogg)(?:\?[^\s]*)?/gi;
+      content = content.replace(videoRegex, url => '<video src="' + escapeHtml(url) + '" controls preload="metadata"></video>');
+      return '<div class="chat-msg ' + role + '"><div class="role">' + escapeHtml(role) + '</div><div class="content">' + content + '</div></div>';
+    }
+
+    async function loadChatMessages(sessionId) {
+      if (!sessionId) return;
+      const container = document.getElementById('chatMessages');
+      const placeholder = document.getElementById('chatPlaceholder');
+      const chatInput = document.getElementById('chatInput');
+      const chatSendBtn = document.getElementById('chatSendBtn');
+      chatInput.disabled = false;
+      chatSendBtn.disabled = false;
+      try {
+        const r = await fetch(`${API_BASE}/sessions/${sessionId}/messages`);
+        if (!r.ok) return;
+        const data = await r.json();
+        placeholder.style.display = 'none';
+        if (data.messages && data.messages.length > 0) {
+          container.innerHTML = data.messages.map(renderChatMessage).join('');
+          container.scrollTop = container.scrollHeight;
+        } else {
+          container.innerHTML = '<div class="chat-placeholder">No messages yet. Send a refinement below.</div>';
+        }
+      } catch (e) {
+        container.innerHTML = '<div class="chat-placeholder">Could not load messages.</div>';
+      }
+    }
+
+    async function sendChatMessage() {
+      if (!currentSessionId) return;
+      const input = document.getElementById('chatInput');
+      const text = (input.value || '').trim();
+      if (!text) return;
+      input.value = '';
+      const btn = document.getElementById('chatSendBtn');
+      btn.disabled = true;
+      try {
+        const profileId = getProfileId();
+        const body = { message: text };
+        if (profileId) body.profileId = profileId;
+        const r = await fetch(`${API_BASE}/sessions/${currentSessionId}/feedback`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error(await r.text() || 'Failed');
+        const data = await r.json();
+        loadChatMessages(currentSessionId);
+        if (data.results && data.results.length > 0) {
+          displayResults(data.results, data.queryText, currentSessionId, data.groups || null);
+          showSuccess('Refined: ' + data.results.length + ' results');
+        }
+      } catch (e) {
+        showError(e.message || 'Send failed');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function clearResults() {
+      document.getElementById('resultsSection').style.display = 'none';
+      document.getElementById('resultsContainer').innerHTML = '';
+      document.getElementById('queryInfo').innerHTML = '';
+      const il = document.getElementById('intermediaryList');
+      if (il) il.innerHTML = '';
+      const ib = document.getElementById('intermediaryBlock');
+      if (ib) ib.style.display = 'none';
+      const fb = document.getElementById('finalBlock');
+      if (fb) fb.style.display = 'none';
+      const gb = document.getElementById('groupsBlock');
+      if (gb) gb.style.display = 'none';
+      const gc = document.getElementById('groupsContainer');
+      if (gc) gc.innerHTML = '';
+      const ref = document.getElementById('refineMessage');
+      if (ref) ref.value = '';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function setProgressSteps(step1Done, step2Done, step3Done) {
+      const block = document.getElementById('progressBlock');
+      if (!block) return;
+      block.style.display = 'block';
+      const s1 = document.getElementById('step1');
+      const s2 = document.getElementById('step2');
+      const s3 = document.getElementById('step3');
+      if (s1) { s1.textContent = step1Done ? 'Analyzing request ✓' : 'Analyzing request…'; s1.className = 'progress-step' + (step1Done ? ' done' : ''); }
+      if (s2) { s2.textContent = step2Done ? 'Searching ✓' : 'Searching…'; s2.className = 'progress-step' + (step2Done ? ' done' : ''); }
+      if (s3) { s3.textContent = step3Done ? 'Preparing results ✓' : 'Preparing results…'; s3.className = 'progress-step' + (step3Done ? ' done' : ' active'); }
+    }
+
+    async function loadResultsForSession(sessionId) {
+      setProgressSteps(true, true, false);
+      try {
+        // Fetch up to 10 runs so we can detect multi-product batch (several runs with same createdAt)
+        const r = await fetch(`${API_BASE}/sessions/${sessionId}/results?page=1&limit=10`);
+        if (!r.ok) return;
+        const data = await r.json();
+        setProgressSteps(true, true, true);
+        if (!data.items || data.items.length === 0) {
+          document.getElementById('resultsSection').style.display = 'block';
+          document.getElementById('queryInfo').innerHTML = '<strong>Query:</strong> (no results yet)';
+          document.getElementById('resultsContainer').innerHTML = '<div class="empty-state">No results in this session yet.</div>';
+          loadChatMessages(sessionId);
+          return;
+        }
+        // Same batch = runs from same second (multi-product creates multiple runs at once)
+        const firstTime = (data.items[0].createdAt || '').toString().slice(0, 19);
+        const batch = data.items.filter(function(item) {
+          return (item.createdAt || '').toString().slice(0, 19) === firstTime;
+        });
+        const flatResults = batch.flatMap(function(item) {
+          return item.results || [];
+        });
+        if (flatResults.length === 0) {
+          document.getElementById('resultsSection').style.display = 'block';
+          document.getElementById('queryInfo').innerHTML = '<strong>Query:</strong> (no results yet)';
+          document.getElementById('resultsContainer').innerHTML = '<div class="empty-state">No results in this session yet.</div>';
+          loadChatMessages(sessionId);
+          return;
+        }
+        var combinedQuery = batch.map(function(i) { return i.queryText || ''; }).join('; ');
+        var groups = null;
+        if (batch.length > 1) {
+          groups = batch.map(function(i) {
+            return { queryText: i.queryText || '', results: i.results || [] };
+          });
+        }
+        displayResults(flatResults, combinedQuery, sessionId, groups);
+      } catch (e) {
+        console.warn('Could not load results for session', e);
+        setProgressSteps(true, true, true);
+      }
+    }
+
+    document.getElementById('chatSendBtn').onclick = sendChatMessage;
+    document.getElementById('chatInput').onkeydown = function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); }
+    };
+
+    (function initAccountAndSavedCriteria() {
+      const token = getToken();
+      if (token && window.location.search.indexOf('token=') >= 0) {
+        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
+      }
+      showAccountSection(!!token);
+      const addBtn = document.getElementById('addSavedCriteriaBtn');
+      const cancelBtn = document.getElementById('cancelSavedCriteriaBtn');
+      const form = document.getElementById('savedCriteriaForm');
+      if (addBtn) addBtn.onclick = function() { showSavedCriteriaForm(null); };
+      if (cancelBtn) cancelBtn.onclick = function() { document.getElementById('savedCriteriaFormBlock').style.display = 'none'; };
+      if (form) form.onsubmit = submitSavedCriteriaForm;
+    })();
+
+    // Check if sessionId is in URL params (e.g. redirect from landing "I want it")
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionIdParam = urlParams.get('sessionId');
+    if (sessionIdParam) {
+      currentSessionId = sessionIdParam;
+      document.getElementById('sessionIdDisplay').textContent = currentSessionId;
+      document.getElementById('sessionInfo').style.display = 'block';
+      document.getElementById('adminFlowLink').href = `admin.html?sessionId=${currentSessionId}#flow`;
+      document.getElementById('submitQueryBtn').disabled = false;
+      loadResultsForSession(currentSessionId);
+    }
+  </script>
+</body>
+</html>
