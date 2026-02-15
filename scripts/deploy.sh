@@ -26,7 +26,7 @@ if [ -d ".git" ]; then
 fi
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║        Shop Assistant - Production Deployment               ║${NC}"
+echo -e "${BLUE}║           Shop Assistant - Production Deployment           ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -73,7 +73,7 @@ echo -e "${GREEN}Found nginx-microservice at: $NGINX_MICROSERVICE_PATH${NC}"
 echo -e "${GREEN}Deploying service: $SERVICE_NAME${NC}"
 echo ""
 
-# .env is required (env_file in compose; database, LOGGING_SERVICE_URL, etc.)
+# .env is required (env_file in compose; docker compose loads it for validation)
 if [ ! -f "$PROJECT_ROOT/.env" ]; then
     echo -e "${RED}Error: .env not found in $PROJECT_ROOT${NC}"
     echo "Copy .env.example to .env and set values (see docs/DEPLOYMENT.md)."
