@@ -149,7 +149,7 @@
   <div class="onboarding">
     <h2>First-time setup (after deploy)</h2>
     <ol>
-      <li><strong>Get an admin JWT token</strong> from <code>auth-microservice</code> (see docs) and paste it into the field above, then click <strong>“Save token”</strong>. Without a token you can only view the Agent flow.</li>
+      <li><strong>Get an admin JWT token</strong> from <code>auth-microservice</code> (<a href="/getting-admin-token.html" target="_blank" style="color: #14b8a6; text-decoration: underline;">see step-by-step guide</a>) and paste it into the field above, then click <strong>“Save token”</strong>. Without a token you can only view the Agent flow.</li>
       <li><strong>Configure agent prompts</strong> in the <strong>“Prompts (CRUD)”</strong> tab: create at least one <strong>active</strong> prompt for each type: <code>COMMUNICATION</code>, <code>SEARCH</code>, <code>COMPARISON</code>, <code>LOCATION</code>, <code>PRESENTATION</code>. Use placeholders like <code>{{userInput}}</code>, <code>{{queryText}}</code>, <code>{{searchResults}}</code>, <code>{{previousParams}}</code> as described in the docs.</li>
       <li><strong>Select AI models</strong> in the <strong>“AI Models”</strong> tab (load models from ai-microservice) and assign the desired model to each prompt.</li>
       <li><strong>Choose execution mode</strong> in the <strong>“Execution mode”</strong> tab: start with <code>sync</code> for simple setups, or <code>queue</code> to enable the in-memory AgentQueue with limited concurrency.</li>
