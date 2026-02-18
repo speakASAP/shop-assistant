@@ -70,6 +70,42 @@
     .nav-links a:hover {
       color: var(--teal-700);
     }
+    .nav-auth {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nav-auth-btn {
+      background: none;
+      border: none;
+      color: var(--slate-700);
+      font-weight: 500;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      transition: all 0.2s;
+    }
+    .nav-auth-btn:hover {
+      color: var(--teal-700);
+      background: var(--slate-100);
+    }
+    .nav-auth-btn.primary {
+      background: var(--teal-600);
+      color: var(--white);
+    }
+    .nav-auth-btn.primary:hover {
+      background: var(--teal-700);
+    }
+    .nav-user-info {
+      font-size: 0.875rem;
+      color: var(--slate-500);
+    }
+      cursor: pointer;
+      padding: 0;
+    }
+    .nav-auth-btn:hover { color: var(--teal-700); }
     /* Hero */
     .hero {
       padding: 4rem 0 5rem;
@@ -323,6 +359,55 @@
       color: white;
       border: 1px solid rgba(255,255,255,0.5);
     }
+    /* Auth modal */
+    #auth-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    #auth-modal-overlay.open { display: flex; }
+    #auth-modal {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      max-width: 420px;
+      width: 90%;
+      padding: 1.5rem 2rem;
+      position: relative;
+    }
+    #auth-modal h3 { margin: 0 0 1rem 0; font-size: 1.25rem; color: var(--slate-900); }
+    #auth-modal .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    #auth-modal .auth-tabs button {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--slate-300);
+      background: white;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--slate-600);
+    }
+    #auth-modal .auth-tabs button.active { background: var(--teal-500); color: white; border-color: var(--teal-500); }
+    #auth-modal .auth-form { display: none; }
+    #auth-modal .auth-form.active { display: block; }
+    #auth-modal .form-group { margin-bottom: 1rem; }
+    #auth-modal .form-group label { display: block; margin-bottom: 0.25rem; font-weight: 500; color: var(--slate-700); font-size: 0.9rem; }
+    #auth-modal .form-group input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--slate-300);
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    #auth-modal .auth-error { color: #dc2626; font-size: 0.875rem; margin-bottom: 0.75rem; display: none; }
+    #auth-modal .auth-error.show { display: block; }
+    #auth-modal .auth-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--slate-500); }
+    #auth-modal .auth-close:hover { color: var(--slate-900); }
+    .link-like { background: none; border: none; padding: 0; color: var(--teal-700); font-size: inherit; cursor: pointer; text-decoration: underline; }
+    .link-like:hover { color: var(--teal-900); }
     /* Contact form */
     .contact-section {
       background: white;
@@ -544,8 +629,56 @@
         <a href="privacy.html">Privacy</a>
         <a href="/health" target="_blank" rel="noopener">API Status</a>
       </div>
+      <div class="nav-auth" id="nav-auth">
+        <span class="nav-user-info" id="nav-user-info" style="display: none;"></span>
+        <a href="login.html" class="nav-auth-btn" id="nav-login-link">Log in</a>
+        <a href="register.html" class="nav-auth-btn primary" id="nav-register-link">Register</a>
+        <button type="button" class="nav-auth-btn" id="nav-logout-btn" style="display: none;">Logout</button>
+      </div>
     </nav>
   </header>
+
+  <div id="auth-modal-overlay" aria-hidden="true">
+    <div id="auth-modal" role="dialog" aria-labelledby="auth-modal-title">
+      <button type="button" class="auth-close" id="auth-modal-close" aria-label="Close">&times;</button>
+      <h3 id="auth-modal-title">Sign in</h3>
+      <div class="auth-tabs">
+        <button type="button" id="auth-tab-register">Register</button>
+        <button type="button" id="auth-tab-login" class="active">Log in</button>
+      </div>
+      <div id="auth-error" class="auth-error"></div>
+      <form id="auth-register-form" class="auth-form">
+        <div class="form-group">
+          <label for="register-email">Email *</label>
+          <input type="email" id="register-email" required autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label for="register-password">Password *</label>
+          <input type="password" id="register-password" required autocomplete="new-password" placeholder="••••••••" minlength="8">
+        </div>
+        <div class="form-group">
+          <label for="register-firstName">First name</label>
+          <input type="text" id="register-firstName" autocomplete="given-name" placeholder="Optional">
+        </div>
+        <div class="form-group">
+          <label for="register-lastName">Last name</label>
+          <input type="text" id="register-lastName" autocomplete="family-name" placeholder="Optional">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Register</button>
+      </form>
+      <form id="auth-login-form" class="auth-form active">
+        <div class="form-group">
+          <label for="login-email">Email *</label>
+          <input type="email" id="login-email" required autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password *</label>
+          <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Log in</button>
+      </form>
+    </div>
+  </div>
 
   <main>
     <section class="hero container">
@@ -556,7 +689,7 @@
             <option value="">Default</option>
           </select>
         </div>
-        <p id="landing-profile-hint" class="landing-profile-hint" style="display: none; font-size: 0.875rem; color: var(--slate-500); margin-bottom: 0.75rem;">Optional: sign in (save token in <a href="admin.html">Admin</a> or use <code>?token=…</code> in the URL) to choose who this search is for (e.g. family profiles).</p>
+        <p id="landing-profile-hint" class="landing-profile-hint" style="display: none; font-size: 0.875rem; color: var(--slate-500); margin-bottom: 0.75rem;">Optional: <button type="button" class="link-like" id="hint-register-btn">Register</button> or <button type="button" class="link-like" id="hint-login-btn">Log in</button> to save your session and choose who this search is for (e.g. family profiles). You can also save token in <a href="admin.html">Admin</a> or use <code>?token=…</code> in the URL.</p>
         <label for="main-request-input">What do you want?</label>
         <textarea id="main-request-input" class="request-input" name="request" required placeholder="Describe what you want to find...">Find a red silk skirt size 52, 48 cm long. Find a shop which delivers in the Czech Republic. Find the best quality skirt with the cheapest price and delivery.</textarea>
         <div class="request-row">
@@ -720,6 +853,36 @@
   </div>
 
   <script>
+    // Auth state management for navigation
+    (function() {
+      const token = localStorage.getItem('accessToken');
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      const navAuth = document.getElementById('nav-auth');
+      const navLoginLink = document.getElementById('nav-login-link');
+      const navRegisterLink = document.getElementById('nav-register-link');
+      const navLogoutBtn = document.getElementById('nav-logout-btn');
+      const navUserInfo = document.getElementById('nav-user-info');
+
+      if (token && user && navAuth) {
+        // User is logged in
+        if (navLoginLink) navLoginLink.style.display = 'none';
+        if (navRegisterLink) navRegisterLink.style.display = 'none';
+        if (navLogoutBtn) {
+          navLogoutBtn.style.display = 'inline-block';
+          navLogoutBtn.addEventListener('click', function() {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+            window.location.reload();
+          });
+        }
+        if (navUserInfo) {
+          navUserInfo.textContent = user.email || user.firstName || 'User';
+          navUserInfo.style.display = 'inline';
+        }
+      }
+    })();
+
     (function() {
       var banner = document.getElementById('cookie-banner');
       var key = 'shop_assistant_cookie_consent';
@@ -747,22 +910,172 @@
       var profileRow = document.getElementById('landing-profile-row');
       var profileSelect = document.getElementById('landing-profile-select');
       var profileHint = document.getElementById('landing-profile-hint');
-      if (getToken()) {
-        if (profileRow) profileRow.style.display = 'block';
-        if (profileHint) profileHint.style.display = 'none';
-        fetch(apiBase + '/profiles', { headers: { 'Authorization': 'Bearer ' + getToken() } })
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .then(function(data) {
-            if (!profileSelect || !data) return;
-            var items = data.items || data || [];
-            profileSelect.innerHTML = '<option value="">Default</option>' + items.map(function(p) {
-              return '<option value="' + (p.id || '') + '">' + (p.name || p.id || '') + (p.role ? ' (' + p.role + ')' : '') + '</option>';
-            }).join('');
-          })
-          .catch(function() {});
-      } else {
-        if (profileHint) profileHint.style.display = 'block';
+
+      async function checkTokenValidityLanding() {
+        var token = getToken();
+        if (!token) {
+          if (profileHint) profileHint.style.display = 'block';
+          if (profileRow) profileRow.style.display = 'none';
+          return;
+        }
+
+        try {
+          var r = await fetch(apiBase + '/profiles', { headers: { 'Authorization': 'Bearer ' + token } });
+          if (r.status === 401 || r.status === 403) {
+            if (profileHint) profileHint.style.display = 'block';
+            if (profileRow) profileRow.style.display = 'none';
+          } else if (r.ok) {
+            if (profileHint) profileHint.style.display = 'none';
+            if (profileRow) profileRow.style.display = 'block';
+            var data = await r.json().catch(function() { return null; });
+            if (profileSelect && data) {
+              var items = data.items || data || [];
+              profileSelect.innerHTML = '<option value="">Default</option>' + items.map(function(p) {
+                return '<option value="' + (p.id || '') + '">' + (p.name || p.id || '') + (p.role ? ' (' + p.role + ')' : '') + '</option>';
+              }).join('');
+            }
+          } else {
+            if (profileHint) profileHint.style.display = 'block';
+            if (profileRow) profileRow.style.display = 'none';
+          }
+        } catch (e) {
+          if (profileHint) profileHint.style.display = 'block';
+          if (profileRow) profileRow.style.display = 'none';
+        }
       }
+
+      checkTokenValidityLanding();
+
+      var authOverlay = document.getElementById('auth-modal-overlay');
+      var authModalClose = document.getElementById('auth-modal-close');
+      var authTabRegister = document.getElementById('auth-tab-register');
+      var authTabLogin = document.getElementById('auth-tab-login');
+      var authRegisterForm = document.getElementById('auth-register-form');
+      var authLoginForm = document.getElementById('auth-login-form');
+      var authError = document.getElementById('auth-error');
+
+      function showAuthError(msg) {
+        if (authError) { authError.textContent = msg || ''; authError.classList.toggle('show', !!msg); }
+      }
+      function openAuthModal(tab) {
+        if (authOverlay) authOverlay.classList.add('open');
+        if (authOverlay) authOverlay.setAttribute('aria-hidden', 'false');
+        showAuthError('');
+        if (tab === 'register') {
+          if (authTabRegister) authTabRegister.classList.add('active');
+          if (authTabLogin) authTabLogin.classList.remove('active');
+          if (authRegisterForm) authRegisterForm.classList.add('active');
+          if (authLoginForm) authLoginForm.classList.remove('active');
+        } else {
+          if (authTabLogin) authTabLogin.classList.add('active');
+          if (authTabRegister) authTabRegister.classList.remove('active');
+          if (authLoginForm) authLoginForm.classList.add('active');
+          if (authRegisterForm) authRegisterForm.classList.remove('active');
+        }
+      }
+      function closeAuthModal() {
+        if (authOverlay) authOverlay.classList.remove('open');
+        if (authOverlay) authOverlay.setAttribute('aria-hidden', 'true');
+        showAuthError('');
+      }
+
+      // Nav buttons now redirect to dedicated pages (handled by nav-auth div)
+      // Hint buttons redirect to login/register pages
+      const hintRegisterBtn = document.getElementById('hint-register-btn');
+      const hintLoginBtn = document.getElementById('hint-login-btn');
+      if (hintRegisterBtn) {
+        hintRegisterBtn.addEventListener('click', function() { window.location.href = 'register.html'; });
+      }
+      if (hintLoginBtn) {
+        hintLoginBtn.addEventListener('click', function() { window.location.href = 'login.html'; });
+      }
+      document.getElementById('hint-login-btn').addEventListener('click', function() { window.location.href = 'login.html'; });
+
+      // Auth state management
+      (function() {
+        const token = localStorage.getItem('accessToken');
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        const navAuth = document.getElementById('nav-auth');
+        const navLoginLink = document.getElementById('nav-login-link');
+        const navRegisterLink = document.getElementById('nav-register-link');
+        const navLogoutBtn = document.getElementById('nav-logout-btn');
+        const navUserInfo = document.getElementById('nav-user-info');
+
+        if (token && user) {
+          // User is logged in
+          navLoginLink.style.display = 'none';
+          navRegisterLink.style.display = 'none';
+          navLogoutBtn.style.display = 'inline-block';
+          navUserInfo.textContent = user.email || user.firstName || 'User';
+          navUserInfo.style.display = 'inline';
+        } else {
+          // User is not logged in
+          navLoginLink.style.display = 'inline-block';
+          navRegisterLink.style.display = 'inline-block';
+          navLogoutBtn.style.display = 'none';
+          navUserInfo.style.display = 'none';
+        }
+
+        // Logout handler
+        navLogoutBtn.addEventListener('click', function() {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          window.location.reload();
+        });
+      })();
+      if (authModalClose) authModalClose.addEventListener('click', closeAuthModal);
+      authOverlay.addEventListener('click', function(e) { if (e.target === authOverlay) closeAuthModal(); });
+      authTabRegister.addEventListener('click', function() { openAuthModal('register'); });
+      authTabLogin.addEventListener('click', function() { openAuthModal('login'); });
+
+      authRegisterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        showAuthError('');
+        var email = document.getElementById('register-email').value.trim();
+        var password = document.getElementById('register-password').value;
+        var firstName = document.getElementById('register-firstName').value.trim();
+        var lastName = document.getElementById('register-lastName').value.trim();
+        if (!email || !password) { showAuthError('Email and password are required.'); return; }
+        if (password.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
+        var body = { email: email, password: password };
+        if (firstName) body.firstName = firstName;
+        if (lastName) body.lastName = lastName;
+        fetch(apiBase + '/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, status: r.status, data: data }; }); })
+          .then(function(result) {
+            if (result.ok && result.data && result.data.accessToken) {
+              sessionStorage.setItem(TOKEN_KEY, result.data.accessToken);
+              checkTokenValidityLanding();
+              closeAuthModal();
+              authRegisterForm.reset();
+            } else {
+              showAuthError(result.data && result.data.message ? result.data.message : 'Registration failed.');
+            }
+          })
+          .catch(function() { showAuthError('Network error. Please try again.'); });
+      });
+
+      authLoginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        showAuthError('');
+        var email = document.getElementById('login-email').value.trim();
+        var password = document.getElementById('login-password').value;
+        if (!email || !password) { showAuthError('Email and password are required.'); return; }
+        fetch(apiBase + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: password }) })
+          .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+          .then(function(result) {
+            if (result.ok && result.data && result.data.accessToken) {
+              sessionStorage.setItem(TOKEN_KEY, result.data.accessToken);
+              checkTokenValidityLanding();
+              closeAuthModal();
+              authLoginForm.reset();
+            } else {
+              showAuthError(result.data && result.data.message ? result.data.message : 'Invalid credentials.');
+            }
+          })
+          .catch(function() { showAuthError('Network error. Please try again.'); });
+      });
 
       var mainForm = document.getElementById('main-request-form');
       var mainBtn = document.getElementById('main-request-btn');

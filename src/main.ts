@@ -12,6 +12,14 @@ async function bootstrap() {
     app.useStaticAssets(join(__dirname, 'public'), {
       index: 'index.html',
       prefix: '/',
+      setHeaders: (res, path) => {
+        // Disable caching for HTML files in development
+        if (path.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
+        }
+      },
     });
 
     app.useGlobalPipes(new ValidationPipe({
