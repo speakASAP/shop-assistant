@@ -5,12 +5,15 @@
 
 import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { LoggingService } from '../logging/logging.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
 @Controller('admin/ai-models')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('global:superadmin', 'app:shop-assistant:admin')
 export class AiModelsController {
   constructor(
     private readonly httpService: HttpService,

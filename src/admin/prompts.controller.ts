@@ -6,6 +6,8 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { PromptsService } from './prompts.service';
 import { CreatePromptDto } from './dto/create-prompt.dto';
 import { UpdatePromptDto } from './dto/update-prompt.dto';
@@ -13,7 +15,8 @@ import { AgentType } from '@prisma/client';
 import { LoggingService } from '../logging/logging.service';
 
 @Controller('admin/prompts')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('global:superadmin', 'app:shop-assistant:admin')
 export class PromptsController {
   constructor(
     private readonly prompts: PromptsService,

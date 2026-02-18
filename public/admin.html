@@ -146,7 +146,7 @@
     </div>
   </div>
 
-  <div class="onboarding">
+  <div class="onboarding" id="onboarding-message">
     <h2>First-time setup (after deploy)</h2>
     <ol>
       <li><strong>Get an admin JWT token</strong> from <code>auth-microservice</code> (<a href="/getting-admin-token.html" target="_blank" style="color: #14b8a6; text-decoration: underline;">see step-by-step guide</a>) and paste it into the field above, then click <strong>“Save token”</strong>. Without a token you can only view the Agent flow.</li>
@@ -328,13 +328,52 @@
       document.getElementById('tokenStatus').textContent = t
         ? 'Token saved. You can now manage prompts and models.'
         : 'Token cleared. Set a valid JWT to use admin actions.';
+      checkTokenValidity();
     };
+
+    async function checkTokenValidity() {
+      try {
+        const token = getToken();
+        const onboardingEl = document.getElementById('onboarding-message');
+        if (!onboardingEl) return;
+
+        if (!token) {
+          onboardingEl.style.display = 'block';
+          return;
+        }
+
+        try {
+          const r = await fetch(API_BASE + '/admin/prompts?limit=1', { 
+            headers: authHeaders(),
+            method: 'GET'
+          });
+          if (r.status === 401 || r.status === 403) {
+            onboardingEl.style.display = 'block';
+          } else if (r.ok) {
+            onboardingEl.style.display = 'none';
+          } else {
+            // If API returns error but token exists, assume token is valid (API might be unavailable)
+            // Only show onboarding if we get auth errors
+            onboardingEl.style.display = 'none';
+          }
+        } catch (fetchError) {
+          // If API is unavailable but token exists, assume setup is complete
+          console.warn('Token validation check failed (API may be unavailable):', fetchError);
+          onboardingEl.style.display = 'none';
+        }
+      } catch (e) {
+        console.error('Error in checkTokenValidity:', e);
+        const onboardingEl = document.getElementById('onboarding-message');
+        if (onboardingEl) onboardingEl.style.display = 'block';
+      }
+    }
 
     if (window.location.search) {
       const p = new URLSearchParams(window.location.search);
       if (p.get('token')) {
         setToken(p.get('token'));
         document.getElementById('tokenStatus').textContent = 'Token from URL saved. You can now use admin actions.';
+        checkTokenValidity();
       }
       var sid = p.get('sessionId');
       if (sid && window.location.hash === '#flow') {
@@ -348,8 +387,10 @@
     } else if (getToken()) {
       document.getElementById('tokenInput').value = getToken();
       document.getElementById('tokenStatus').textContent = 'Token in use. You can manage prompts and models.';
+      checkTokenValidity();
     } else {
       document.getElementById('tokenStatus').textContent = 'Token required for admin actions. Paste a JWT and click "Save token".';
+      checkTokenValidity();
     }
 
     function authHeaders() {
@@ -784,9 +825,11 @@
           if (authEl) authEl.style.display = 'none';
           loadPrompts();
           loadModelsForDropdown();
+          checkTokenValidity();
         } else {
           const authEl = document.getElementById('authRequired');
           if (authEl) authEl.style.display = 'block';
+          checkTokenValidity();
         }
   </script>
 </body>

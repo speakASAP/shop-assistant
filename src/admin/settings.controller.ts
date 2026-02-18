@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { ExecutionModeService, AgentExecutionMode } from './execution-mode.service';
 
 interface UpdateModeDto {
@@ -7,7 +9,8 @@ interface UpdateModeDto {
 }
 
 @Controller('admin/settings')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('global:superadmin', 'app:shop-assistant:admin')
 export class SettingsController {
   constructor(private readonly executionMode: ExecutionModeService) {}
 
