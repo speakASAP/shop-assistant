@@ -123,7 +123,7 @@
   </ul>
 
   <div class="method-box">
-    <h2>Method 1: Using the Auth Admin Panel (Easiest)</h2>
+    <h2>Method 1: Using the Auth Admin Panel (Easiest - Recommended)</h2>
 
     <h3>Step 1: Open the Auth Admin Panel</h3>
     <ul>
@@ -138,7 +138,35 @@
       <li>After successful login, you'll see the admin dashboard</li>
     </ol>
 
-    <h3>Step 3: Get the JWT Token via Browser DevTools</h3>
+    <h3>Step 3: Get Your Access Token</h3>
+    <ol>
+      <li>Scroll down to the <strong>"Access Token"</strong> section (located above the Profile section)</li>
+      <li>Click the <strong>"Show Token"</strong> button to reveal your JWT token</li>
+      <li>The token will be displayed in a secure field</li>
+      <li>Click the <strong>"Copy Token"</strong> button to copy it to your clipboard</li>
+      <li>You'll see a confirmation message "Token copied to clipboard!"</li>
+    </ol>
+    <div class="note">
+      <strong>Note:</strong> The token is hidden by default for security. Click "Show Token" to reveal it, then "Copy Token" to copy it easily.
+    </div>
+
+    <h3>Step 4: Use the Token in Shop Assistant Admin</h3>
+    <ol>
+      <li>Go to <a href="/admin.html">Shop Assistant Admin Panel</a></li>
+      <li>Paste the copied token into the "JWT token" field at the top</li>
+      <li>Click <strong>"Save token"</strong></li>
+      <li>You should see "Token saved" confirmation</li>
+    </ol>
+  </div>
+
+  <div class="method-box">
+    <h2>Method 2: Using Browser DevTools (Alternative)</h2>
+    <p>If you prefer to use browser DevTools instead of the built-in token display:</p>
+
+    <h3>Step 1: Open the Auth Admin Panel and Log In</h3>
+    <p>Follow Steps 1-2 from Method 1 above.</p>
+
+    <h3>Step 2: Get the JWT Token via Browser DevTools</h3>
     <ol>
       <li>Open <strong>Developer Tools</strong> (F12 or right-click → Inspect)</li>
       <li>Go to the <strong>Network</strong> tab</li>
@@ -155,17 +183,12 @@
       <li>Copy the entire <code>accessToken</code> value (it's a long string starting with <code>eyJ...</code>)</li>
     </ol>
 
-    <h3>Step 4: Use the Token in Shop Assistant Admin</h3>
-    <ol>
-      <li>Go to <a href="/admin.html">Shop Assistant Admin Panel</a></li>
-      <li>Paste the <code>accessToken</code> into the "JWT token" field</li>
-      <li>Click <strong>"Save token"</strong></li>
-      <li>You should see "Token saved" confirmation</li>
-    </ol>
+    <h3>Step 3: Use the Token in Shop Assistant Admin</h3>
+    <p>Follow Step 4 from Method 1 above.</p>
   </div>
 
   <div class="method-box">
-    <h2>Method 2: Using API Call (curl/Postman)</h2>
+    <h2>Method 3: Using API Call (curl/Postman)</h2>
 
     <h3>Step 1: Make a Login Request</h3>
     <p><strong>Production:</strong></p>
@@ -195,7 +218,7 @@
   </div>
 
   <div class="method-box">
-    <h2>Method 3: Using the Helper Script</h2>
+    <h2>Method 4: Using the Helper Script</h2>
     <p>If you have SSH access to the production server:</p>
     <ol>
       <li>SSH to the server: <code>ssh statex</code></li>
