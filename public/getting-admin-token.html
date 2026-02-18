@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Get Admin JWT Token — Shop Assistant</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #0f172a;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: #1e293b;
+      border-bottom: 2px solid #14b8a6;
+      padding-bottom: 0.5rem;
+    }
+    h3 {
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: #334155;
+    }
+    p, li {
+      margin-bottom: 0.75rem;
+      color: #475569;
+    }
+    ol, ul {
+      margin-left: 2rem;
+      margin-bottom: 1rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    code {
+      background: #e2e8f0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #dc2626;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    a {
+      color: #14b8a6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      padding: 0.5rem 1rem;
+      background: #14b8a6;
+      color: white;
+      border-radius: 0.375rem;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      background: #0d9488;
+      text-decoration: none;
+    }
+    .method-box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .note {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0.25rem;
+    }
+    .warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <a href="/admin.html" class="back-link">← Back to Admin Panel</a>
+
+  <h1>How to Get Admin JWT Token for Shop Assistant</h1>
+
+  <p>This guide explains how to obtain an admin JWT token from <code>auth-microservice</code> for use in the Shop Assistant admin panel.</p>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>You have access to the <code>auth-microservice</code> (production: <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a> or local dev)</li>
+    <li>You have a user account in the auth-microservice (or can create one)</li>
+  </ul>
+
+  <div class="method-box">
+    <h2>Method 1: Using the Auth Admin Panel (Easiest)</h2>
+
+    <h3>Step 1: Open the Auth Admin Panel</h3>
+    <ul>
+      <li><strong>Production</strong>: Open <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a></li>
+      <li><strong>Local dev</strong>: Open <code>http://localhost:3372/admin</code> (if running frontend locally)</li>
+    </ul>
+
+    <h3>Step 2: Log In</h3>
+    <ol>
+      <li>Enter your email and password</li>
+      <li>Click the login button</li>
+      <li>After successful login, you'll see the admin dashboard</li>
+    </ol>
+
+    <h3>Step 3: Get the JWT Token via Browser DevTools</h3>
+    <ol>
+      <li>Open <strong>Developer Tools</strong> (F12 or right-click → Inspect)</li>
+      <li>Go to the <strong>Network</strong> tab</li>
+      <li>Look for the <code>POST /auth/login</code> request</li>
+      <li>Click on it to view details</li>
+      <li>Go to the <strong>Response</strong> tab</li>
+      <li>Find the JSON response with <code>accessToken</code>:
+        <pre><code>{
+  "user": { ... },
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "..."
+}</code></pre>
+      </li>
+      <li>Copy the entire <code>accessToken</code> value (it's a long string starting with <code>eyJ...</code>)</li>
+    </ol>
+
+    <h3>Step 4: Use the Token in Shop Assistant Admin</h3>
+    <ol>
+      <li>Go to <a href="/admin.html">Shop Assistant Admin Panel</a></li>
+      <li>Paste the <code>accessToken</code> into the "JWT token" field</li>
+      <li>Click <strong>"Save token"</strong></li>
+      <li>You should see "Token saved" confirmation</li>
+    </ol>
+  </div>
+
+  <div class="method-box">
+    <h2>Method 2: Using API Call (curl/Postman)</h2>
+
+    <h3>Step 1: Make a Login Request</h3>
+    <p><strong>Production:</strong></p>
+    <pre><code>curl -X POST https://auth.statex.cz/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "your-email@example.com",
+    "password": "your-password"
+  }'</code></pre>
+
+    <p><strong>Local dev:</strong></p>
+    <pre><code>curl -X POST http://localhost:3370/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "your-email@example.com",
+    "password": "your-password"
+  }'</code></pre>
+
+    <h3>Step 2: Extract the Token</h3>
+    <p>The response will be JSON:</p>
+    <pre><code>{
+  "user": { ... },
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "..."
+}</code></pre>
+    <p>Copy the <code>accessToken</code> value and paste it into the Shop Assistant admin panel.</p>
+  </div>
+
+  <div class="method-box">
+    <h2>Method 3: Using the Helper Script</h2>
+    <p>If you have SSH access to the production server:</p>
+    <ol>
+      <li>SSH to the server: <code>ssh statex</code></li>
+      <li>Navigate to the shop-assistant directory</li>
+      <li>Run the helper script:
+        <pre><code>./scripts/get-admin-jwt.sh https://auth.statex.cz</code></pre>
+      </li>
+      <li>The script will output the JWT token - copy it and paste into the admin panel</li>
+    </ol>
+    <div class="note">
+      <strong>Note:</strong> The script requires <code>TEST_EMAIL</code> and <code>TEST_PASSWORD</code> to be set in <code>auth-microservice/.env</code>.
+    </div>
+  </div>
+
+  <h2>Creating a Test User (If You Don't Have One)</h2>
+  <p>If you need to create a test user:</p>
+  <ol>
+    <li>Set <code>TEST_EMAIL</code> and <code>TEST_PASSWORD</code> in <code>auth-microservice/.env</code></li>
+    <li>Run the create-user script:
+      <pre><code>cd auth-microservice
+./scripts/create-test-user.sh</code></pre>
+    </li>
+    <li>Then use Method 1 or 2 above to get the JWT token</li>
+  </ol>
+
+  <h2>Troubleshooting</h2>
+
+  <h3>"Invalid credentials" error</h3>
+  <ul>
+    <li>Double-check your email and password</li>
+    <li>Ensure the user account exists and is active</li>
+    <li>Try resetting your password via the auth admin panel</li>
+  </ul>
+
+  <h3>"Invalid or missing JWT" error in Shop Assistant</h3>
+  <ul>
+    <li>Make sure you copied the entire <code>accessToken</code> (it's a long string)</li>
+    <li>Ensure there are no extra spaces before/after the token</li>
+    <li>Try getting a fresh token (tokens expire after 7 days by default)</li>
+  </ul>
+
+  <h3>Token expired</h3>
+  <ul>
+    <li>Get a new token using any of the methods above</li>
+    <li>Tokens can be refreshed using the <code>refreshToken</code> via <code>POST /auth/refresh</code></li>
+  </ul>
+
+  <h2>Additional Resources</h2>
+  <ul>
+    <li><a href="https://auth.statex.cz/admin" target="_blank">Auth Microservice Admin Panel</a> - Login and get token</li>
+    <li><a href="/admin.html">Shop Assistant Admin Panel</a> - Where to use the token</li>
+  </ul>
+</body>
+</html>
