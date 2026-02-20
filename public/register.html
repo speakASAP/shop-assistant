@@ -183,8 +183,8 @@
   </div>
 
   <script>
-    // Get AUTH_SERVICE_URL from environment or use default
-    const AUTH_SERVICE_URL = window.AUTH_SERVICE_URL || 'https://auth.alfares.cz';
+    // Use same-origin API so backend proxies to auth-microservice (avoids CORS/NetworkError)
+    const apiBase = window.location.origin + '/api';
 
     document.getElementById('register-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -218,7 +218,7 @@
       }
 
       try {
-        const response = await fetch(`${AUTH_SERVICE_URL}/auth/register`, {
+        const response = await fetch(apiBase + '/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
