@@ -41,6 +41,8 @@ async function bootstrap() {
       transform: true,
     }));
 
+    app.enableShutdownHooks();
+
     const corsOrigin = process.env.CORS_ORIGIN || '*';
     const corsOrigins = corsOrigin.includes(',') ? corsOrigin.split(',').map(o => o.trim()) : corsOrigin;
     app.enableCors({ origin: corsOrigins, credentials: true });
