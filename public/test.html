@@ -603,7 +603,10 @@
     function getToken() {
       const p = new URLSearchParams(window.location.search);
       if (p.get('token')) return p.get('token').trim();
-      return (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+      const stored = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+      if (stored) return stored;
+      // If the user is logged in, treat the stored access token as valid.
+      return (localStorage.getItem('accessToken') || '').trim();
     }
 
     function authHeaders() {
@@ -624,8 +627,10 @@
       const section = document.getElementById('accountSection');
       const profileRow = document.getElementById('profileRow');
       const savedSection = document.getElementById('savedCriteriaSection');
+      const hint = section ? section.querySelector('.account-hint') : null;
       if (!section) return;
       section.style.display = 'block';
+      if (hint) hint.style.display = hasToken ? 'none' : 'block';
       profileRow.style.display = hasToken ? 'block' : 'none';
       savedSection.style.display = hasToken ? 'block' : 'none';
       if (hasToken) {
