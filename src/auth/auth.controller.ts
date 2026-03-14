@@ -4,7 +4,8 @@
  * without CORS and without exposing auth-microservice URL.
  */
 
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { LoggingService } from '../logging/logging.service';
@@ -59,7 +60,8 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
+  async login(@Req() req: Request, @Body() body: { email: string; password: string }) {
+    this.logging.debug('POST /api/auth/login received', { path: req.path, url: req.url, method: req.method, context: 'AuthController.login' });
     if (!this.authServiceUrl) {
       this.logging.warn('AUTH_SERVICE_URL not set, cannot login', { context: 'AuthController.login' });
       throw new BadRequestException('Authentication service not configured');
