@@ -392,6 +392,7 @@
         setToken(p.get('token'));
         document.getElementById('tokenStatus').textContent = 'Token from URL saved. You can now use admin actions.';
         checkTokenValidity();
+        setTimeout(function() { loadPrompts(); }, 0);
       }
       var sid = p.get('sessionId');
       if (sid && window.location.hash === '#flow') {
@@ -406,6 +407,8 @@
       document.getElementById('tokenInput').value = getToken();
       document.getElementById('tokenStatus').textContent = 'Token in use. You can manage prompts and models.';
       checkTokenValidity();
+      // Prompts tab is default; load list so we show data or a clear error (e.g. token expired).
+      setTimeout(function() { loadPrompts(); }, 0);
     } else {
       document.getElementById('tokenStatus').textContent = 'Token required for admin actions. Paste a JWT and click "Save token".';
       checkTokenValidity();
@@ -453,7 +456,7 @@
         if (r.status === 401) {
           const authEl = document.getElementById('authRequired');
           if (authEl) authEl.style.display = 'block';
-          showPromptsStatus('Invalid or missing JWT. Save a valid token.', 'error');
+          showPromptsStatus('JWT rejected (expired or invalid). Get a fresh admin token from auth-microservice, paste it above and click Save token.', 'error');
           return;
         }
         if (!r.ok) throw new Error(r.statusText);
