@@ -11,6 +11,7 @@
     :root {
       --teal-900: #0f766e;
       --teal-700: #0d9488;
+      --teal-600: #0d9488;
       --teal-500: #14b8a6;
       --amber-600: #d97706;
       --amber-500: #f59e0b;
@@ -156,7 +157,7 @@
 
   <script>
     // Use same-origin API so backend proxies to auth-microservice (avoids CORS/NetworkError)
-    const apiBase = window.location.origin + '/api';
+    const loginUrl = window.location.origin + '/api/auth/login';
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -170,7 +171,7 @@
       submitBtn.textContent = 'Logging in...';
 
       try {
-        const response = await fetch(apiBase + '/auth/login', {
+        const response = await fetch(loginUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
