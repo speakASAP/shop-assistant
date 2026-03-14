@@ -311,9 +311,16 @@
     const TOKEN_KEY = 'shop_assistant_admin_token';
 
     function getToken() {
+      // Prefer the token currently in the input so "what you see is what we use" (avoids using a different token from localStorage).
+      var inputEl = document.getElementById('tokenInput');
+      var fromInput = (inputEl && (inputEl.value || '').trim()) || '';
+      if (fromInput) {
+        sessionStorage.setItem(TOKEN_KEY, fromInput);
+        return fromInput;
+      }
       var token = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
       if (token) return token;
-      // If user is already authenticated, use the existing access token (avoid showing setup message).
+      // Fallback: existing access token from other app context (e.g. landing login).
       return (localStorage.getItem('accessToken') || '').trim();
     }
 
@@ -332,6 +339,14 @@
         ? 'Token saved. You can now manage prompts and models.'
         : 'Token cleared. Set a valid JWT to use admin actions.';
       checkTokenValidity();
+      // Refresh current tab data so we use the just-saved token and clear "Invalid or missing JWT" if it was shown.
+      var activeTab = document.querySelector('.tabs button.active');
+      if (t && activeTab) {
+        if (activeTab.dataset.tab === 'prompts') loadPrompts();
+        else if (activeTab.dataset.tab === 'models') loadModels();
+        else if (activeTab.dataset.tab === 'profiles') loadProfilesList();
+        else if (activeTab.dataset.tab === 'mode') loadExecutionMode();
+      }
     };
 
     async function checkTokenValidity() {
