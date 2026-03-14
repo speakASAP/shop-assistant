@@ -253,10 +253,18 @@
     <li>Try resetting your password via the auth admin panel</li>
   </ul>
 
+  <h3>Check if your token has admin roles</h3>
+  <p>Shop Assistant admin requires the user to have one of these roles: <code>global:superadmin</code> or <code>app:shop-assistant:admin</code>. To verify:</p>
+  <ul>
+    <li><strong>From the repo (recommended):</strong> Run <code>./scripts/check-admin-token-roles.sh "YOUR_JWT"</code> (optional second argument: auth base URL, e.g. <code>https://auth.alfares.cz</code>). The script calls auth-microservice <code>POST /auth/validate</code> and prints <code>user.roles</code> and whether a required role is present.</li>
+    <li><strong>With curl:</strong> <code>curl -s -X POST "https://YOUR_AUTH_URL/auth/validate" -H "Content-Type: application/json" -d '{"token":"YOUR_JWT"}' | jq '.user.roles'</code>. If you see <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> in the array, the token is valid for admin. If the array is empty or missing the role, assign it in auth-microservice admin (user/role management) and get a new token.</li>
+  </ul>
+
   <h3>"Invalid or missing JWT" error in Shop Assistant</h3>
   <ul>
     <li>Make sure you copied the entire <code>accessToken</code> (it's a long string)</li>
     <li>Ensure there are no extra spaces before/after the token</li>
+    <li>Verify the token has <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> (see "Check if your token has admin roles" above)</li>
     <li>Try getting a fresh token (tokens expire after 7 days by default)</li>
   </ul>
 
