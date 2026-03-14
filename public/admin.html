@@ -229,8 +229,9 @@
         <label><input type="checkbox" id="promptIsActive" checked /> Active</label>
       </div>
       <div>
-        <button type="submit" class="btn btn-primary">Save prompt</button>
+        <button type="submit" class="btn btn-primary" id="savePromptBtn">Save prompt</button>
         <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel edit</button>
+        <span id="savePromptHint" class="hint" style="margin-left: 0.5rem; display: none;">Paste JWT at the top and click Save token first.</span>
       </div>
     </form>
   </div>
@@ -324,12 +325,21 @@
       return (localStorage.getItem('accessToken') || '').trim();
     }
 
+    function updatePromptFormAuth() {
+      var hasToken = !!getToken();
+      var btn = document.getElementById('savePromptBtn');
+      var hint = document.getElementById('savePromptHint');
+      if (btn) btn.disabled = !hasToken;
+      if (hint) hint.style.display = hasToken ? 'none' : 'inline';
+    }
+
     function setToken(token) {
       token = (token || '').trim();
       if (token) sessionStorage.setItem(TOKEN_KEY, token);
       else sessionStorage.removeItem(TOKEN_KEY);
       document.getElementById('tokenInput').value = token;
       document.getElementById('tokenStatus').textContent = token ? 'Token saved' : '';
+      updatePromptFormAuth();
     }
 
     document.getElementById('saveTokenBtn').onclick = function() {
@@ -413,6 +423,7 @@
       document.getElementById('tokenStatus').textContent = 'Token required for admin actions. Paste a JWT and click "Save token".';
       checkTokenValidity();
     }
+    updatePromptFormAuth();
 
     function authHeaders() {
       const t = getToken();
@@ -779,6 +790,10 @@
 
     document.getElementById('promptForm').onsubmit = async function(e) {
       e.preventDefault();
+      if (!getToken()) {
+        showPromptsStatus('Paste a JWT at the top and click Save token first.', 'error');
+        return;
+      }
       const id = document.getElementById('promptId').value.trim();
       const body = {
         agentType: document.getElementById('promptAgentType').value,
@@ -792,7 +807,10 @@
         const url = id ? API_BASE + '/admin/prompts/' + encodeURIComponent(id) : API_BASE + '/admin/prompts';
         const method = id ? 'PUT' : 'POST';
         const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
-        if (r.status === 401) { showPromptsStatus('Invalid or missing JWT.', 'error'); return; }
+        if (r.status === 401) {
+          showPromptsStatus('Token rejected. Paste your latest JWT in the field at the top, click Save token, then try again.', 'error');
+          return;
+        }
         if (!r.ok) throw new Error(await r.text() || r.statusText);
         showPromptsStatus(id ? 'Updated.' : 'Created.', 'success');
         document.getElementById('promptForm').reset();
