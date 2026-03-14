@@ -2,12 +2,21 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { LoggingService } from './logging/logging.service';
 
 async function bootstrap() {
   try {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+    // Log every /api request path so we can see what backend receives (e.g. POST /api/ vs /api/auth/login)
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      if (req.url?.startsWith('/api')) {
+        console.log(`[shop-assistant] ${req.method} ${req.url}`);
+      }
+      next();
+    });
 
     app.useStaticAssets(join(__dirname, 'public'), {
       index: 'index.html',
