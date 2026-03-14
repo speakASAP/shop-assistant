@@ -153,11 +153,21 @@
     <div class="text-center">
       Don't have an account? <a href="register.html" class="link">Register</a>
     </div>
+    <p class="text-center" style="margin-top:1rem;font-size:0.75rem;color:var(--slate-500);">
+      Test user: test@example.com — password in auth-microservice/.env (TEST_PASSWORD).
+    </p>
   </div>
 
   <script>
-    // Use same-origin API so backend proxies to auth-microservice (avoids CORS/NetworkError)
-    const loginUrl = window.location.origin + '/api/auth/login';
+    // Same-origin POST so backend proxies to auth-microservice (avoids CORS)
+    const loginPath = '/api/auth/login';
+    const loginUrl = new URL(loginPath, window.location.origin).href;
+
+    function logLogin(msg, data) {
+      try {
+        console.log('[login] ' + msg, typeof data !== 'undefined' ? data : '');
+      } catch (_) {}
+    }
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -170,6 +180,8 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Logging in...';
 
+      logLogin('FETCH_START', { url: loginUrl, method: 'POST', path: loginPath, origin: window.location.origin, email: email ? '(set)' : '(empty)' });
+
       try {
         const response = await fetch(loginUrl, {
           method: 'POST',
@@ -177,19 +189,40 @@
           body: JSON.stringify({ email, password }),
         });
 
+        const respUrl = response.url || '';
+        const respStatus = response.status;
+        const respStatusText = response.statusText || '';
+        logLogin('FETCH_RESPONSE', { status: respStatus, statusText: respStatusText, url: respUrl, ok: response.ok });
+
+        const text = await response.text();
+        const bodyPreview = text.length > 300 ? text.slice(0, 300) + '...' : text;
+        logLogin('FETCH_BODY', { length: text.length, preview: bodyPreview });
+
         if (!response.ok) {
-          const error = await response.json().catch(() => ({ message: 'Login failed' }));
-          throw new Error(error.message || 'Login failed. Please check your credentials.');
+          let msg = 'Login failed. Please check your credentials.';
+          if (text && text.includes('Cannot POST /api/')) {
+            msg = 'Server received wrong path (POST /api/). Regenerate nginx config: run deploy-smart.sh for shop-assistant on the server, then hard-refresh (Ctrl+Shift+R).';
+          } else {
+            try {
+              const j = JSON.parse(text);
+              if (j && j.message) msg = j.message;
+              if (response.status === 401 || (msg && (msg.toLowerCase().includes('invalid credentials') || msg === 'Login failed'))) {
+                msg += ' For test user (test@example.com), use the password from auth-microservice/.env (TEST_PASSWORD).';
+              }
+            } catch (_) {}
+          }
+          throw new Error(msg);
         }
 
-        const data = await response.json();
+        const data = JSON.parse(text);
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        // Redirect to home
+        logLogin('LOGIN_SUCCESS', { hasToken: !!data.accessToken });
         window.location.href = 'index.html';
       } catch (error) {
+        logLogin('LOGIN_ERROR', { message: error.message });
         errorDiv.textContent = error.message || 'Login failed. Please try again.';
         errorDiv.classList.add('show');
         submitBtn.disabled = false;
