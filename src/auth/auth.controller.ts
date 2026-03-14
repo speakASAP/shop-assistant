@@ -61,16 +61,23 @@ export class AuthController {
 
   @Post('login')
   async login(@Req() req: Request, @Body() body: { email: string; password: string }) {
-    this.logging.debug('POST /api/auth/login received', { path: req.path, url: req.url, method: req.method, context: 'AuthController.login' });
+    this.logging.info('LOGIN_REQUEST_RECEIVED', {
+      path: req.path,
+      url: req.url,
+      method: req.method,
+      hasBody: !!(body?.email && body?.password),
+      context: 'AuthController.login',
+    });
     if (!this.authServiceUrl) {
-      this.logging.warn('AUTH_SERVICE_URL not set, cannot login', { context: 'AuthController.login' });
+      this.logging.warn('LOGIN_FAIL_POINT: AUTH_SERVICE_URL not set', { context: 'AuthController.login' });
       throw new BadRequestException('Authentication service not configured');
     }
     if (!body?.email || !body?.password) {
+      this.logging.warn('LOGIN_FAIL_POINT: missing email or password', { context: 'AuthController.login' });
       throw new BadRequestException('Email and password are required');
     }
     const url = `${this.authServiceUrl}/auth/login`;
-    this.logging.info('Proxying login to auth-microservice', { email: body.email, context: 'AuthController.login' });
+    this.logging.info('LOGIN_PROXY_START', { authServiceUrl: this.authServiceUrl, targetPath: '/auth/login', email: body.email, context: 'AuthController.login' });
     try {
       const res = await firstValueFrom(
         this.httpService.post(url, body, {
@@ -78,11 +85,12 @@ export class AuthController {
           timeout: Number(process.env.AUTH_SERVICE_TIMEOUT) || 10000,
         }),
       );
+      this.logging.info('LOGIN_PROXY_SUCCESS', { status: res.status, email: body.email, context: 'AuthController.login' });
       return res.data;
     } catch (e: unknown) {
       const status = e && typeof e === 'object' && 'response' in e ? (e as { response?: { status?: number } }).response?.status : undefined;
       const message = e && typeof e === 'object' && 'response' in e ? (e as { response?: { data?: { message?: string } } }).response?.data?.message : undefined;
-      this.logging.error('Login proxy failed', { status, context: 'AuthController.login' });
+      this.logging.error('LOGIN_PROXY_FAILED', { status, message, email: body.email, context: 'AuthController.login' });
       if (status === 401) throw new BadRequestException(message || 'Invalid credentials');
       throw new BadRequestException(message || 'Login failed');
     }

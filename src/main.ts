@@ -10,10 +10,14 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    // Log every /api request path so we can see what backend receives (e.g. POST /api/ vs /api/auth/login)
+    // Extensive request logging for /api to trace fail points (path stripping, wrong route)
     app.use((req: Request, _res: Response, next: NextFunction) => {
-      if (req.url?.startsWith('/api')) {
-        console.log(`[shop-assistant] ${req.method} ${req.url}`);
+      const url = req.url ?? '';
+      const path = req.path ?? '';
+      if (url.startsWith('/api') || path.startsWith('/api')) {
+        const norm = (url.split('?')[0] || path || '').replace(/\/$/, '') || '/';
+        const isUnhandledRoot = (req.method === 'POST' && norm === '/api');
+        console.log(`[shop-assistant] INCOMING ${req.method} url=${url} path=${path} normalized=${norm}${isUnhandledRoot ? ' FAIL_POINT: path is /api or /api/ - no route will match' : ''}`);
       }
       next();
     });
