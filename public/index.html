@@ -899,7 +899,10 @@
       function getToken() {
         var p = new URLSearchParams(window.location.search);
         if (p.get('token')) return p.get('token').trim();
-        return (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+        var stored = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+        if (stored) return stored;
+        // If the user is logged in, treat the access token as a valid token too.
+        return (localStorage.getItem('accessToken') || '').trim();
       }
       function authHeaders() {
         var t = getToken();
@@ -914,8 +917,9 @@
 
       async function checkTokenValidityLanding() {
         var token = getToken();
+        var loggedIn = !!localStorage.getItem('accessToken');
         if (!token) {
-          if (profileHint) profileHint.style.display = 'block';
+          if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
           if (profileRow) profileRow.style.display = 'none';
           return;
         }
@@ -923,7 +927,7 @@
         try {
           var r = await fetch(apiBase + '/profiles', { headers: { 'Authorization': 'Bearer ' + token } });
           if (r.status === 401 || r.status === 403) {
-            if (profileHint) profileHint.style.display = 'block';
+            if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
             if (profileRow) profileRow.style.display = 'none';
           } else if (r.ok) {
             if (profileHint) profileHint.style.display = 'none';
@@ -936,11 +940,11 @@
               }).join('');
             }
           } else {
-            if (profileHint) profileHint.style.display = 'block';
+            if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
             if (profileRow) profileRow.style.display = 'none';
           }
         } catch (e) {
-          if (profileHint) profileHint.style.display = 'block';
+          if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
           if (profileRow) profileRow.style.display = 'none';
         }
       }

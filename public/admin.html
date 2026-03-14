@@ -311,7 +311,10 @@
     const TOKEN_KEY = 'shop_assistant_admin_token';
 
     function getToken() {
-      return sessionStorage.getItem(TOKEN_KEY) || '';
+      var token = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
+      if (token) return token;
+      // If user is already authenticated, use the existing access token (avoid showing setup message).
+      return (localStorage.getItem('accessToken') || '').trim();
     }
 
     function setToken(token) {
