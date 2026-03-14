@@ -257,8 +257,9 @@
   <p>Shop Assistant admin requires the user to have one of these roles: <code>global:superadmin</code> or <code>app:shop-assistant:admin</code>. To verify:</p>
   <ul>
     <li><strong>From the repo (recommended):</strong> Run <code>./scripts/check-admin-token-roles.sh "YOUR_JWT"</code> (optional second argument: auth base URL, e.g. <code>https://auth.alfares.cz</code>). The script calls auth-microservice <code>POST /auth/validate</code> and prints <code>user.roles</code> and whether a required role is present.</li>
-    <li><strong>With curl:</strong> <code>curl -s -X POST "https://YOUR_AUTH_URL/auth/validate" -H "Content-Type: application/json" -d '{"token":"YOUR_JWT"}' | jq '.user.roles'</code>. If you see <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> in the array, the token is valid for admin. If the array is empty or missing the role, assign it in auth-microservice admin (user/role management) and get a new token.</li>
+    <li><strong>With curl:</strong> <code>curl -s -X POST "https://YOUR_AUTH_URL/auth/validate" -H "Content-Type: application/json" -d '{"token":"YOUR_JWT"}' | jq '.user.roles'</code>. If you see <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> in the array, the token is valid for admin.</li>
   </ul>
+  <p><strong>If your token has no admin role:</strong> The Auth admin UI may not show role management. Assign the role from the auth-microservice codebase: run <code>./scripts/assign-role-by-email.sh --email=YOUR_EMAIL --role=global:superadmin</code> or <code>--role=app:shop-assistant:admin</code> from the <code>auth-microservice</code> directory (after running seed: <code>./scripts/seed-rbac.sh</code>). Then log in again to get a new token.</p>
 
   <h3>"Invalid or missing JWT" error in Shop Assistant</h3>
   <ul>
