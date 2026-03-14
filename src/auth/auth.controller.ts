@@ -60,39 +60,49 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Req() req: Request, @Body() body: { email: string; password: string }) {
+  async login(@Req() req: Request, @Body() body: { email?: string; password?: string }) {
+    const email = typeof body?.email === 'string' ? body.email.trim() : '';
+    const passwordRaw = typeof body?.password === 'string' ? body.password : '';
+    const password = passwordRaw.replace(/^["']|["']$/g, '').trim();
     this.logging.info('LOGIN_REQUEST_RECEIVED', {
       path: req.path,
       url: req.url,
       method: req.method,
-      hasBody: !!(body?.email && body?.password),
+      hasEmail: !!email,
+      passwordLength: password.length,
       context: 'AuthController.login',
     });
     if (!this.authServiceUrl) {
       this.logging.warn('LOGIN_FAIL_POINT: AUTH_SERVICE_URL not set', { context: 'AuthController.login' });
       throw new BadRequestException('Authentication service not configured');
     }
-    if (!body?.email || !body?.password) {
+    if (!email || !password) {
       this.logging.warn('LOGIN_FAIL_POINT: missing email or password', { context: 'AuthController.login' });
       throw new BadRequestException('Email and password are required');
     }
+    const payload = { email, password };
     const url = `${this.authServiceUrl}/auth/login`;
-    this.logging.info('LOGIN_PROXY_START', { authServiceUrl: this.authServiceUrl, targetPath: '/auth/login', email: body.email, context: 'AuthController.login' });
+    this.logging.info('LOGIN_PROXY_START', { authServiceUrl: this.authServiceUrl, targetPath: '/auth/login', email, context: 'AuthController.login' });
     try {
       const res = await firstValueFrom(
-        this.httpService.post(url, body, {
+        this.httpService.post(url, payload, {
           headers: { 'Content-Type': 'application/json' },
           timeout: Number(process.env.AUTH_SERVICE_TIMEOUT) || 10000,
         }),
       );
-      this.logging.info('LOGIN_PROXY_SUCCESS', { status: res.status, email: body.email, context: 'AuthController.login' });
+      this.logging.info('LOGIN_PROXY_SUCCESS', { status: res.status, email, context: 'AuthController.login' });
       return res.data;
     } catch (e: unknown) {
-      const status = e && typeof e === 'object' && 'response' in e ? (e as { response?: { status?: number } }).response?.status : undefined;
-      const message = e && typeof e === 'object' && 'response' in e ? (e as { response?: { data?: { message?: string } } }).response?.data?.message : undefined;
-      this.logging.error('LOGIN_PROXY_FAILED', { status, message, email: body.email, context: 'AuthController.login' });
+      const resp = e && typeof e === 'object' && 'response' in e ? (e as { response?: { status?: number; data?: unknown }; code?: string; message?: string }).response : undefined;
+      const status = resp?.status;
+      const data = resp?.data as { message?: string } | undefined;
+      const message = data?.message;
+      const errMsg = (e && typeof e === 'object' && 'message' in e) ? (e as { message?: string }).message : undefined;
+      const errCode = (e && typeof e === 'object' && 'code' in e) ? (e as { code?: string }).code : undefined;
+      this.logging.error('LOGIN_PROXY_FAILED', { status, message, data, email, context: 'AuthController.login' });
+      console.error('[shop-assistant] LOGIN_PROXY_FAILED', { status, message, errCode, errMsg });
       if (status === 401) throw new BadRequestException(message || 'Invalid credentials');
-      throw new BadRequestException(message || 'Login failed');
+      throw new BadRequestException(message || errMsg || 'Login failed');
     }
   }
 }
