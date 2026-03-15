@@ -191,6 +191,11 @@ END_TIME=$(get_timestamp_seconds)
 TOTAL_DURATION=$(awk "BEGIN {printf \"%.2f\", $END_TIME - $START_TIME}")
 
 if [ $DEPLOY_EXIT_CODE -eq 0 ]; then
+    if [ -x "$PROJECT_ROOT/scripts/post-deploy-check.sh" ]; then
+        echo -e "${BLUE}Post-deploy check:${NC}"
+        "$PROJECT_ROOT/scripts/post-deploy-check.sh" || true
+        echo ""
+    fi
     TOTAL_DURATION_FORMATTED=$(awk "BEGIN {printf \"%.2f\", $TOTAL_DURATION}")
     print_phase_summary 2>&1
     echo ""
