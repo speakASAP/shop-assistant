@@ -65,7 +65,15 @@ curl -s -o /dev/null -w "%{http_code}" https://auth.alfares.cz/health
 
 Expect 200 for healthy.
 
-## 5. If something is down
+## 5. Admin token / roles
+
+If the test user (e.g. `test@example.com`) cannot use the Shop Assistant admin panel (prompts, AI models):
+
+- Ensure the user has role `global:superadmin` or `app:shop-assistant:admin` in auth-microservice.
+- On the server (from auth-microservice repo): run `./scripts/assign-role-by-email.sh --email=test@example.com --role=global:superadmin` (after `./scripts/seed-rbac.sh` if roles/apps are missing). If the script is not available (e.g. old clone), assign the role via SQL or pull the latest auth-microservice and run the script.
+- See `public/getting-admin-token.html` (step-by-step guide) and "Troubleshooting" there.
+
+## 6. If something is down
 
 - Restart shop-assistant: from `nginx-microservice`: `./scripts/blue-green/deploy-smart.sh` with shop-assistant (or use the same deploy flow you used).
 - Check logs for errors: `docker logs --tail 200 shop-assistant-blue 2>&1 | grep -i error`

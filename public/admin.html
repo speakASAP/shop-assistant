@@ -377,6 +377,14 @@
           });
           if (r.status === 401 || r.status === 403) {
             onboardingEl.style.display = 'block';
+            if (r.status === 403) {
+              const ps = document.getElementById('promptsStatus');
+              if (ps) {
+                ps.textContent = 'Token valid but missing admin role. Run assign-role-by-email.sh in auth-microservice for your user.';
+                ps.className = 'status error';
+                ps.style.display = 'block';
+              }
+            }
           } else if (r.ok) {
             onboardingEl.style.display = 'none';
           } else {
@@ -470,6 +478,12 @@
           showPromptsStatus('JWT rejected (expired or invalid). Get a fresh admin token from auth-microservice, paste it above and click Save token.', 'error');
           return;
         }
+        if (r.status === 403) {
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+          showPromptsStatus('Token is valid but your user has no admin role. In auth-microservice run: ./scripts/assign-role-by-email.sh --email=YOUR_EMAIL --role=global:superadmin then get a new token.', 'error');
+          return;
+        }
         if (!r.ok) throw new Error(r.statusText);
         const data = await r.json();
         const tbody = document.getElementById('promptsTableBody');
@@ -538,6 +552,15 @@
           statusEl.style.display = 'block';
           return;
         }
+        if (r.status === 403) {
+          const statusEl = document.getElementById('modelsStatus');
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+          statusEl.textContent = 'Token valid but missing admin role. Assign global:superadmin or app:shop-assistant:admin in auth-microservice.';
+          statusEl.className = 'status error';
+          statusEl.style.display = 'block';
+          return;
+        }
         if (!r.ok) throw new Error(r.statusText);
         const data = await r.json();
         const list = data.modelList || [];
@@ -580,6 +603,12 @@
           const authEl = document.getElementById('authRequired');
           if (authEl) authEl.style.display = 'block';
           showProfilesStatus('Invalid or missing JWT. Save a valid token.', 'error');
+          return;
+        }
+        if (r.status === 403) {
+          const authEl = document.getElementById('authRequired');
+          if (authEl) authEl.style.display = 'block';
+          showProfilesStatus('Token valid but missing admin role. Assign global:superadmin or app:shop-assistant:admin in auth-microservice.', 'error');
           return;
         }
         if (!r.ok) throw new Error(r.statusText);

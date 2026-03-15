@@ -116,10 +116,14 @@
 
   <p>This guide explains how to obtain an admin JWT token from <code>auth-microservice</code> for use in the Shop Assistant admin panel.</p>
 
+  <h2>Why is the token needed?</h2>
+  <p>The admin panel uses the JWT to <strong>identify you</strong> and to <strong>check your role</strong>. Shop Assistant does not call AI microservices with this token; it uses it only to protect admin actions (prompts CRUD, AI models list, profiles). Your user must have the role <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> in auth-microservice. If the token is valid but you see "missing admin role", assign one of these roles (see Troubleshooting below).</p>
+
   <h2>Prerequisites</h2>
   <ul>
-    <li>You have access to the <code>auth-microservice</code> (production: <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a> or local dev)</li>
+    <li>You have access to the <code>auth-microservice</code> (production: <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a> or <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a>; local dev: frontend on port 3372)</li>
     <li>You have a user account in the auth-microservice (or can create one)</li>
+    <li>Your user has the role <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> (see Troubleshooting)</li>
   </ul>
 
   <div class="method-box">
@@ -127,7 +131,8 @@
 
     <h3>Step 1: Open the Auth Admin Panel</h3>
     <ul>
-      <li><strong>Production</strong>: Open <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a></li>
+      <li><strong>Production (alfares)</strong>: Open <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a></li>
+      <li><strong>Production (statex)</strong>: Open <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a></li>
       <li><strong>Local dev</strong>: Open <code>http://localhost:3372/admin</code> (if running frontend locally)</li>
     </ul>
 
@@ -261,13 +266,16 @@
   </ul>
   <p><strong>If your token has no admin role:</strong> The Auth admin UI may not show role management. Assign the role from the auth-microservice codebase: run <code>./scripts/assign-role-by-email.sh --email=YOUR_EMAIL --role=global:superadmin</code> or <code>--role=app:shop-assistant:admin</code> from the <code>auth-microservice</code> directory (after running seed: <code>./scripts/seed-rbac.sh</code>). Then log in again to get a new token.</p>
 
-  <h3>"Invalid or missing JWT" error in Shop Assistant</h3>
+  <h3>"JWT rejected (expired or invalid)" or "Invalid or missing JWT" in Shop Assistant</h3>
   <ul>
     <li>Make sure you copied the entire <code>accessToken</code> (it's a long string)</li>
     <li>Ensure there are no extra spaces before/after the token</li>
     <li>Verify the token has <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> (see "Check if your token has admin roles" above)</li>
     <li>Try getting a fresh token (tokens expire after 7 days by default)</li>
   </ul>
+
+  <h3>"Token valid but missing admin role" (403) in Shop Assistant</h3>
+  <p>Your JWT is accepted by auth-microservice but your user has no admin role. Assign <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> as described in "Check if your token has admin roles" above. You do <strong>not</strong> need a new token: after the role is assigned, refresh the Shop Assistant admin page and try again (roles are read from the database on each validate).</p>
 
   <h3>Token expired</h3>
   <ul>
