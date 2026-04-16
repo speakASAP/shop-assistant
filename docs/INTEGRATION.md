@@ -4,7 +4,7 @@ Shop-assistant **must** integrate with these shared microservices (see repositor
 
 ## Auth (optional for sessions; required for admin and saved features)
 
-- Set `AUTH_SERVICE_URL` (e.g. `https://auth.statex.cz`).
+- Set `AUTH_SERVICE_URL` (e.g. `https://auth.alfares.cz`).
 - For protected routes, validate JWT via auth-microservice (e.g. `GET /validate` or decode with shared `JWT_SECRET`). Current implementation does not enforce auth; sessions can be anonymous or store `userId` from token.
 - For **multi-user per account** and **saved search criteria**, auth-microservice provides `userId`; shop-assistant stores profiles and saved criteria per userId. Do not modify auth-microservice; use its APIs only.
 
@@ -17,7 +17,7 @@ Shop-assistant **must** integrate with these shared microservices (see repositor
 
 ## Logging (logging-microservice)
 
-- All operational logs sent to `LOGGING_SERVICE_URL` (e.g. `https://logging.statex.cz`) at `LOGGING_SERVICE_API_PATH` (default `/api/logs`).
+- All operational logs sent to `LOGGING_SERVICE_URL` (e.g. `https://logging.alfares.cz`) at `LOGGING_SERVICE_API_PATH` (default `/api/logs`).
 - Payload: `{ service, level, message, meta, timestamp }`.
 - Do not modify logging-microservice; use it for all important operations and errors (including new flows for priorities, multi-product, multi-user, saved criteria).
 
@@ -33,7 +33,7 @@ Shop-assistant **must** integrate with these shared microservices (see repositor
 
 ## Leads (leads-microservice)
 
-- Set `LEADS_SERVICE_URL` (e.g. `https://leads.statex.cz` or `http://leads-microservice:4400` in Docker).
+- Set `LEADS_SERVICE_URL` (e.g. `https://leads.alfares.cz` or `http://leads-microservice:4400` in Docker).
 - Contact form submissions from the landing page are proxied to leads-microservice at `POST /api/leads/submit`.
 - Payload: `sourceService`, `sourceUrl`, `sourceLabel`, `message`, `contactMethods` (array of `{type, value}`), `metadata`.
 - Leads-microservice handles confirmation messages via notifications-microservice.

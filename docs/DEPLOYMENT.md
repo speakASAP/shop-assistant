@@ -5,7 +5,7 @@
 3. Create database: `CREATE DATABASE shop_assistant;` on shared PostgreSQL (database-server).
 4. From project root: `./scripts/deploy.sh` (requires `.env`; script loads it and validates compose files, then runs nginx blue/green deploy).
 5. Deploy script validates `docker-compose.blue.yml` and `docker-compose.green.yml`, then runs `nginx-microservice/scripts/blue-green/deploy-smart.sh shop-assistant`.
-6. Nginx config and service registry are generated under nginx-microservice. Access via `https://<DOMAIN>` (e.g. `https://shop-assistant.statex.cz`).
+6. Nginx config and service registry are generated under nginx-microservice. Access via `https://<DOMAIN>` (e.g. `https://shop-assistant.alfares.cz`).
 
 **Deploy from local:** Push code to the repo, then on the production server:
 
