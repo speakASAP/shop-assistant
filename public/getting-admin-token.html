@@ -121,7 +121,7 @@
 
   <h2>Prerequisites</h2>
   <ul>
-    <li>You have access to the <code>auth-microservice</code> (production: <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a> or <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a>; local dev: frontend on port 3372)</li>
+    <li>You have access to the <code>auth-microservice</code> (production: <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a> or <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a>; local dev: frontend on port 3372)</li>
     <li>You have a user account in the auth-microservice (or can create one)</li>
     <li>Your user has the role <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> (see Troubleshooting)</li>
   </ul>
@@ -132,7 +132,7 @@
     <h3>Step 1: Open the Auth Admin Panel</h3>
     <ul>
       <li><strong>Production (alfares)</strong>: Open <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a></li>
-      <li><strong>Production (statex)</strong>: Open <a href="https://auth.statex.cz/admin" target="_blank">https://auth.statex.cz/admin</a></li>
+      <li><strong>Production (statex)</strong>: Open <a href="https://auth.alfares.cz/admin" target="_blank">https://auth.alfares.cz/admin</a></li>
       <li><strong>Local dev</strong>: Open <code>http://localhost:3372/admin</code> (if running frontend locally)</li>
     </ul>
 
@@ -197,7 +197,7 @@
 
     <h3>Step 1: Make a Login Request</h3>
     <p><strong>Production:</strong></p>
-    <pre><code>curl -X POST https://auth.statex.cz/auth/login \
+    <pre><code>curl -X POST https://auth.alfares.cz/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "your-email@example.com",
@@ -229,7 +229,7 @@
       <li>SSH to the server: <code>ssh statex</code></li>
       <li>Navigate to the shop-assistant directory</li>
       <li>Run the helper script:
-        <pre><code>./scripts/get-admin-jwt.sh https://auth.statex.cz</code></pre>
+        <pre><code>./scripts/get-admin-jwt.sh https://auth.alfares.cz</code></pre>
       </li>
       <li>The script will output the JWT token - copy it and paste into the admin panel</li>
     </ol>
@@ -285,7 +285,7 @@
 
   <h2>Additional Resources</h2>
   <ul>
-    <li><a href="https://auth.statex.cz/admin" target="_blank">Auth Microservice Admin Panel</a> - Login and get token</li>
+    <li><a href="https://auth.alfares.cz/admin" target="_blank">Auth Microservice Admin Panel</a> - Login and get token</li>
     <li><a href="/admin.html">Shop Assistant Admin Panel</a> - Where to use the token</li>
   </ul>
 </body>

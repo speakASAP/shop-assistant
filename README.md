@@ -96,7 +96,7 @@ All configuration via `.env`. See `.env.example` for keys (no secrets in example
 ./scripts/deploy.sh
 ```
 
-Uses `docker-compose.blue.yml` and `docker-compose.green.yml`; calls `nginx-microservice/scripts/blue-green/deploy-smart.sh shop-assistant`. Ensure `DOMAIN` is set in `.env` (e.g. `shop-assistant.statex.cz`).
+Uses `docker-compose.blue.yml` and `docker-compose.green.yml`; calls `nginx-microservice/scripts/blue-green/deploy-smart.sh shop-assistant`. Ensure `DOMAIN` is set in `.env` (e.g. `shop-assistant.alfares.cz`).
 
 ## Database
 

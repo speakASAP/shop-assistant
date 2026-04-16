@@ -75,7 +75,7 @@ Agent-to-agent communication is logged in `AgentCommunication` and is intended t
 
 - **Port range:** 45xx (e.g. `PORT=4500` blue, `PORT_GREEN=4501` green).
 - **Deployment:** `./scripts/deploy.sh` → uses nginx-microservice `deploy-smart.sh shop-assistant`. Do not edit production nginx by hand; config is regenerated on deploy.
-- **Domain:** Set `DOMAIN` in `.env` (e.g. `shop-assistant.statex.cz`).
+- **Domain:** Set `DOMAIN` in `.env` (e.g. `shop-assistant.alfares.cz`).
 
 ---
 
