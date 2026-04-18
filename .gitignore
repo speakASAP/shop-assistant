@@ -32,3 +32,43 @@ k8s/secret.yaml
 secrets/
 **/client_secret*.json
 **/*.apps.googleusercontent.com.json
+
+# --- baseline: secrets-env-artifacts (synced across repos) ---
+
+*.bak*
+# Environment variables
+# Logs
+logs/
+# OS files
+Thumbs.db
+# Temporary files
+*.tmp
+*.bak
+node_modules/
+dist/
+.env
+.venv
+.venv*
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+# Local configuration
+local_config.py
+local_settings.py
+# Backup files
+*.bak
+*.backup*
+*.old
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+*.7z
