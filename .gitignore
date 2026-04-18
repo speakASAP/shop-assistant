@@ -27,3 +27,4 @@ keys/*
 *.dsa
 *.ec
 *.der
+k8s/secret.yaml
