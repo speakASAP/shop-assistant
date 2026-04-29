@@ -1,6 +1,6 @@
 # Shop Assistant Deployment
 
-1. **On production server:** Clone repo (or ensure folder name is `shop-assistant`, e.g. `/home/statex/shop-assistant`).
+1. **On production server:** Clone repo (or ensure folder name is `shop-assistant`, e.g. `~/Documents/Github/shop-assistant`).
 2. Copy `.env.example` to `.env` and set all values (database, LOGGING_SERVICE_URL, AUTH_SERVICE_URL, AI_SERVICE_URL, DOMAIN, PORT, PORT_GREEN). Search uses ai-microservice; no SEARCH_API_* in shop-assistant.
 3. Create database: `CREATE DATABASE shop_assistant;` on shared PostgreSQL (database-server).
 4. From project root: `./scripts/deploy.sh` (requires `.env`; script loads it and validates compose files, then runs nginx blue/green deploy).
@@ -10,8 +10,8 @@
 **Deploy from local:** Push code to the repo, then on the production server:
 
 ```bash
-ssh statex
-cd /home/statex/shop-assistant   # or your shop-assistant path
+ssh alfares
+cd ~/Documents/Github/shop-assistant   # or your shop-assistant path
 git pull
 bash scripts/deploy.sh
 ```
