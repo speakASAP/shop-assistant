@@ -1,8 +1,6 @@
 # CLAUDE.md (shop-assistant)
 
-Ecosystem defaults: sibling [`../CLAUDE.md`](../CLAUDE.md) and [`../shared/docs/PROJECT_AGENT_DOCS_STANDARD.md`](../shared/docs/PROJECT_AGENT_DOCS_STANDARD.md).
-
-Read this repo's `BUSINESS.md` → `SYSTEM.md` → `AGENTS.md` → `TASKS.md` → `STATE.json` first.
+→ Ecosystem: [../shared/CLAUDE.md](../shared/CLAUDE.md) | Reading order: `BUSINESS.md` → `SYSTEM.md` → `AGENTS.md` → `TASKS.md` → `STATE.json`
 
 ---
 
@@ -24,8 +22,4 @@ Read this repo's `BUSINESS.md` → `SYSTEM.md` → `AGENTS.md` → `TASKS.md` �
 | ai-microservice:3380 | ASR (voice → text) + LLM refinement |
 | auth-microservice:3370 | User auth |
 
-### Quick ops
-```bash
-docker compose logs -f
-./scripts/deploy.sh
-```
+**Ops**: `docker compose logs -f` · `./scripts/deploy.sh`
