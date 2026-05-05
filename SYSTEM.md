@@ -2,7 +2,7 @@
 
 ## Architecture
 
-NestJS backend (45xx) + Next.js frontend + PostgreSQL + Prisma. Blue/green 4500/4501.
+NestJS backend + Next.js frontend + PostgreSQL + Prisma. Kubernetes (`statex-apps`). Port 4500.
 
 - ASR (voice → text) via ai-microservice
 - LLM query refinement via ai-microservice
