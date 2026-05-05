@@ -7,8 +7,8 @@
 ## shop-assistant
 
 **Purpose**: AI shopping assistant "Я хочу" — voice/text product search with iterative refinement, global price comparison, and merchant redirect.  
-**Ports**: 4500 (blue) · 4501 (green)  
-**Stack**: NestJS (backend, 45xx) · Next.js (frontend) · PostgreSQL · Prisma
+**Port**: 4500 · **Domain**: https://shop-assistant.alfares.cz  
+**Stack**: NestJS (backend) · Next.js (frontend) · PostgreSQL · Prisma
 
 ### Key constraints
 - Never store user voice/text searches beyond the session — privacy requirement
@@ -22,4 +22,4 @@
 | ai-microservice:3380 | ASR (voice → text) + LLM refinement |
 | auth-microservice:3370 | User auth |
 
-**Ops**: `docker compose logs -f` · `./scripts/deploy.sh`
+**Ops**: `kubectl logs -n statex-apps -l app=shop-assistant -f` · `kubectl rollout restart deployment/shop-assistant -n statex-apps` · `./scripts/deploy.sh`
