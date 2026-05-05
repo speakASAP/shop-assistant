@@ -27,7 +27,6 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 4500
-              name: http
           envFrom:
             - configMapRef:
                 name: shop-assistant-config

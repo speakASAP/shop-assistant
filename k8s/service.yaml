@@ -14,4 +14,4 @@ spec:
     - protocol: TCP
       port: 4500
       targetPort: 4500
-      name: http
+      name: app
