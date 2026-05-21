@@ -29,6 +29,11 @@ export class SearchService {
   ) {
     this.aiBaseUrl = process.env.AI_SERVICE_URL || '';
     this.timeout = Number(process.env.HTTP_TIMEOUT) || 15000;
+
+    const token = process.env.AI_SERVICE_TOKEN;
+    if (token) {
+      this.httpService.axiosRef.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   async search(queryText: string, limit = 20): Promise<SearchResultItem[]> {
