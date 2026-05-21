@@ -46,6 +46,11 @@ export class LeadsService {
       (process.env.DOMAIN ? `https://leads.${process.env.DOMAIN}` : 'http://leads-microservice:3371');
     this.aiServiceUrl = this.config.get<string>('AI_SERVICE_URL') || process.env.AI_SERVICE_URL || '';
     this.aiTimeout = Number(this.config.get<string>('AI_SERVICE_TIMEOUT')) || Number(process.env.AI_SERVICE_TIMEOUT) || 30000;
+
+    const token = this.config.get<string>('AI_SERVICE_TOKEN') || process.env.AI_SERVICE_TOKEN;
+    if (token) {
+      this.httpService.axiosRef.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   /**

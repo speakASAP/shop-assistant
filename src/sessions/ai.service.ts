@@ -23,6 +23,11 @@ export class AiService {
   ) {
     this.baseUrl = process.env.AI_SERVICE_URL || '';
     this.timeout = Number(process.env.AI_SERVICE_TIMEOUT) || 30000;
+
+    const token = process.env.AI_SERVICE_TOKEN;
+    if (token) {
+      this.httpService.axiosRef.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   setSessionsService(service: SessionsService) {
