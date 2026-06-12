@@ -1,0 +1,1396 @@
+{
+  "metadata": {
+    "id": "sa-g4-t1-synthetic-usage-2026-06-12",
+    "generatedAt": "2026-06-12T12:00:00.000Z",
+    "privacy": "Synthetic only. No production raw queries, voice transcripts, lead contact details, profile names, JWTs, secrets, or user identifiers.",
+    "urlPolicy": "All fixture URLs use synthetic.invalid so they cannot be mistaken for real merchant URLs."
+  },
+  "accountProfiles": [
+    {
+      "id": "synth-profile-parent",
+      "userId": "synthetic-user-family",
+      "name": "Synthetic profile A",
+      "role": "synthetic",
+      "createdAt": "2026-06-12T08:00:00.000Z",
+      "updatedAt": "2026-06-12T08:00:00.000Z"
+    },
+    {
+      "id": "synth-profile-student",
+      "userId": "synthetic-user-family",
+      "name": "Synthetic profile B",
+      "role": "synthetic",
+      "createdAt": "2026-06-12T08:01:00.000Z",
+      "updatedAt": "2026-06-12T08:01:00.000Z"
+    }
+  ],
+  "savedCriteria": [
+    {
+      "id": "synth-criteria-home",
+      "userId": "synthetic-user-family",
+      "name": "Synthetic saved criteria home",
+      "profileId": "synth-profile-parent",
+      "createdAt": "2026-06-12T08:02:00.000Z",
+      "updatedAt": "2026-06-12T08:02:00.000Z"
+    },
+    {
+      "id": "synth-criteria-school",
+      "userId": "synthetic-user-family",
+      "name": "Synthetic saved criteria school",
+      "profileId": "synth-profile-student",
+      "createdAt": "2026-06-12T08:03:00.000Z",
+      "updatedAt": "2026-06-12T08:03:00.000Z"
+    },
+    {
+      "id": "synth-criteria-office",
+      "userId": "synthetic-user-office",
+      "name": "Synthetic saved criteria office",
+      "profileId": null,
+      "createdAt": "2026-06-12T08:04:00.000Z",
+      "updatedAt": "2026-06-12T08:04:00.000Z"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "synth-session-01",
+      "createdAt": "2026-06-12T08:13:00.000Z",
+      "updatedAt": "2026-06-12T08:21:00.000Z",
+      "userId": "synthetic-user-family",
+      "profileId": "synth-profile-parent",
+      "priorityOrder": [
+        "price",
+        "quality",
+        "delivery"
+      ],
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-02",
+      "createdAt": "2026-06-12T08:26:00.000Z",
+      "updatedAt": "2026-06-12T08:34:00.000Z",
+      "userId": "synthetic-user-family",
+      "profileId": "synth-profile-student",
+      "priorityOrder": [
+        "quality",
+        "price"
+      ],
+      "entryPoint": "test",
+      "usedSavedCriteriaId": "synth-criteria-school"
+    },
+    {
+      "id": "synth-session-03",
+      "createdAt": "2026-06-12T08:39:00.000Z",
+      "updatedAt": "2026-06-12T08:47:00.000Z",
+      "userId": null,
+      "profileId": null,
+      "priorityOrder": null,
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-04",
+      "createdAt": "2026-06-12T08:52:00.000Z",
+      "updatedAt": "2026-06-12T09:00:00.000Z",
+      "userId": "synthetic-user-office",
+      "profileId": null,
+      "priorityOrder": [
+        "delivery",
+        "price"
+      ],
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-05",
+      "createdAt": "2026-06-12T09:05:00.000Z",
+      "updatedAt": "2026-06-12T09:13:00.000Z",
+      "userId": "synthetic-user-family",
+      "profileId": "synth-profile-parent",
+      "priorityOrder": [
+        "price"
+      ],
+      "entryPoint": "test",
+      "usedSavedCriteriaId": "synth-criteria-home"
+    },
+    {
+      "id": "synth-session-06",
+      "createdAt": "2026-06-12T09:18:00.000Z",
+      "updatedAt": "2026-06-12T09:26:00.000Z",
+      "userId": null,
+      "profileId": null,
+      "priorityOrder": null,
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-07",
+      "createdAt": "2026-06-12T09:31:00.000Z",
+      "updatedAt": "2026-06-12T09:39:00.000Z",
+      "userId": "synthetic-user-office",
+      "profileId": null,
+      "priorityOrder": [
+        "quality",
+        "location"
+      ],
+      "entryPoint": "admin-test",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-08",
+      "createdAt": "2026-06-12T09:44:00.000Z",
+      "updatedAt": "2026-06-12T09:52:00.000Z",
+      "userId": "synthetic-user-family",
+      "profileId": null,
+      "priorityOrder": [
+        "price",
+        "delivery"
+      ],
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-09",
+      "createdAt": "2026-06-12T09:57:00.000Z",
+      "updatedAt": "2026-06-12T10:05:00.000Z",
+      "userId": "synthetic-user-family",
+      "profileId": "synth-profile-student",
+      "priorityOrder": [
+        "quality"
+      ],
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-10",
+      "createdAt": "2026-06-12T10:10:00.000Z",
+      "updatedAt": "2026-06-12T10:18:00.000Z",
+      "userId": "synthetic-user-office",
+      "profileId": null,
+      "priorityOrder": null,
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    },
+    {
+      "id": "synth-session-11",
+      "createdAt": "2026-06-12T10:23:00.000Z",
+      "updatedAt": "2026-06-12T10:31:00.000Z",
+      "userId": "synthetic-user-family",
+      "profileId": null,
+      "priorityOrder": [
+        "price",
+        "quality"
+      ],
+      "entryPoint": "test",
+      "usedSavedCriteriaId": "synth-criteria-home"
+    },
+    {
+      "id": "synth-session-12",
+      "createdAt": "2026-06-12T10:36:00.000Z",
+      "updatedAt": "2026-06-12T10:44:00.000Z",
+      "userId": null,
+      "profileId": null,
+      "priorityOrder": null,
+      "entryPoint": "public",
+      "usedSavedCriteriaId": null
+    }
+  ],
+  "messages": [
+    {
+      "id": "synth-message-synth-session-01-01",
+      "sessionId": "synth-session-01",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: compare cordless vacuum options by price and delivery.",
+      "createdAt": "2026-06-12T08:14:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-01-03",
+      "sessionId": "synth-session-01",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with comparison results.",
+      "createdAt": "2026-06-12T08:16:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-01-07",
+      "sessionId": "synth-session-01",
+      "role": "user",
+      "contentType": "feedback",
+      "content": "Synthetic feedback: prefer quieter models.",
+      "createdAt": "2026-06-12T08:20:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-02-01",
+      "sessionId": "synth-session-02",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: school backpack with durable material.",
+      "createdAt": "2026-06-12T08:27:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-02-04",
+      "sessionId": "synth-session-02",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with ranked options.",
+      "createdAt": "2026-06-12T08:30:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-03-01",
+      "sessionId": "synth-session-03",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: rare spare part with exact dimensions.",
+      "createdAt": "2026-06-12T08:40:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-03-05",
+      "sessionId": "synth-session-03",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic empty-state response.",
+      "createdAt": "2026-06-12T08:44:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-04-01",
+      "sessionId": "synth-session-04",
+      "role": "user",
+      "contentType": "voice",
+      "content": "Synthetic voice request converted to text for aggregate-only fixture.",
+      "createdAt": "2026-06-12T08:53:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-04-04",
+      "sessionId": "synth-session-04",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with delivery-focused options.",
+      "createdAt": "2026-06-12T08:56:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-05-01",
+      "sessionId": "synth-session-05",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic saved criteria reuse request for household staples.",
+      "createdAt": "2026-06-12T09:06:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-05-04",
+      "sessionId": "synth-session-05",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with reusable comparison.",
+      "createdAt": "2026-06-12T09:09:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-05-08",
+      "sessionId": "synth-session-05",
+      "role": "user",
+      "contentType": "feedback",
+      "content": "Synthetic feedback: only show compact items.",
+      "createdAt": "2026-06-12T09:13:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-06-01",
+      "sessionId": "synth-session-06",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: ambiguous gift idea.",
+      "createdAt": "2026-06-12T09:19:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-06-05",
+      "sessionId": "synth-session-06",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic clarification prompt.",
+      "createdAt": "2026-06-12T09:23:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-07-01",
+      "sessionId": "synth-session-07",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic admin test request for result diagnostics.",
+      "createdAt": "2026-06-12T09:32:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-07-03",
+      "sessionId": "synth-session-07",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic diagnostics-ready response.",
+      "createdAt": "2026-06-12T09:34:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-08-01",
+      "sessionId": "synth-session-08",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: running shoes under budget.",
+      "createdAt": "2026-06-12T09:45:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-08-05",
+      "sessionId": "synth-session-08",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with product options.",
+      "createdAt": "2026-06-12T09:49:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-09-01",
+      "sessionId": "synth-session-09",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: tablet for student note taking.",
+      "createdAt": "2026-06-12T09:58:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-09-04",
+      "sessionId": "synth-session-09",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with comparison results.",
+      "createdAt": "2026-06-12T10:01:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-09-07",
+      "sessionId": "synth-session-09",
+      "role": "user",
+      "contentType": "feedback",
+      "content": "Synthetic feedback: prioritize battery life.",
+      "createdAt": "2026-06-12T10:04:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-10-01",
+      "sessionId": "synth-session-10",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: small desk lamp.",
+      "createdAt": "2026-06-12T10:11:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-10-04",
+      "sessionId": "synth-session-10",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with options.",
+      "createdAt": "2026-06-12T10:14:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-11-01",
+      "sessionId": "synth-session-11",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic saved criteria reuse request for kitchen tools.",
+      "createdAt": "2026-06-12T10:24:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-11-05",
+      "sessionId": "synth-session-11",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic response with selected criteria.",
+      "createdAt": "2026-06-12T10:28:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-12-01",
+      "sessionId": "synth-session-12",
+      "role": "user",
+      "contentType": "text",
+      "content": "Synthetic request: niche accessory with no matches.",
+      "createdAt": "2026-06-12T10:37:00.000Z"
+    },
+    {
+      "id": "synth-message-synth-session-12-04",
+      "sessionId": "synth-session-12",
+      "role": "assistant",
+      "contentType": "text",
+      "content": "Synthetic empty-state response.",
+      "createdAt": "2026-06-12T10:40:00.000Z"
+    }
+  ],
+  "searchRuns": [
+    {
+      "id": "synth-search-synth-session-01-1",
+      "sessionId": "synth-session-01",
+      "queryText": "synthetic cordless vacuum price delivery",
+      "refinedParams": {
+        "category": "home",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 4,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T08:15:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-02-1",
+      "sessionId": "synth-session-02",
+      "queryText": "synthetic durable school backpack",
+      "refinedParams": {
+        "category": "school",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 3,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T08:28:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-03-1",
+      "sessionId": "synth-session-03",
+      "queryText": "synthetic rare spare part exact dimensions",
+      "refinedParams": {
+        "category": "parts",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 0,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T08:41:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-03-2",
+      "sessionId": "synth-session-03",
+      "queryText": "synthetic spare part broader recovery",
+      "refinedParams": {
+        "category": "parts",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 0,
+        "recoveryAttempt": 1
+      },
+      "createdAt": "2026-06-12T08:42:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-04-1",
+      "sessionId": "synth-session-04",
+      "queryText": "synthetic delivery focused office chair",
+      "refinedParams": {
+        "category": "furniture",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 2,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T08:54:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-05-1",
+      "sessionId": "synth-session-05",
+      "queryText": "synthetic household staples saved criteria",
+      "refinedParams": {
+        "category": "home",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 5,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T09:07:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-06-1",
+      "sessionId": "synth-session-06",
+      "queryText": "synthetic ambiguous gift idea",
+      "refinedParams": {
+        "category": "gifts",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 0,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T09:20:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-07-1",
+      "sessionId": "synth-session-07",
+      "queryText": "synthetic admin diagnostics query",
+      "refinedParams": {
+        "category": "diagnostic",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 2,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T09:33:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-08-1",
+      "sessionId": "synth-session-08",
+      "queryText": "synthetic running shoes budget",
+      "refinedParams": {
+        "category": "sports",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 4,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T09:46:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-09-1",
+      "sessionId": "synth-session-09",
+      "queryText": "synthetic student tablet note taking",
+      "refinedParams": {
+        "category": "electronics",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 3,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T09:59:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-09-2",
+      "sessionId": "synth-session-09",
+      "queryText": "synthetic student tablet battery priority",
+      "refinedParams": {
+        "category": "electronics",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 2,
+        "recoveryAttempt": 1
+      },
+      "createdAt": "2026-06-12T10:00:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-10-1",
+      "sessionId": "synth-session-10",
+      "queryText": "synthetic small desk lamp",
+      "refinedParams": {
+        "category": "lighting",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 1,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T10:12:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-11-1",
+      "sessionId": "synth-session-11",
+      "queryText": "synthetic kitchen tools saved criteria",
+      "refinedParams": {
+        "category": "kitchen",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 2,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T10:25:00.000Z"
+    },
+    {
+      "id": "synth-search-synth-session-12-1",
+      "sessionId": "synth-session-12",
+      "queryText": "synthetic niche accessory no matches",
+      "refinedParams": {
+        "category": "accessory",
+        "priorities": [
+          "price",
+          "quality"
+        ],
+        "synthetic": true
+      },
+      "rawSearchResponse": {
+        "fixture": true,
+        "resultCount": 0,
+        "recoveryAttempt": 0
+      },
+      "createdAt": "2026-06-12T10:38:00.000Z"
+    }
+  ],
+  "searchResults": [
+    {
+      "id": "synth-result-synth-search-synth-session-01-1-1",
+      "searchRunId": "synth-search-synth-session-01-1",
+      "title": "Synthetic result 1 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-01-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-01-1-2",
+      "searchRunId": "synth-search-synth-session-01-1",
+      "title": "Synthetic result 2 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-01-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-01-1-3",
+      "searchRunId": "synth-search-synth-session-01-1",
+      "title": "Synthetic result 3 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-01-1/3",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 3,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:33:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-01-1-4",
+      "searchRunId": "synth-search-synth-session-01-1",
+      "title": "Synthetic result 4 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-01-1/4",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 4,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:34:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-02-1-1",
+      "searchRunId": "synth-search-synth-session-02-1",
+      "title": "Synthetic result 1 for school",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-02-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-02-1-2",
+      "searchRunId": "synth-search-synth-session-02-1",
+      "title": "Synthetic result 2 for school",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-02-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-02-1-3",
+      "searchRunId": "synth-search-synth-session-02-1",
+      "title": "Synthetic result 3 for school",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-02-1/3",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 3,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:33:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-04-1-1",
+      "searchRunId": "synth-search-synth-session-04-1",
+      "title": "Synthetic result 1 for furniture",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-04-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-04-1-2",
+      "searchRunId": "synth-search-synth-session-04-1",
+      "title": "Synthetic result 2 for furniture",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-04-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-05-1-1",
+      "searchRunId": "synth-search-synth-session-05-1",
+      "title": "Synthetic result 1 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-05-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-05-1-2",
+      "searchRunId": "synth-search-synth-session-05-1",
+      "title": "Synthetic result 2 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-05-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-05-1-3",
+      "searchRunId": "synth-search-synth-session-05-1",
+      "title": "Synthetic result 3 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-05-1/3",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 3,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:33:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-05-1-4",
+      "searchRunId": "synth-search-synth-session-05-1",
+      "title": "Synthetic result 4 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-05-1/4",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 4,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:34:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-05-1-5",
+      "searchRunId": "synth-search-synth-session-05-1",
+      "title": "Synthetic result 5 for home",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-05-1/5",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 5,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:35:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-07-1-1",
+      "searchRunId": "synth-search-synth-session-07-1",
+      "title": "Synthetic result 1 for diagnostic",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-07-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-07-1-2",
+      "searchRunId": "synth-search-synth-session-07-1",
+      "title": "Synthetic result 2 for diagnostic",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-07-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-08-1-1",
+      "searchRunId": "synth-search-synth-session-08-1",
+      "title": "Synthetic result 1 for sports",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-08-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-08-1-2",
+      "searchRunId": "synth-search-synth-session-08-1",
+      "title": "Synthetic result 2 for sports",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-08-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-08-1-3",
+      "searchRunId": "synth-search-synth-session-08-1",
+      "title": "Synthetic result 3 for sports",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-08-1/3",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 3,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:33:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-08-1-4",
+      "searchRunId": "synth-search-synth-session-08-1",
+      "title": "Synthetic result 4 for sports",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-08-1/4",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 4,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:34:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-09-1-1",
+      "searchRunId": "synth-search-synth-session-09-1",
+      "title": "Synthetic result 1 for electronics",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-09-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-09-1-2",
+      "searchRunId": "synth-search-synth-session-09-1",
+      "title": "Synthetic result 2 for electronics",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-09-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-09-1-3",
+      "searchRunId": "synth-search-synth-session-09-1",
+      "title": "Synthetic result 3 for electronics",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-09-1/3",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 3,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:33:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-09-2-1",
+      "searchRunId": "synth-search-synth-session-09-2",
+      "title": "Synthetic result 1 for electronics",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-09-2/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-09-2-2",
+      "searchRunId": "synth-search-synth-session-09-2",
+      "title": "Synthetic result 2 for electronics",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-09-2/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-10-1-1",
+      "searchRunId": "synth-search-synth-session-10-1",
+      "title": "Synthetic result 1 for lighting",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-10-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-11-1-1",
+      "searchRunId": "synth-search-synth-session-11-1",
+      "title": "Synthetic result 1 for kitchen",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-11-1/1",
+      "price": "synthetic-low",
+      "source": "synthetic-fixture",
+      "position": 1,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:31:00.000Z"
+    },
+    {
+      "id": "synth-result-synth-search-synth-session-11-1-2",
+      "searchRunId": "synth-search-synth-session-11-1",
+      "title": "Synthetic result 2 for kitchen",
+      "url": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-11-1/2",
+      "price": "synthetic-comparison",
+      "source": "synthetic-fixture",
+      "position": 2,
+      "snippet": "Synthetic fixture result. Not a merchant URL and not user-facing evidence.",
+      "createdAt": "2026-06-12T11:32:00.000Z"
+    }
+  ],
+  "choices": [
+    {
+      "id": "synth-choice-01",
+      "sessionId": "synth-session-01",
+      "searchResultId": "synth-result-synth-search-synth-session-01-1-1",
+      "productUrl": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-01-1/1",
+      "chosenAt": "2026-06-12T08:22:00.000Z"
+    },
+    {
+      "id": "synth-choice-02",
+      "sessionId": "synth-session-02",
+      "searchResultId": "synth-result-synth-search-synth-session-02-1-2",
+      "productUrl": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-02-1/2",
+      "chosenAt": "2026-06-12T08:34:00.000Z"
+    },
+    {
+      "id": "synth-choice-03",
+      "sessionId": "synth-session-05",
+      "searchResultId": "synth-result-synth-search-synth-session-05-1-1",
+      "productUrl": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-05-1/1",
+      "chosenAt": "2026-06-12T09:11:00.000Z"
+    },
+    {
+      "id": "synth-choice-04",
+      "sessionId": "synth-session-08",
+      "searchResultId": "synth-result-synth-search-synth-session-08-1-3",
+      "productUrl": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-08-1/3",
+      "chosenAt": "2026-06-12T09:52:00.000Z"
+    },
+    {
+      "id": "synth-choice-05",
+      "sessionId": "synth-session-10",
+      "searchResultId": "synth-result-synth-search-synth-session-10-1-1",
+      "productUrl": "https://synthetic.invalid/shop-assistant/synth-search-synth-session-10-1/1",
+      "chosenAt": "2026-06-12T10:19:00.000Z"
+    }
+  ],
+  "agentCommunications": [
+    {
+      "id": "synth-agent-synth-session-01-1",
+      "sessionId": "synth-session-01",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-01"
+      },
+      "createdAt": "2026-06-12T08:14:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-01-2",
+      "sessionId": "synth-session-01",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-01"
+      },
+      "createdAt": "2026-06-12T08:15:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-01-3",
+      "sessionId": "synth-session-01",
+      "fromAgent": "presentation",
+      "toAgent": "communication",
+      "messageType": "response",
+      "content": "Synthetic response event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-01"
+      },
+      "createdAt": "2026-06-12T08:16:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-02-1",
+      "sessionId": "synth-session-02",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-02"
+      },
+      "createdAt": "2026-06-12T08:27:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-02-2",
+      "sessionId": "synth-session-02",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-02"
+      },
+      "createdAt": "2026-06-12T08:28:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-03-1",
+      "sessionId": "synth-session-03",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-03"
+      },
+      "createdAt": "2026-06-12T08:40:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-03-2",
+      "sessionId": "synth-session-03",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "error",
+      "content": "Synthetic error event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-03"
+      },
+      "createdAt": "2026-06-12T08:41:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-04-1",
+      "sessionId": "synth-session-04",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-04"
+      },
+      "createdAt": "2026-06-12T08:53:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-04-2",
+      "sessionId": "synth-session-04",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-04"
+      },
+      "createdAt": "2026-06-12T08:54:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-04-3",
+      "sessionId": "synth-session-04",
+      "fromAgent": "presentation",
+      "toAgent": "communication",
+      "messageType": "response",
+      "content": "Synthetic response event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-04"
+      },
+      "createdAt": "2026-06-12T08:55:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-05-1",
+      "sessionId": "synth-session-05",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-05"
+      },
+      "createdAt": "2026-06-12T09:06:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-05-2",
+      "sessionId": "synth-session-05",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-05"
+      },
+      "createdAt": "2026-06-12T09:07:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-06-1",
+      "sessionId": "synth-session-06",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-06"
+      },
+      "createdAt": "2026-06-12T09:19:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-06-2",
+      "sessionId": "synth-session-06",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "error",
+      "content": "Synthetic error event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-06"
+      },
+      "createdAt": "2026-06-12T09:20:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-07-1",
+      "sessionId": "synth-session-07",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-07"
+      },
+      "createdAt": "2026-06-12T09:32:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-07-2",
+      "sessionId": "synth-session-07",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-07"
+      },
+      "createdAt": "2026-06-12T09:33:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-07-3",
+      "sessionId": "synth-session-07",
+      "fromAgent": "presentation",
+      "toAgent": "communication",
+      "messageType": "response",
+      "content": "Synthetic response event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-07"
+      },
+      "createdAt": "2026-06-12T09:34:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-08-1",
+      "sessionId": "synth-session-08",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-08"
+      },
+      "createdAt": "2026-06-12T09:45:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-08-2",
+      "sessionId": "synth-session-08",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-08"
+      },
+      "createdAt": "2026-06-12T09:46:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-09-1",
+      "sessionId": "synth-session-09",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-09"
+      },
+      "createdAt": "2026-06-12T09:58:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-09-2",
+      "sessionId": "synth-session-09",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-09"
+      },
+      "createdAt": "2026-06-12T09:59:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-10-1",
+      "sessionId": "synth-session-10",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-10"
+      },
+      "createdAt": "2026-06-12T10:11:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-10-2",
+      "sessionId": "synth-session-10",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-10"
+      },
+      "createdAt": "2026-06-12T10:12:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-10-3",
+      "sessionId": "synth-session-10",
+      "fromAgent": "presentation",
+      "toAgent": "communication",
+      "messageType": "response",
+      "content": "Synthetic response event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-10"
+      },
+      "createdAt": "2026-06-12T10:13:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-11-1",
+      "sessionId": "synth-session-11",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-11"
+      },
+      "createdAt": "2026-06-12T10:24:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-11-2",
+      "sessionId": "synth-session-11",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "result",
+      "content": "Synthetic result event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-11"
+      },
+      "createdAt": "2026-06-12T10:25:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-12-1",
+      "sessionId": "synth-session-12",
+      "fromAgent": "communication",
+      "toAgent": "search",
+      "messageType": "request",
+      "content": "Synthetic request event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-12"
+      },
+      "createdAt": "2026-06-12T10:37:00.000Z"
+    },
+    {
+      "id": "synth-agent-synth-session-12-2",
+      "sessionId": "synth-session-12",
+      "fromAgent": "search",
+      "toAgent": "presentation",
+      "messageType": "error",
+      "content": "Synthetic error event for aggregate UX metrics only.",
+      "metadata": {
+        "synthetic": true,
+        "workflowId": "synth-flow-synth-session-12"
+      },
+      "createdAt": "2026-06-12T10:38:00.000Z"
+    }
+  ]
+}
