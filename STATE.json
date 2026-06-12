@@ -1,1 +1,44 @@
-{"v":1,"project":"shop-assistant","stage":"active","health":"ok","cycle":0,"last_cycle_at":"2026-04-05T00:00:00Z","tasks_active":0,"tasks_failed_last_cycle":0,"open_task_ids":[],"last_milestone":"documentation-standard-applied","next_focus":"review and update by owner","blockers":[],"budget_units_used":0,"metrics":{"custom":{}}}
+{
+  "v": 1,
+  "project": "shop-assistant",
+  "stage": "active",
+  "health": "ok",
+  "cycle": 0,
+  "last_cycle_at": "2026-06-12T00:00:00Z",
+  "tasks_active": 0,
+  "tasks_failed_last_cycle": 0,
+  "open_task_ids": [],
+  "last_milestone": "SA-G4-T1-production-vs-synthetic-aggregate-comparison-complete",
+  "next_focus": "verify production or staging session write path because production aggregate UX funnel remains zero",
+  "blockers": [],
+  "budget_units_used": 0,
+  "metrics": {
+    "custom": {
+      "sa_g4_t1_synthetic_rerun": {
+        "date": "2026-06-12",
+        "source": "reports/ux/sa-g4-t1-synthetic-usage-2026-06-12.json",
+        "metrics": "reports/ux/sa-g4-t1-aggregate-metrics-2026-06-12.json",
+        "sessions": 12,
+        "search_runs": 14,
+        "search_results": 28,
+        "zero_result_search_runs": 4,
+        "choices": 5,
+        "profile_scoped_sessions": 4,
+        "saved_criteria": 3,
+        "agent_errors": 3
+      },
+      "sa_g4_t1_production_comparison": {
+        "date": "2026-06-12",
+        "production_metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-12.json",
+        "comparison": "reports/ux/sa-g4-t1-production-vs-synthetic-comparison-2026-06-12.json",
+        "production_sessions": 0,
+        "production_search_runs": 0,
+        "production_search_results": 0,
+        "production_choices": 0,
+        "production_messages": 0,
+        "production_first_session_at": null,
+        "production_last_session_at": null
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "source": "sa-g4-t1-synthetic-usage-2026-06-12",
+    "generatedAt": "2026-06-12T16:20:44.217Z",
+    "privacy": "Synthetic only. No production raw queries, voice transcripts, lead contact details, profile names, JWTs, secrets, or user identifiers.",
+    "urlPolicy": "All fixture URLs use synthetic.invalid so they cannot be mistaken for real merchant URLs."
+  },
+  "counts": {
+    "sessions": 12,
+    "userBoundSessions": 9,
+    "profileScopedSessions": 4,
+    "priorityScopedSessions": 8,
+    "sessionsWithAtLeastOneQueryMessage": 12,
+    "searchRuns": 14,
+    "searchResults": 28,
+    "zeroResultSearchRuns": 4,
+    "choices": 5,
+    "messages": 27,
+    "feedbackMessages": 3,
+    "agentCommunications": 28,
+    "agentErrors": 3,
+    "accountProfiles": 2,
+    "savedCriteria": 3,
+    "sessionsUsingSavedCriteria": 3
+  },
+  "rates": {
+    "querySessionRate": 100,
+    "zeroResultRunRate": 28.6,
+    "sessionChoiceRate": 41.7,
+    "resultSessionChoiceRate": 55.6,
+    "feedbackAfterResultsRate": 33.3,
+    "profileAdoptionRate": 33.3,
+    "savedCriteriaSessionRate": 25,
+    "agentErrorSessionRate": 25
+  },
+  "distributions": {
+    "searchRunsPerSession": {
+      "average": 1.17,
+      "p50": 1,
+      "p90": 2,
+      "max": 2
+    },
+    "resultCountPerSearchRun": {
+      "average": 2,
+      "p50": 2,
+      "p90": 4,
+      "max": 5,
+      "buckets": {
+        "0": 4,
+        "3-4": 4,
+        "1-2": 5,
+        "5+": 1
+      }
+    }
+  },
+  "agentErrorsByType": {
+    "search->presentation": 3
+  }
+}
