@@ -10,8 +10,8 @@
     "open_task_ids": [
         "SA-G7-T1"
     ],
-    "last_milestone": "SA-G5-deployed-live-lead-smoke-passed-forwarding-sent-ai-failed-nonblocking",
-    "next_focus": "continue with next non-blocked implementation goal; separately address deploy script SA-G7 frontend/auth smoke failures and AI analysis downstream failure when prioritized",
+    "last_milestone": "SA-G7-deployment-smoke-clean-failures-zero",
+    "next_focus": "continue with next non-blocked implementation goal; optional live customer/admin/non-admin token checks remain skipped until tokens are supplied",
     "blockers": [],
     "budget_units_used": 0,
     "metrics": {
@@ -1104,6 +1104,25 @@
                 "ai_failure_behavior": "non-blocking and persisted",
                 "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}",
                 "deploy_script_sa_g7_smoke": "reported existing frontend/auth smoke failures; not SA-G5 blocking"
+            },
+            "sa_g7_deployment_smoke_clean": {
+                "date": "2026-06-13",
+                "status": "post_deploy_smoke_passed",
+                "commits": [
+                    "8e1a8a2",
+                    "e8540f0"
+                ],
+                "running_pod": "shop-assistant-59b9f5bb49-thkhv",
+                "running_image_digest": "sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7",
+                "final_registry_digest": "sha256:721849d59a864601a1b75cbeb3b36cc2ff52bf44955f94f2066a2fc9ba5d2637",
+                "final_source_fingerprint": "c09672d4307fd946f2ed23a9a6241f2219ced966484741d8dd012417b9ac46e9",
+                "post_deploy_check": "Failures: 0; Skipped optional checks: 3",
+                "skipped_optional_checks": [
+                    "CUSTOMER_TOKEN",
+                    "ADMIN_TOKEN",
+                    "NON_ADMIN_TOKEN"
+                ],
+                "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}"
             }
         }
     }

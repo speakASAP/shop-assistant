@@ -87,3 +87,5 @@
 - [x] 2026-06-13 SA-G5 deployment attempted after approval; image build/push succeeded after disabling Nest asset watchers, but Kubernetes rollout timed out with new pod stuck ContainerCreating/Pulling before app start; rollout undo restored previous ready pod and production remained HTTP 200
 
 - [x] 2026-06-13 SA-G5 deployment retry succeeded; running pod uses image digest sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011, Prisma reports 11 migrations up to date, live lead smoke saved request a2c3726c-235f-48a1-a8d4-35066e4d184d with leadForwardingStatus=sent and aiAnalysisStatus=failed as non-blocking
+
+- [x] 2026-06-13 SA-G7 deployment smoke cleaned: frontend/auth static checks, unauthenticated protection checks, disabled local auth endpoints, and post-deploy SA-G7 smoke all passed with Failures=0; optional token checks skipped
