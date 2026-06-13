@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { AgentExecutionMode } from './execution-mode.service';
-import { AppSettingsService } from './app-settings.service';
+import { AppSettingsService, PublicLandingSettings } from './app-settings.service';
 
 interface UpdateModeDto {
   mode: AgentExecutionMode;
@@ -13,6 +13,7 @@ interface UpdateModeDto {
 interface UpdateSettingsDto {
   agentExecutionMode?: AgentExecutionMode;
   maxSearchResults?: number;
+  publicLanding?: Partial<PublicLandingSettings>;
 }
 
 @Controller('admin/settings')

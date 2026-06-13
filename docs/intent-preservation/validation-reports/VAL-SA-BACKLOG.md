@@ -272,3 +272,84 @@ Deviations:
 
 Recommendation:
 Next verify end-to-end query/search persistence in staging or with a controlled synthetic production query that is explicitly excluded from behavioral UX interpretation.
+
+
+## SA-G1-T1 Follow-Up Evidence - 2026-06-13
+
+Gate:
+Date: 2026-06-13
+Goal: SA-G1 Request-to-result quality follow-up after SA-G7 live validation
+Task: SA-G1-T1 Search Quality From Failed Searches
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: dirty worktree already contained SA-G7 validation/deploy changes and prior SA-G4 report artifacts; this SA-G1 source change is src/sessions/sessions.service.ts
+Remote status: edited directly on alfares/192.168.88.53
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Invariants checked: real merchant URL truthfulness, no fabricated product data, ai-microservice search ownership, privacy-safe failed-search analysis, no deployment for this follow-up slice
+Sensitive-data classification: production failed-search analysis exported only hashed query fingerprints, counts, query lengths, and timestamps; no raw query text, voice transcript, lead content, contact details, JWT, or secret was exported
+Contract/schema impact: no Prisma schema or endpoint contract change; query responses keep existing fields and add deterministic assistant message content when results are empty
+Privacy/legal impact: legal pages and AI transparency unchanged; zero-result guidance explicitly states that only real HTTP/HTTPS merchant URLs will be shown
+Replay/determinism impact: no-result response is deterministic from the refined query; external search remains nondeterministic
+External service boundary impact: search remains delegated to ai-microservice; this service only improves local response handling after no usable results are returned
+Validation commands:
+- npm run build
+- privacy-safe production zero-result aggregate query from pod using sha256 fingerprints only
+- sensitive-data scan of changed source/report/state/task files
+Result: pass. Build completed successfully. Sensitive-data scan matched only prior validation command text in VAL-SA-BACKLOG.md and no new secret values.
+
+Privacy-safe failed-search analysis:
+
+- Data window/source: latest 200 zero-result SearchRun records from the production database, queried inside the running shop-assistant pod.
+- Export method: normalized query text was hashed with sha256 and truncated to 12 hex characters; raw query text was not printed or written to docs.
+- Zero-result runs sampled: 4.
+- Unique failed-search fingerprints: 4.
+- Top fingerprint counts: 71758aeee575=1, 33bd9b8ec8c5=1, 4233e845abd4=1, 0540222beba1=1.
+- Query length range across exported fingerprints: 36 to 140 characters.
+
+Implementation:
+
+- Added deterministic buildNoResultsMessage(queryText) in src/sessions/sessions.service.ts.
+- Single-intent searches with zero usable results now save an assistant message that explains no usable merchant results were found and asks for concrete refinements such as category, brand/model/size/material/color, budget, or delivery location.
+- Multi-intent searches where all intents produce zero usable results now use the same deterministic guidance for the combined query.
+- Successful result paths still use ai-microservice formatting and price comparison.
+- Empty-result paths now log an agent communication response with resultCount=0 after recovery attempts.
+
+Passed criteria:
+
+- Failed-search analysis method is privacy-safe and recorded.
+- Response quality improves the named failure category: zero usable merchant results after recovery.
+- No fabricated merchant URLs, products, prices, or availability are introduced.
+- Build passes.
+
+Remaining risks:
+
+- The current production failed-search dataset is small: only 4 zero-result runs were available in the sampled window.
+- This follow-up has not been deployed; deployment should wait for owner approval if this exact response change is to be activated in production.
+- Remaining SA-G7 live authenticated checks still require valid customer/admin/non-admin accounts.
+
+
+## SA-G1-T1 Deployment Evidence - 2026-06-13
+
+Deployment evidence:
+
+- Owner approved deployment of the SA-G1 no-results response change in the active session on 2026-06-13.
+- Ran the repository deployment script from /home/ssf/Documents/Github/shop-assistant.
+- Deployment preflight passed.
+- Rollout completed successfully.
+- New pod observed running: shop-assistant-7f6fb76c76-fks5p.
+- Total deployment time reported by script: 54.30s.
+
+Post-deploy smoke:
+
+- Health check returned 200.
+- Synthetic zero-result attempt 1 used session 56f7ba3f-5bc1-4339-85b8-5fe2df35fc16 and returned 10 results, so the no-results branch was not exercised.
+- Synthetic zero-result attempt 2 used session a35fa3fe-9e1d-45d2-9ba5-c0e9f16fdce2 and returned 10 results, so the no-results branch was not exercised.
+- Both attempts confirm the deployed query path remains healthy and still returns real result rows when ai/search finds usable URLs.
+
+Result:
+
+- Deployment: pass.
+- Live route health: pass.
+- Live no-results branch validation: inconclusive because the delegated search service found results for both synthetic impossible-product attempts.
+- Source/build validation remains the evidence for the deterministic no-results branch until an actual zero-result query is observed or a controlled lower-level smoke harness is added.

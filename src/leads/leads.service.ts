@@ -43,7 +43,7 @@ export class LeadsService {
   ) {
     this.leadsServiceUrl =
       this.config.get<string>('LEADS_SERVICE_URL') ||
-      (process.env.DOMAIN ? `https://leads.${process.env.DOMAIN}` : 'http://leads-microservice:3371');
+      (process.env.DOMAIN ? `https://leads.${process.env.DOMAIN}` : 'http://leads-microservice:4400');
     this.aiServiceUrl = this.config.get<string>('AI_SERVICE_URL') || process.env.AI_SERVICE_URL || '';
     this.aiTimeout = Number(this.config.get<string>('AI_SERVICE_TIMEOUT')) || Number(process.env.AI_SERVICE_TIMEOUT) || 30000;
 

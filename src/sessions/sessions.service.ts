@@ -9,6 +9,21 @@ import { AppSettingsService } from '../admin/app-settings.service';
 import { PRIORITY_KEYS } from './dto/create-session.dto';
 
 /** Normalize priorities to allowed keys only (10.1). */
+
+function buildNoResultsMessage(queryText: string): string {
+  const safeQuery = String(queryText || 'your request').replace(/\s+/g, ' ').trim().slice(0, 160) || 'your request';
+  return [
+    'I could not find usable merchant results for "' + safeQuery + '".',
+    '',
+    'Try refining the request with one or two concrete details:',
+    '- product type or category',
+    '- brand, model, size, material, or color',
+    '- budget and delivery location',
+    '',
+    'I will only show results when they include real HTTP or HTTPS merchant URLs.'
+  ].join('\n');
+}
+
 function normalizePriorityOrder(priorities?: string[]): string[] | null {
   if (!priorities?.length) return null;
   const set = new Set(PRIORITY_KEYS);
@@ -28,7 +43,7 @@ export class SessionsService {
     private readonly appSettings: AppSettingsService,
   ) {}
 
-  async createSession(userId?: string, priorities?: string[], profileId?: string) {
+  async createSession(userId?: string, priorities?: string[], profileId?: string, usedSavedCriteriaId?: string) {
     const priorityOrder = normalizePriorityOrder(priorities);
     this.logging.debug('Session create request', { userId: userId ?? null, priorityOrder, profileId: profileId ?? null, context: 'SessionsService' });
     const session = await this.prisma.session.create({
@@ -36,6 +51,7 @@ export class SessionsService {
         userId: userId || null,
         priorityOrder: priorityOrder ? (priorityOrder as object) : undefined,
         profileId: profileId && profileId.trim() ? profileId.trim() : undefined,
+        usedSavedCriteriaId: usedSavedCriteriaId && usedSavedCriteriaId.trim() ? usedSavedCriteriaId.trim() : undefined,
       },
     });
     this.logging.info('Session created', { sessionId: session.id, userId: userId ?? null, profileId: session.profileId ?? null, context: 'SessionsService' });
@@ -176,15 +192,27 @@ export class SessionsService {
         snippet: r.snippet,
       }));
       const combinedQueryText = intents.join('; ');
-      let formattedContent = await this.ai.formatResultsForPresentation(
-        resultsForFormat,
-        combinedQueryText,
-        'default',
-        sessionId,
-      );
-      const comparisonSummary = await this.ai.comparePrices(resultsForFormat, combinedQueryText, 'default', sessionId, priorityOrder ?? undefined);
-      if (comparisonSummary) {
-        formattedContent = `${formattedContent}\n\n---\n**Price comparison:** ${comparisonSummary}`;
+      let formattedContent = buildNoResultsMessage(combinedQueryText);
+      if (resultsForFormat.length > 0) {
+        formattedContent = await this.ai.formatResultsForPresentation(
+          resultsForFormat,
+          combinedQueryText,
+          'default',
+          sessionId,
+        );
+        const comparisonSummary = await this.ai.comparePrices(resultsForFormat, combinedQueryText, 'default', sessionId, priorityOrder ?? undefined);
+        if (comparisonSummary) {
+          formattedContent = `${formattedContent}\n\n---\n**Price comparison:** ${comparisonSummary}`;
+        }
+      } else {
+        await this.logAgentCommunication(
+          sessionId,
+          'SEARCH',
+          'COMMUNICATION',
+          'response',
+          'No usable merchant results after recovery attempts',
+          { resultCount: 0, queryText: combinedQueryText },
+        );
       }
       await this.prisma.message.create({
         data: { sessionId, role: 'assistant', contentType: 'text', content: formattedContent },
@@ -300,15 +328,27 @@ export class SessionsService {
       // Prefer imageUrl from AI search response when available
       imageUrl: items[index]?.imageUrl,
     }));
-    let formattedContent = await this.ai.formatResultsForPresentation(
-      resultsForFormat,
-      queryText,
-      'default',
-      sessionId,
-    );
-    const comparisonSummary = await this.ai.comparePrices(resultsForFormat, queryText, 'default', sessionId, priorityOrder ?? undefined);
-    if (comparisonSummary) {
-      formattedContent = `${formattedContent}\n\n---\n**Price comparison:** ${comparisonSummary}`;
+    let formattedContent = buildNoResultsMessage(queryText);
+    if (resultsForFormat.length > 0) {
+      formattedContent = await this.ai.formatResultsForPresentation(
+        resultsForFormat,
+        queryText,
+        'default',
+        sessionId,
+      );
+      const comparisonSummary = await this.ai.comparePrices(resultsForFormat, queryText, 'default', sessionId, priorityOrder ?? undefined);
+      if (comparisonSummary) {
+        formattedContent = `${formattedContent}\n\n---\n**Price comparison:** ${comparisonSummary}`;
+      }
+    } else {
+      await this.logAgentCommunication(
+        sessionId,
+        'SEARCH',
+        'COMMUNICATION',
+        'response',
+        'No usable merchant results after recovery attempts',
+        { resultCount: 0, queryText },
+      );
     }
     await this.prisma.message.create({
       data: { sessionId, role: 'assistant', contentType: 'text', content: formattedContent },

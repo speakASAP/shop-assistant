@@ -1,0 +1,102 @@
+{
+  "metadata": {
+    "generatedAt": "2026-06-13T03:48:56.448Z",
+    "syntheticSource": "sa-g4-t1-synthetic-usage-2026-06-12",
+    "productionSource": "production-aggregate",
+    "privacy": "Compares aggregate metrics only. No raw messages, query text, profile names, lead details, JWTs, secrets, or database URLs included.",
+    "interpretation": "Synthetic fixture validates metric mechanics; production aggregate reflects live persisted traffic availability."
+  },
+  "metrics": [
+    {
+      "metric": "sessions",
+      "synthetic": 12,
+      "production": 1,
+      "delta": -11
+    },
+    {
+      "metric": "sessionsWithAtLeastOneQueryMessage",
+      "synthetic": 12,
+      "production": 0,
+      "delta": -12
+    },
+    {
+      "metric": "searchRuns",
+      "synthetic": 14,
+      "production": 0,
+      "delta": -14
+    },
+    {
+      "metric": "searchResults",
+      "synthetic": 28,
+      "production": 0,
+      "delta": -28
+    },
+    {
+      "metric": "zeroResultSearchRuns",
+      "synthetic": 4,
+      "production": 0,
+      "delta": -4
+    },
+    {
+      "metric": "choices",
+      "synthetic": 5,
+      "production": 0,
+      "delta": -5
+    },
+    {
+      "metric": "feedbackMessages",
+      "synthetic": 3,
+      "production": 0,
+      "delta": -3
+    },
+    {
+      "metric": "agentErrors",
+      "synthetic": 3,
+      "production": 0,
+      "delta": -3
+    },
+    {
+      "metric": "accountProfiles",
+      "synthetic": 2,
+      "production": 0,
+      "delta": -2
+    },
+    {
+      "metric": "savedCriteria",
+      "synthetic": 3,
+      "production": 0,
+      "delta": -3
+    },
+    {
+      "metric": "zeroResultRunRate",
+      "synthetic": 28.6,
+      "production": 0,
+      "delta": -28.6
+    },
+    {
+      "metric": "sessionChoiceRate",
+      "synthetic": 41.7,
+      "production": 0,
+      "delta": -41.7
+    },
+    {
+      "metric": "feedbackAfterResultsRate",
+      "synthetic": 33.3,
+      "production": 0,
+      "delta": -33.3
+    },
+    {
+      "metric": "profileAdoptionRate",
+      "synthetic": 33.3,
+      "production": 0,
+      "delta": -33.3
+    },
+    {
+      "metric": "agentErrorSessionRate",
+      "synthetic": 25,
+      "production": 0,
+      "delta": -25
+    }
+  ],
+  "conclusion": "Production aggregate contains persisted traffic and can be reviewed against the synthetic validation baseline."
+}

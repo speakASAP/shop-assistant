@@ -21,10 +21,24 @@ export class MeController {
   }
 
   @Get('sessions')
-  async listSessions(@Req() req: any, @Query('page') page?: string, @Query('limit') limit?: string) {
+  async listSessions(
+    @Req() req: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('q') q?: string,
+    @Query('profileId') profileId?: string,
+    @Query('status') status?: string,
+  ) {
     const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
     const limitNum = Math.min(50, Math.max(1, parseInt(String(limit), 10) || 20));
-    return this.me.listSessions(req.user.id as string, pageNum, limitNum);
+    return this.me.listSessions(req.user.id as string, pageNum, limitNum, { q, profileId, status });
+  }
+
+  @Get('choices')
+  async listChoices(@Req() req: any, @Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(String(limit), 10) || 10));
+    return this.me.listChoices(req.user.id as string, pageNum, limitNum);
   }
 
   @Post('sessions')
@@ -45,5 +59,10 @@ export class MeController {
   @Post('sessions/:id/feedback')
   async submitFeedback(@Req() req: any, @Param('id') id: string, @Body() dto: FeedbackDto) {
     return this.me.submitFeedback(req.user.id as string, id, dto.message, dto.selectedIndices, dto.priorities, dto.profileId);
+  }
+
+  @Post('sessions/:id/choice/:productId')
+  async chooseProduct(@Req() req: any, @Param('id') id: string, @Param('productId') productId: string) {
+    return this.me.chooseProduct(req.user.id as string, id, productId);
   }
 }

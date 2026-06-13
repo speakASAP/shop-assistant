@@ -23,14 +23,21 @@ export class SavedCriteriaService {
     }
   }
 
-  async listCriteria(userId: string) {
-    this.logging.debug('List saved criteria request', { userId, context: 'SavedCriteriaService' });
-    const items = await this.prisma.savedSearchCriteria.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-    });
-    this.logging.info('Saved criteria listed', { userId, count: items.length, context: 'SavedCriteriaService' });
-    return { items };
+  async listCriteria(userId: string, page = 1, limit = 20) {
+    const safePage = Math.max(1, page || 1);
+    const safeLimit = Math.min(50, Math.max(1, limit || 20));
+    this.logging.debug('List saved criteria request', { userId, page: safePage, limit: safeLimit, context: 'SavedCriteriaService' });
+    const [items, total] = await Promise.all([
+      this.prisma.savedSearchCriteria.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'asc' },
+        skip: (safePage - 1) * safeLimit,
+        take: safeLimit,
+      }),
+      this.prisma.savedSearchCriteria.count({ where: { userId } }),
+    ]);
+    this.logging.info('Saved criteria listed', { userId, count: items.length, total, context: 'SavedCriteriaService' });
+    return { items, pagination: { page: safePage, limit: safeLimit, total } };
   }
 
   async getCriteria(userId: string, id: string) {
@@ -164,7 +171,7 @@ export class SavedCriteriaService {
     }
 
     const profileId = typeof criteria.profileId === 'string' && criteria.profileId.trim() ? criteria.profileId.trim() : undefined;
-    const session = await this.sessions.createSession(userId, priorities, profileId);
+    const session = await this.sessions.createSession(userId, priorities, profileId, criteria.id);
     const sessionId = session.sessionId;
 
     // Submit query with priorities; multi-product split and agents are handled in SessionsService/AiService.
@@ -186,4 +193,3 @@ export class SavedCriteriaService {
     };
   }
 }
-

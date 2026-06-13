@@ -29,6 +29,10 @@ export class OverviewController {
       prompts,
       activePrompts,
       agentCommunications,
+      agentErrors,
+      leadTriageGroups,
+      searchRunsLast24h,
+      searchRunsLast24hWithRawResponse,
       recentSessions,
       recentLeads,
       currentSettings,
@@ -44,6 +48,13 @@ export class OverviewController {
       this.prisma.agentPrompt.count(),
       this.prisma.agentPrompt.count({ where: { isActive: true } }),
       this.prisma.agentCommunication.count({ where: { createdAt: { gte: since } } }),
+      this.prisma.agentCommunication.count({ where: { createdAt: { gte: since }, messageType: 'error' } }),
+      this.prisma.leadRequest.groupBy({ by: ['triageStatus'], _count: { _all: true } }),
+      this.prisma.searchRun.count({ where: { createdAt: { gte: since } } }),
+      this.prisma.searchRun.findMany({
+        where: { createdAt: { gte: since } },
+        select: { rawSearchResponse: true },
+      }),
       this.prisma.session.findMany({
         orderBy: { updatedAt: 'desc' },
         take: 8,
@@ -56,6 +67,20 @@ export class OverviewController {
       }),
       this.settings.getSettings(),
     ]);
+    const triageStatuses = ['new', 'contacted', 'qualified', 'won', 'lost', 'spam'];
+    const leadTriage = triageStatuses.reduce<Record<string, number>>((acc, status) => {
+      acc[status] = 0;
+      return acc;
+    }, {});
+    for (const group of leadTriageGroups) {
+      leadTriage[group.triageStatus || 'new'] = group._count._all;
+    }
+    const zeroResultSearchRunsLast24h = searchRunsLast24hWithRawResponse.filter((run) => {
+      const response = run.rawSearchResponse;
+      if (!response || typeof response !== 'object' || Array.isArray(response)) return false;
+      const items = (response as { items?: unknown }).items;
+      return items === 0;
+    }).length;
 
     return {
       summary: {
@@ -71,6 +96,14 @@ export class OverviewController {
         prompts,
         activePrompts,
         agentCommunicationsLast24h: agentCommunications,
+      },
+      health: {
+        windowHours: 24,
+        leadTriage,
+        openLeadRequests: leadTriage.new + leadTriage.contacted + leadTriage.qualified,
+        searchRunsLast24h,
+        zeroResultSearchRunsLast24h,
+        agentErrorsLast24h: agentErrors,
       },
       settings: currentSettings,
       recentSessions,
