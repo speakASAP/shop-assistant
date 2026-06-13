@@ -294,7 +294,7 @@ expect_body_contains() {
   local needle="$3"
   local body
   body="$(fetch_body "$path")"
-  if printf '%s' "$body" | grep -Fq "$needle"; then
+  if grep -Fq "$needle" <<< "$body"; then
     pass "$label contains expected copy"
   else
     fail "$label missing expected copy: $needle"
@@ -307,7 +307,7 @@ expect_body_not_contains() {
   local needle="$3"
   local body
   body="$(fetch_body "$path")"
-  if printf '%s' "$body" | grep -Fq "$needle"; then
+  if grep -Fq "$needle" <<< "$body"; then
     fail "$label contains forbidden copy: $needle"
   else
     pass "$label excludes forbidden copy"
