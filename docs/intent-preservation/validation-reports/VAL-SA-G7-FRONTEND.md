@@ -1372,3 +1372,44 @@ Remaining validation:
 
 - Live Auth callback success check with real Auth accounts after owner-approved deploy.
 - Confirm Auth still returns access token fragments compatible with same-tab session storage in production.
+
+## Implementation Slice 2026-06-13: Persistent User Identity Storage Cleanup
+
+Scope implemented:
+
+- Removed the dashboard `localStorage.setItem('user', ...)` write.
+- Dashboard user label/state now renders directly from the authenticated `/api/me` response without persisting user identity in browser storage.
+- Legacy `localStorage.user` cleanup remains on logout/session expiry.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Source scan evidence:
+
+- No remaining `localStorage.setItem('user', ...)` in `public/`.
+- No remaining `localStorage.getItem('user')` in `public/`.
+
+In-app browser dashboard QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock server served patched `dashboard.html` at `http://127.0.0.1:8142`.
+- Seed page created the expected Auth `state` in `sessionStorage`, then redirected through the real dashboard hash callback.
+- Verified the dashboard URL fragment is cleaned back to `dashboard.html`.
+- Verified signed-in dashboard state still renders from protected API data.
+- Console/page errors in final QA run: none.
+- Screenshot: `/private/tmp/shop-assistant-dashboard-user-storage-qa.png`.
+
+Security and boundary evidence:
+
+- Shop Assistant frontend no longer writes authenticated user identity/email to persistent browser storage.
+- Protected dashboard state continues to come from current-user APIs.
+- This slice does not change backend JWT validation or current-user ownership checks.
+
+Remaining validation:
+
+- Live Auth callback success check with real customer account after owner-approved deploy.

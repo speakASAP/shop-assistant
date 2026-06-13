@@ -50,6 +50,17 @@ interface MulterFile {
   path: string;
 }
 
+const MAX_FAILURE_MESSAGE_LENGTH = 1000;
+
+function normalizeFailureMessage(err: unknown): string {
+  const candidate =
+    err && typeof err === 'object' && 'message' in err
+      ? String((err as { message?: unknown }).message || '')
+      : String(err || '');
+  const normalized = candidate.replace(/\s+/g, ' ').trim() || 'Unknown forwarding failure';
+  return normalized.slice(0, MAX_FAILURE_MESSAGE_LENGTH);
+}
+
 @Controller('leads')
 export class LeadsController {
   constructor(
@@ -157,31 +168,60 @@ export class LeadsController {
         message: payload.message,
         contactMethods: payload.contactMethods as object,
         metadata: payload.metadata as object,
+        leadForwardingStatus: 'pending',
+        aiAnalysisStatus: 'pending',
       },
     });
     const requestId = leadRequest.id;
     this.logging.info('Lead request saved on server', { context: 'LeadsController', requestId });
 
-    // 2) Send to leads-microservice (CRM/notifications)
-    const result = await this.leadsService.submitLead(payload);
-    this.logging.info('Lead submitted to leads-microservice', { context: 'LeadsController', leadId: result.leadId });
+    // 2) Send to leads-microservice (CRM/notifications). Local capture remains durable if forwarding fails.
+    let result: { leadId?: string; status?: string; confirmationSent?: boolean } | null = null;
+    let leadForwardingStatus = 'sent';
+    let leadForwardingError: string | null = null;
+    try {
+      result = await this.leadsService.submitLead(payload);
+      this.logging.info('Lead submitted to leads-microservice', { context: 'LeadsController', leadId: result.leadId });
+    } catch (err) {
+      leadForwardingStatus = 'failed';
+      leadForwardingError = normalizeFailureMessage(err);
+      this.logging.error('Lead forwarding failed after local save', {
+        context: 'LeadsController',
+        requestId,
+        error: leadForwardingError,
+      });
+    }
 
     // 3) Send to ai-microservice for analysis (same as statex)
     const aiResult = await this.leadsService.submitToAi(requestId, payload);
+    const aiAnalysisStatus =
+      aiResult.error ? 'failed' : aiResult.status === 'skipped' ? 'skipped' : aiResult.aiSubmissionId || aiResult.status ? 'sent' : 'pending';
 
-    // 4) Update saved request with leadId and aiSubmissionId
+    // 4) Update saved request with downstream IDs and integration statuses.
     await this.prisma.leadRequest.update({
       where: { id: requestId },
       data: {
-        leadId: result.leadId,
+        leadId: result?.leadId ?? undefined,
         aiSubmissionId: aiResult.aiSubmissionId ?? undefined,
+        leadForwardingStatus,
+        leadForwardingError,
+        leadForwardedAt: leadForwardingStatus === 'sent' ? new Date() : undefined,
+        aiAnalysisStatus,
+        aiAnalysisError: aiResult.error ? normalizeFailureMessage(aiResult.error) : null,
+        aiAnalyzedAt: aiAnalysisStatus === 'sent' ? new Date() : undefined,
       },
     });
 
     return {
-      ...result,
+      ...(result ?? {
+        status: 'saved',
+        confirmationSent: false,
+        message: 'Request saved locally; forwarding is pending operator review.',
+      }),
       requestId,
       aiSubmissionId: aiResult.aiSubmissionId,
+      leadForwardingStatus,
+      aiAnalysisStatus,
     };
   }
 }
