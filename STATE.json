@@ -10,8 +10,8 @@
     "open_task_ids": [
         "SA-G7-T1"
     ],
-    "last_milestone": "SA-G7-deployment-smoke-clean-failures-zero",
-    "next_focus": "continue with next non-blocked implementation goal; optional live customer/admin/non-admin token checks remain skipped until tokens are supplied",
+    "last_milestone": "SA-G4-query-persistence-validation-harness",
+    "next_focus": "select the next non-blocked implementation goal; optional live customer/admin/non-admin token checks remain skipped until safe tokens are supplied",
     "blockers": [],
     "budget_units_used": 0,
     "metrics": {
@@ -1123,6 +1123,29 @@
                     "NON_ADMIN_TOKEN"
                 ],
                 "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}"
+            },
+            "sa_g4_query_persistence_validation": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_read_only_pod_validation_passed",
+                "script": "scripts/verify-query-persistence.js",
+                "validated_session_id": "a35fa3fe-9e1d-45d2-9ba5-c0e9f16fdce2",
+                "mode": "existing-session-read-only",
+                "counts": {
+                    "messages": 3,
+                    "userMessages": 1,
+                    "assistantMessages": 2,
+                    "tableMessages": 1,
+                    "searchRuns": 1,
+                    "searchResults": 10,
+                    "zeroResultSearchRuns": 0,
+                    "agentCommunications": 11,
+                    "agentErrors": 0,
+                    "httpResultUrls": 10,
+                    "invalidResultUrls": 0
+                },
+                "validation": "node --check passed; npm run build passed; read-only pod run emitted sanitized counts only and returned result pass",
+                "privacy": "no query text, message content, profile names, lead details, JWTs, secrets, merchant URLs, or database URLs emitted",
+                "live_validation_pending": "optional token-backed customer/admin/non-admin checks remain skipped until safe tokens are supplied"
             }
         }
     }

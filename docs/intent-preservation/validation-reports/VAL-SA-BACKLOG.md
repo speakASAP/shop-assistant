@@ -353,3 +353,64 @@ Result:
 - Live route health: pass.
 - Live no-results branch validation: inconclusive because the delegated search service found results for both synthetic impossible-product attempts.
 - Source/build validation remains the evidence for the deterministic no-results branch until an actual zero-result query is observed or a controlled lower-level smoke harness is added.
+
+## SA-G4-T1 Query Persistence Validation Harness - 2026-06-13
+
+Gate:
+Date: 2026-06-13
+Goal: SA-G4 Agent admin and observability
+Task: SA-G4-T1 UX Improvement Report From Session Data follow-up
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: clean before this slice except the newly added validation harness
+Remote status: edited directly on alfares
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Invariants checked: privacy-safe aggregate/session-shape validation, real HTTP/HTTPS result URL check, no fabricated merchant data, no admin auth or legal page changes, no deployment
+Sensitive-data classification: validation script emits session ids, timestamps, booleans, counts, result URL scheme counts, search-run ids/counts, and agent route/count buckets only
+Contract/schema impact: no API, Prisma schema, public UI, admin auth, legal, deployment, or external-service contract changed; added local script contract for read-only SESSION_ID inspection or explicitly enabled synthetic query mode
+Privacy/legal impact: script does not print query text, message content, profile names, lead details, contact data, JWTs, secrets, merchant URLs, database URLs, or raw production personal data
+Replay/determinism impact: read-only SESSION_ID mode is deterministic for current database state; synthetic mode is state-changing and requires RUN_SYNTHETIC_QUERY=1 plus SYNTHETIC_QUERY
+External service boundary impact: database-server remains persistence owner; AI/search remains delegated to ai-microservice; script only validates persisted evidence shape
+Validation commands:
+- node scripts/verify-query-persistence.js --help
+- node --check scripts/verify-query-persistence.js
+- npm run build
+- kubectl cp scripts/verify-query-persistence.js statex-apps/$POD:/tmp/verify-query-persistence.js
+- kubectl exec -n statex-apps $POD -- sh -lc "cd /app && SESSION_ID=a35fa3fe-9e1d-45d2-9ba5-c0e9f16fdce2 NODE_PATH=/app/node_modules node /tmp/verify-query-persistence.js"
+Result: pass. The read-only production pod validation emitted sanitized counts only and did not export raw query/message/result URL content.
+
+Implementation:
+
+- Added scripts/verify-query-persistence.js.
+- The script supports existing-session read-only validation with SESSION_ID.
+- The script supports controlled synthetic query validation only when RUN_SYNTHETIC_QUERY=1 and SYNTHETIC_QUERY are supplied.
+- Output is intentionally sanitized for IPS compliance.
+
+Read-only validation result for existing documented smoke session a35fa3fe-9e1d-45d2-9ba5-c0e9f16fdce2:
+
+- messages: 3
+- userMessages: 1
+- assistantMessages: 2
+- tableMessages: 1
+- searchRuns: 1
+- searchResults: 10
+- zeroResultSearchRuns: 0
+- agentCommunications: 11
+- agentErrors: 0
+- httpResultUrls: 10
+- invalidResultUrls: 0
+- result: pass
+
+Passed criteria:
+
+- Query path persistence can now be verified repeatably without printing sensitive content.
+- Existing production query evidence confirms Message, SearchRun, SearchResult, and AgentCommunication records persisted for one documented smoke session.
+- Persisted result URLs satisfy the HTTP/HTTPS shape check for the validated session.
+- Build passed.
+
+Remaining risks:
+
+- This harness validates persistence shape, not business relevance of merchant results.
+- Broader live customer/admin/non-admin token checks remain skipped until safe tokens are supplied.
+- Synthetic query mode is available but should be used only when an explicitly namespaced write is acceptable.
