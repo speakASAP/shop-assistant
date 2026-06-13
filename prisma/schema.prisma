@@ -122,6 +122,12 @@ model LeadRequest {
   metadata        Json?    // { name, page, locale, hasVoiceRecording, filesCount, ... }
   leadId          String?  @db.VarChar(255)  // from leads-microservice
   aiSubmissionId  String?  @db.VarChar(255)  // from ai-microservice
+  leadForwardingStatus String @default("pending") @db.VarChar(32)
+  leadForwardingError  String? @db.Text
+  leadForwardedAt      DateTime?
+  aiAnalysisStatus     String @default("pending") @db.VarChar(32)
+  aiAnalysisError      String? @db.Text
+  aiAnalyzedAt         DateTime?
   triageStatus    String   @default("new") @db.VarChar(32)
   assignedTo      String?  @db.VarChar(255)
   adminNotes      String?  @db.Text
@@ -132,6 +138,8 @@ model LeadRequest {
   @@index([createdAt])
   @@index([sourceService])
   @@index([triageStatus])
+  @@index([leadForwardingStatus])
+  @@index([aiAnalysisStatus])
 }
 
 // Agent-to-agent communication logs for debugging

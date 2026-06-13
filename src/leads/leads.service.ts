@@ -95,10 +95,10 @@ export class LeadsService {
   async submitToAi(
     requestId: string,
     payload: SubmitLeadPayload,
-  ): Promise<{ aiSubmissionId?: string; status?: string }> {
+  ): Promise<{ aiSubmissionId?: string; status?: string; error?: string }> {
     if (!this.aiServiceUrl) {
       this.logging.warn('AI_SERVICE_URL not set, skipping AI analysis', { context: 'LeadsService', requestId });
-      return {};
+      return { status: 'skipped' };
     }
     const hasVoice = (payload.metadata as { hasVoiceRecording?: boolean })?.hasVoiceRecording === true;
     const filesCount = (payload.metadata as { filesCount?: number })?.filesCount ?? 0;
@@ -153,7 +153,7 @@ export class LeadsService {
         requestId,
         error: msg,
       });
-      return {};
+      return { status: 'failed', error: msg };
     }
   }
 }

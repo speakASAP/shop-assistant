@@ -10,8 +10,8 @@
     "open_task_ids": [
         "SA-G7-T1"
     ],
-    "last_milestone": "SA-G7-session-scoped-token-storage-built-and-browser-qa-passed",
-    "next_focus": "owner approval is needed before deploying latest SA-G7 dashboard/admin/settings/lead-triage/health-overview/account-data/token-and-state-hardening/session-token-storage changes and applying pending migrations; valid customer token is needed for live dashboard history filters, history pagination, selected-products pagination, saved-search pagination, priority-control, product-selection, request-refinement, and saved-criteria traceability smoke; valid admin/non-admin credentials are needed for SA-G7 admin live checks including Auth callback cleanup/state validation, overview health, account data, operations filters, and lead triage",
+    "last_milestone": "SA-G7-persistent-user-identity-storage-removed-built-and-browser-qa-passed",
+    "next_focus": "owner approval is needed before deploying latest SA-G7 dashboard/admin/settings/lead-triage/health-overview/account-data/token-and-state-hardening/session-token-storage/user-storage-cleanup changes and applying pending migrations; valid customer token is needed for live dashboard history filters, history pagination, selected-products pagination, saved-search pagination, priority-control, product-selection, request-refinement, and saved-criteria traceability smoke; valid admin/non-admin credentials are needed for SA-G7 admin live checks including Auth callback cleanup/state validation, overview health, account data, operations filters, and lead triage",
     "blockers": [],
     "budget_units_used": 0,
     "metrics": {
@@ -610,6 +610,25 @@
                 "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard/admin hash callbacks, verified URL fragments cleaned, dashboard signed in, admin authorized, no console errors; mock API recorded Bearer dashboard-session-token and Bearer admin-session-token on protected calls",
                 "security_boundary": "Shop Assistant frontend no longer writes bearer or refresh tokens to persistent browser storage; backend JWT/RBAC guards and current-user ownership checks are unchanged",
                 "live_validation_pending": "owner-approved deploy and real Auth callback success smoke to confirm Auth fragment flow remains compatible with same-tab session storage"
+            },
+            "sa_g7_t1_persistent_user_identity_storage_cleanup": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+                "files": [
+                    "public/dashboard.html"
+                ],
+                "changes": [
+                    "removed dashboard localStorage.setItem('user', ...) write",
+                    "dashboard renders user label directly from protected /api/me response",
+                    "legacy localStorage.user cleanup remains on logout/session expiry"
+                ],
+                "source_scan": "no localStorage.setItem('user') or localStorage.getItem('user') patterns remain in public/",
+                "screenshots": [
+                    "/private/tmp/shop-assistant-dashboard-user-storage-qa.png"
+                ],
+                "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard hash callback, verified URL fragment cleaned and signed-in dashboard rendered with no console errors",
+                "security_boundary": "Shop Assistant frontend no longer writes authenticated user identity/email to persistent browser storage; dashboard state continues to come from current-user APIs",
+                "live_validation_pending": "owner-approved deploy and real customer Auth callback success smoke"
             }
         }
     }
