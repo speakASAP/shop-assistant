@@ -12,6 +12,7 @@ model Session {
   userId       String?
   priorityOrder Json?   // User priority order: ["price","quality","location"] or similar (10.1)
   profileId    String?
+  usedSavedCriteriaId String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   messages     Message[]
@@ -19,10 +20,12 @@ model Session {
   choices      Choice[]
   agentCommunications AgentCommunication[]
   profile      AccountProfile? @relation(fields: [profileId], references: [id])
+  usedSavedCriteria SavedSearchCriteria? @relation(fields: [usedSavedCriteriaId], references: [id])
 
   @@index([userId])
   @@index([createdAt])
   @@index([profileId])
+  @@index([usedSavedCriteriaId])
 }
 
 model Message {
@@ -119,10 +122,16 @@ model LeadRequest {
   metadata        Json?    // { name, page, locale, hasVoiceRecording, filesCount, ... }
   leadId          String?  @db.VarChar(255)  // from leads-microservice
   aiSubmissionId  String?  @db.VarChar(255)  // from ai-microservice
+  triageStatus    String   @default("new") @db.VarChar(32)
+  assignedTo      String?  @db.VarChar(255)
+  adminNotes      String?  @db.Text
+  triagedAt       DateTime?
+  triagedBy       String?  @db.VarChar(255)
   createdAt       DateTime @default(now())
 
   @@index([createdAt])
   @@index([sourceService])
+  @@index([triageStatus])
 }
 
 // Agent-to-agent communication logs for debugging
@@ -170,6 +179,7 @@ model SavedSearchCriteria {
   profile        AccountProfile? @relation(fields: [profileId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  sessions       Session[]
 
   @@index([userId])
   @@index([profileId])

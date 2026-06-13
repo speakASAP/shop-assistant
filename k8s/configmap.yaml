@@ -13,6 +13,7 @@ data:
   PORT: "4500"
   AI_SERVICE_URL: "http://ai-microservice.statex-apps.svc.cluster.local:3380"
   AUTH_SERVICE_URL: "http://auth-microservice.statex-apps.svc.cluster.local:3370"
+  LEADS_SERVICE_URL: "http://leads-microservice.statex-apps.svc.cluster.local:4400"
   AUTH_SERVICE_TIMEOUT: "15000"
   # Add environment variables from .env that are non-sensitive (no secrets, API keys, passwords)
   # Examples:

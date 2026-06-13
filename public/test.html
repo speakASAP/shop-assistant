@@ -594,6 +594,7 @@
 
   <script>
     const API_BASE = window.location.origin + '/api';
+    const ACCESS_TOKEN_KEY = 'shop_assistant_access_token';
     const TOKEN_KEY = 'shop_assistant_admin_token';
     let currentSessionId = null;
     let lastResults = [];
@@ -601,12 +602,18 @@
     let lastSessionId = null;
 
     function getToken() {
-      const p = new URLSearchParams(window.location.search);
-      if (p.get('token')) return p.get('token').trim();
       const stored = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
       if (stored) return stored;
-      // If the user is logged in, treat the stored access token as valid.
-      return (localStorage.getItem('accessToken') || '').trim();
+      const sessionToken = (sessionStorage.getItem(ACCESS_TOKEN_KEY) || '').trim();
+      if (sessionToken) return sessionToken;
+      const legacyToken = (localStorage.getItem('accessToken') || '').trim();
+      if (legacyToken) {
+        sessionStorage.setItem(ACCESS_TOKEN_KEY, legacyToken);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        return legacyToken;
+      }
+      return '';
     }
 
     function authHeaders() {
@@ -745,7 +752,7 @@
         const data = await r.json();
         const sessionId = data.sessionId;
         if (sessionId) {
-          window.location.href = 'test.html?sessionId=' + encodeURIComponent(sessionId) + (getToken() ? '&token=' + encodeURIComponent(getToken()) : '');
+          window.location.href = 'test.html?sessionId=' + encodeURIComponent(sessionId);
         } else {
           showError('No session returned');
         }
@@ -1257,9 +1264,6 @@
 
     (function initAccountAndSavedCriteria() {
       const token = getToken();
-      if (token && window.location.search.indexOf('token=') >= 0) {
-        try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
-      }
       showAccountSection(!!token);
       const addBtn = document.getElementById('addSavedCriteriaBtn');
       const cancelBtn = document.getElementById('cancelSavedCriteriaBtn');

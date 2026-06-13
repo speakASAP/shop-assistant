@@ -3,6 +3,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LoggingService } from '../logging/logging.service';
 import { SessionsService } from '../sessions/sessions.service';
 
+const MAX_SESSION_SEARCH_LENGTH = 120;
+const SESSION_STATUSES = ['selected', 'searched', 'started'] as const;
+type SessionStatusFilter = (typeof SESSION_STATUSES)[number];
+
+interface SessionListFilters {
+  q?: string;
+  profileId?: string;
+  status?: string;
+}
+
 @Injectable()
 export class MeService {
   constructor(
@@ -34,6 +44,18 @@ export class MeService {
     }
   }
 
+  private normalizeSessionFilters(filters?: SessionListFilters) {
+    const q = String(filters?.q || '').replace(/\s+/g, ' ').trim().slice(0, MAX_SESSION_SEARCH_LENGTH);
+    const profileId = String(filters?.profileId || '').trim();
+    const rawStatus = String(filters?.status || '').trim().toLowerCase();
+    const status = SESSION_STATUSES.includes(rawStatus as SessionStatusFilter) ? (rawStatus as SessionStatusFilter) : undefined;
+    return {
+      q: q || undefined,
+      profileId: profileId || undefined,
+      status,
+    };
+  }
+
   async getDashboard(userId: string) {
     this.logging.debug('Current-user dashboard request', { userId, context: 'MeService' });
     const [sessionsCount, searchRunsCount, choicesCount, profilesCount, savedCriteriaCount, recentSessions, recentChoices] = await Promise.all([
@@ -48,6 +70,7 @@ export class MeService {
         take: 10,
         include: {
           profile: true,
+          usedSavedCriteria: true,
           messages: { orderBy: { createdAt: 'desc' }, take: 1 },
           searchRuns: { orderBy: { createdAt: 'desc' }, take: 1 },
           choices: { orderBy: { chosenAt: 'desc' }, take: 1, include: { searchResult: true } },
@@ -73,6 +96,8 @@ export class MeService {
         id: session.id,
         profileId: session.profileId,
         profile: session.profile,
+        usedSavedCriteriaId: session.usedSavedCriteriaId,
+        usedSavedCriteria: session.usedSavedCriteria,
         priorityOrder: session.priorityOrder,
         createdAt: session.createdAt,
         updatedAt: session.updatedAt,
@@ -84,24 +109,55 @@ export class MeService {
     };
   }
 
-  async listSessions(userId: string, page = 1, limit = 20) {
+  async listSessions(userId: string, page = 1, limit = 20, filters?: SessionListFilters) {
     const safePage = Math.max(1, page || 1);
     const safeLimit = Math.min(50, Math.max(1, limit || 20));
-    this.logging.debug('Current-user sessions list request', { userId, page: safePage, limit: safeLimit, context: 'MeService' });
+    const normalizedFilters = this.normalizeSessionFilters(filters);
+    const where: any = { userId };
+    if (normalizedFilters.profileId) {
+      where.profileId = normalizedFilters.profileId;
+    }
+    if (normalizedFilters.status === 'selected') {
+      where.choices = { some: {} };
+    } else if (normalizedFilters.status === 'searched') {
+      where.searchRuns = { some: {} };
+      where.choices = { none: {} };
+    } else if (normalizedFilters.status === 'started') {
+      where.searchRuns = { none: {} };
+      where.choices = { none: {} };
+    }
+    if (normalizedFilters.q) {
+      where.OR = [
+        { id: { contains: normalizedFilters.q, mode: 'insensitive' } },
+        { profile: { is: { name: { contains: normalizedFilters.q, mode: 'insensitive' } } } },
+        { usedSavedCriteria: { is: { name: { contains: normalizedFilters.q, mode: 'insensitive' } } } },
+        { messages: { some: { content: { contains: normalizedFilters.q, mode: 'insensitive' } } } },
+        { searchRuns: { some: { queryText: { contains: normalizedFilters.q, mode: 'insensitive' } } } },
+        { choices: { some: { searchResult: { title: { contains: normalizedFilters.q, mode: 'insensitive' } } } } },
+      ];
+    }
+    this.logging.debug('Current-user sessions list request', {
+      userId,
+      page: safePage,
+      limit: safeLimit,
+      filters: normalizedFilters,
+      context: 'MeService',
+    });
     const [items, total] = await Promise.all([
       this.prisma.session.findMany({
-        where: { userId },
+        where,
         orderBy: { updatedAt: 'desc' },
         skip: (safePage - 1) * safeLimit,
         take: safeLimit,
         include: {
           profile: true,
+          usedSavedCriteria: true,
           messages: { orderBy: { createdAt: 'desc' }, take: 1 },
           searchRuns: { orderBy: { createdAt: 'desc' }, take: 1 },
           choices: { orderBy: { chosenAt: 'desc' }, take: 1, include: { searchResult: true } },
         },
       }),
-      this.prisma.session.count({ where: { userId } }),
+      this.prisma.session.count({ where }),
     ]);
 
     return {
@@ -109,6 +165,8 @@ export class MeService {
         id: session.id,
         profileId: session.profileId,
         profile: session.profile,
+        usedSavedCriteriaId: session.usedSavedCriteriaId,
+        usedSavedCriteria: session.usedSavedCriteria,
         priorityOrder: session.priorityOrder,
         createdAt: session.createdAt,
         updatedAt: session.updatedAt,
@@ -116,6 +174,43 @@ export class MeService {
         latestSearch: session.searchRuns[0] ?? null,
         latestChoice: session.choices[0] ?? null,
       })),
+      pagination: { page: safePage, limit: safeLimit, total, filters: normalizedFilters },
+    };
+  }
+
+  async listChoices(userId: string, page = 1, limit = 10) {
+    const safePage = Math.max(1, page || 1);
+    const safeLimit = Math.min(50, Math.max(1, limit || 10));
+    const where = { session: { userId } };
+    this.logging.debug('Current-user choices list request', {
+      userId,
+      page: safePage,
+      limit: safeLimit,
+      context: 'MeService',
+    });
+    const [items, total] = await Promise.all([
+      this.prisma.choice.findMany({
+        where,
+        orderBy: { chosenAt: 'desc' },
+        skip: (safePage - 1) * safeLimit,
+        take: safeLimit,
+        include: {
+          searchResult: true,
+          session: {
+            select: {
+              id: true,
+              createdAt: true,
+              updatedAt: true,
+              profileId: true,
+              profile: { select: { id: true, name: true, role: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.choice.count({ where }),
+    ]);
+    return {
+      items,
       pagination: { page: safePage, limit: safeLimit, total },
     };
   }
@@ -126,6 +221,7 @@ export class MeService {
       where: { id: sessionId, userId },
       include: {
         profile: true,
+        usedSavedCriteria: true,
         messages: { orderBy: { createdAt: 'asc' } },
         searchRuns: {
           orderBy: { createdAt: 'desc' },
@@ -156,5 +252,10 @@ export class MeService {
     await this.assertSessionBelongsToUser(userId, sessionId);
     await this.assertProfileBelongsToUser(userId, profileId);
     return this.sessions.submitFeedback(sessionId, message, selectedIndices, priorities, profileId);
+  }
+
+  async chooseProduct(userId: string, sessionId: string, productId: string) {
+    await this.assertSessionBelongsToUser(userId, sessionId);
+    return this.sessions.chooseProduct(sessionId, productId);
   }
 }

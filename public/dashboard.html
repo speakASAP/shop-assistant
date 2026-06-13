@@ -338,6 +338,17 @@
     .mini-form.two {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
+    .history-filters {
+      grid-template-columns: minmax(220px, 1.4fr) minmax(160px, 0.8fr) minmax(150px, 0.7fr);
+    }
+    .history-pager {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
     .mini-form .full {
       grid-column: 1 / -1;
     }
@@ -353,6 +364,52 @@
     }
     .danger-text {
       color: var(--danger);
+    }
+    .detail-panel {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .detail-section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      min-width: 0;
+    }
+    .detail-section h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    .detail-list {
+      display: grid;
+      gap: 8px;
+    }
+    .detail-item {
+      border-top: 1px solid #edf2f7;
+      padding-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .detail-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .detail-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      margin-bottom: 2px;
     }
     .status {
       grid-column: 1 / -1;
@@ -441,7 +498,8 @@
         border-bottom: 0;
         padding: 5px 0;
       }
-      .mini-form.two { grid-template-columns: 1fr; }
+      .mini-form.two, .history-filters { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -502,6 +560,24 @@
               <select id="profileSelect">
                 <option value="">Default profile</option>
               </select>
+              <select id="searchPriority1" title="First priority">
+                <option value="">Priority 1</option>
+                <option value="price">price</option>
+                <option value="quality">quality</option>
+                <option value="location">location</option>
+              </select>
+              <select id="searchPriority2" title="Second priority">
+                <option value="">Priority 2</option>
+                <option value="price">price</option>
+                <option value="quality">quality</option>
+                <option value="location">location</option>
+              </select>
+              <select id="searchPriority3" title="Third priority">
+                <option value="">Priority 3</option>
+                <option value="price">price</option>
+                <option value="quality">quality</option>
+                <option value="location">location</option>
+              </select>
               <button class="btn primary" type="submit">Search</button>
             </form>
           </div>
@@ -528,7 +604,31 @@
             </div>
           </div>
           <div class="panel-body">
+            <form id="historyFilterForm" class="mini-form history-filters" autocomplete="off">
+              <label class="full">Find in history
+                <input id="historySearchInput" type="search" maxlength="120" placeholder="Search request text, product, profile, saved search, or session id">
+              </label>
+              <label>Profile
+                <select id="historyProfileFilter">
+                  <option value="">All profiles</option>
+                </select>
+              </label>
+              <label>Status
+                <select id="historyStatusFilter">
+                  <option value="">All statuses</option>
+                  <option value="selected">Selected product</option>
+                  <option value="searched">Searched</option>
+                  <option value="started">Started only</option>
+                </select>
+              </label>
+              <div class="row-actions full">
+                <button class="btn small primary" type="submit">Apply filters</button>
+                <button class="btn small" id="clearHistoryFiltersBtn" type="button">Clear</button>
+              </div>
+            </form>
             <div id="sessionsTable"></div>
+            <div id="historyPager" class="history-pager"></div>
+            <div id="sessionDetail" class="detail-panel hidden"></div>
           </div>
         </div>
       </section>
@@ -542,17 +642,41 @@
             </div>
           </div>
           <div class="panel-body">
-            <form id="savedForm" class="mini-form">
+            <form id="savedForm" class="mini-form" autocomplete="off">
               <input type="hidden" id="savedId">
               <label>Name
-                <input id="savedName" type="text" placeholder="Weekly school supplies">
+                <input id="savedName" type="text" placeholder="Weekly school supplies" autocomplete="off">
               </label>
               <label class="full">Search text
-                <textarea id="savedQuery" placeholder="Find school shoes size 35 under 80 EUR with delivery to Prague"></textarea>
+                <textarea id="savedQuery" placeholder="Find school shoes size 35 under 80 EUR with delivery to Prague" autocomplete="off"></textarea>
               </label>
               <label>Profile
                 <select id="savedProfileSelect">
                   <option value="">Default profile</option>
+                </select>
+              </label>
+              <label>Priority 1
+                <select id="savedPriority1">
+                  <option value="">None</option>
+                  <option value="price">price</option>
+                  <option value="quality">quality</option>
+                  <option value="location">location</option>
+                </select>
+              </label>
+              <label>Priority 2
+                <select id="savedPriority2">
+                  <option value="">None</option>
+                  <option value="price">price</option>
+                  <option value="quality">quality</option>
+                  <option value="location">location</option>
+                </select>
+              </label>
+              <label>Priority 3
+                <select id="savedPriority3">
+                  <option value="">None</option>
+                  <option value="price">price</option>
+                  <option value="quality">quality</option>
+                  <option value="location">location</option>
                 </select>
               </label>
               <div class="row-actions">
@@ -561,6 +685,7 @@
               </div>
             </form>
             <div class="side-list" id="savedList"></div>
+            <div id="savedPager" class="history-pager"></div>
           </div>
         </div>
 
@@ -573,6 +698,7 @@
           </div>
           <div class="panel-body">
             <div class="side-list" id="choiceList"></div>
+            <div id="choicePager" class="history-pager"></div>
           </div>
         </div>
 
@@ -584,13 +710,13 @@
             </div>
           </div>
           <div class="panel-body">
-            <form id="profileForm" class="mini-form two">
+            <form id="profileForm" class="mini-form two" autocomplete="off">
               <input type="hidden" id="profileId">
               <label>Name
-                <input id="profileName" type="text" placeholder="Mom">
+                <input id="profileName" type="text" placeholder="Mom" autocomplete="off">
               </label>
               <label>Role
-                <input id="profileRole" type="text" placeholder="recipient">
+                <input id="profileRole" type="text" placeholder="recipient" autocomplete="off">
               </label>
               <div class="row-actions full">
                 <button class="btn small primary" id="saveProfileBtn" type="submit">Save profile</button>
@@ -609,6 +735,7 @@
     const AUTH_BASE = 'https://auth.alfares.cz';
     const CLIENT_ID = 'shop-assistant';
     const STATE_KEY = 'shop_assistant_auth_state';
+    const ACCESS_TOKEN_KEY = 'shop_assistant_access_token';
     const ADMIN_ROLES = ['global:superadmin', 'app:shop-assistant:admin'];
 
     const els = {
@@ -622,11 +749,26 @@
       status: document.getElementById('status'),
       stats: document.getElementById('stats'),
       sessionsTable: document.getElementById('sessionsTable'),
+      historyPager: document.getElementById('historyPager'),
+      sessionDetail: document.getElementById('sessionDetail'),
+      historyFilterForm: document.getElementById('historyFilterForm'),
+      historySearchInput: document.getElementById('historySearchInput'),
+      historyProfileFilter: document.getElementById('historyProfileFilter'),
+      historyStatusFilter: document.getElementById('historyStatusFilter'),
+      clearHistoryFiltersBtn: document.getElementById('clearHistoryFiltersBtn'),
       savedList: document.getElementById('savedList'),
+      savedPager: document.getElementById('savedPager'),
       choiceList: document.getElementById('choiceList'),
+      choicePager: document.getElementById('choicePager'),
       profileList: document.getElementById('profileList'),
       profileSelect: document.getElementById('profileSelect'),
+      searchPriority1: document.getElementById('searchPriority1'),
+      searchPriority2: document.getElementById('searchPriority2'),
+      searchPriority3: document.getElementById('searchPriority3'),
       savedProfileSelect: document.getElementById('savedProfileSelect'),
+      savedPriority1: document.getElementById('savedPriority1'),
+      savedPriority2: document.getElementById('savedPriority2'),
+      savedPriority3: document.getElementById('savedPriority3'),
       savedForm: document.getElementById('savedForm'),
       savedId: document.getElementById('savedId'),
       savedName: document.getElementById('savedName'),
@@ -643,6 +785,25 @@
       refreshBtn: document.getElementById('refreshBtn'),
     };
 
+    const historyState = {
+      items: [],
+      page: 1,
+      limit: 12,
+      total: 0,
+    };
+    const choiceState = {
+      items: [],
+      page: 1,
+      limit: 6,
+      total: 0,
+    };
+    const savedState = {
+      items: [],
+      page: 1,
+      limit: 6,
+      total: 0,
+    };
+
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, function(ch) {
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
@@ -650,7 +811,16 @@
     }
 
     function getToken() {
-      return (localStorage.getItem('accessToken') || '').trim();
+      const sessionToken = (sessionStorage.getItem(ACCESS_TOKEN_KEY) || '').trim();
+      if (sessionToken) return sessionToken;
+      const legacyToken = (localStorage.getItem('accessToken') || '').trim();
+      if (legacyToken) {
+        sessionStorage.setItem(ACCESS_TOKEN_KEY, legacyToken);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        return legacyToken;
+      }
+      return '';
     }
 
     function authHeaders() {
@@ -659,6 +829,7 @@
     }
 
     function clearAuth() {
+      sessionStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
@@ -689,17 +860,17 @@
       if (!window.location.hash || !window.location.hash.includes('access_token=')) return;
       const params = new URLSearchParams(window.location.hash.slice(1));
       const accessToken = params.get('access_token');
-      const refreshToken = params.get('refresh_token');
       const returnedState = params.get('state');
       const expectedState = sessionStorage.getItem(STATE_KEY);
-      if (expectedState && returnedState && expectedState !== returnedState) {
+      if (!expectedState || !returnedState || expectedState !== returnedState) {
         clearAuth();
         showAuthGate('Authentication state did not match. Please sign in again.');
         window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
         return;
       }
-      if (accessToken) localStorage.setItem('accessToken', accessToken);
-      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+      if (accessToken) sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       sessionStorage.removeItem(STATE_KEY);
       window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
     }
@@ -756,6 +927,52 @@
       els.stats.innerHTML = items.map(([label, value]) => '<div class="stat"><strong>' + value + '</strong><span>' + label + '</span></div>').join('');
     }
 
+    function historyFilters() {
+      return {
+        q: els.historySearchInput ? els.historySearchInput.value.replace(/\s+/g, ' ').trim().slice(0, 120) : '',
+        profileId: els.historyProfileFilter ? els.historyProfileFilter.value : '',
+        status: els.historyStatusFilter ? els.historyStatusFilter.value : '',
+      };
+    }
+
+    function historySessionsPath(page = 1) {
+      const filters = historyFilters();
+      const params = new URLSearchParams({ page: String(page), limit: String(historyState.limit) });
+      if (filters.q) params.set('q', filters.q);
+      if (filters.profileId) params.set('profileId', filters.profileId);
+      if (filters.status) params.set('status', filters.status);
+      return '/me/sessions?' + params.toString();
+    }
+
+    function hasHistoryFilters() {
+      const filters = historyFilters();
+      return Boolean(filters.q || filters.profileId || filters.status);
+    }
+
+    function resetHistoryState() {
+      historyState.items = [];
+      historyState.page = 1;
+      historyState.total = 0;
+    }
+
+    function renderHistoryPager() {
+      if (!els.historyPager) return;
+      const shown = historyState.items.length;
+      const total = historyState.total || shown;
+      if (!shown) {
+        els.historyPager.innerHTML = '';
+        return;
+      }
+      const hasMore = shown < total;
+      els.historyPager.innerHTML =
+        '<span class="muted">Showing ' + escapeHtml(String(shown)) + ' of ' + escapeHtml(String(total)) + ' request(s)</span>' +
+        (hasMore ? '<button class="btn small" id="loadMoreHistoryBtn" type="button">Load more history</button>' : '');
+      const button = document.getElementById('loadMoreHistoryBtn');
+      if (button) {
+        button.addEventListener('click', () => loadHistoryPage(historyState.page + 1, true).catch((error) => setStatus(error.message, 'error')));
+      }
+    }
+
     function latestQuery(session) {
       if (session.latestSearch && session.latestSearch.queryText) return session.latestSearch.queryText;
       if (session.latestMessage && session.latestMessage.content) return session.latestMessage.content;
@@ -769,11 +986,34 @@
       return '';
     }
 
+    function readPriorityOrder(prefix) {
+      const values = [1, 2, 3]
+        .map((index) => {
+          const el = document.getElementById(prefix + 'Priority' + index);
+          return el ? el.value : '';
+        })
+        .filter(Boolean);
+      const unique = [];
+      values.forEach((value) => {
+        if (!unique.includes(value)) unique.push(value);
+      });
+      return unique.length ? unique : undefined;
+    }
+
+    function setPriorityOrder(prefix, priorities) {
+      const values = Array.isArray(priorities) ? priorities.filter((item) => typeof item === 'string') : [];
+      [1, 2, 3].forEach((index) => {
+        const el = document.getElementById(prefix + 'Priority' + index);
+        if (el) el.value = values[index - 1] || '';
+      });
+    }
+
     function resetSavedForm() {
       els.savedId.value = '';
       els.savedName.value = '';
       els.savedQuery.value = '';
       els.savedProfileSelect.value = '';
+      setPriorityOrder('saved', []);
       document.getElementById('saveCriteriaBtn').textContent = 'Save search';
     }
 
@@ -786,7 +1026,10 @@
 
     function renderSessions(items) {
       if (!items.length) {
-        els.sessionsTable.innerHTML = '<div class="empty">No authenticated request history yet. Start a new request above.</div>';
+        els.sessionsTable.innerHTML = '<div class="empty">' + (hasHistoryFilters() ? 'No matching requests in your account history.' : 'No authenticated request history yet. Start a new request above.') + '</div>';
+        renderHistoryPager();
+        els.sessionDetail.classList.add('hidden');
+        els.sessionDetail.innerHTML = '';
         return;
       }
       els.sessionsTable.innerHTML = '' +
@@ -802,23 +1045,142 @@
               '<td>' + escapeHtml(profile) + '</td>' +
               '<td><span class="pill ' + (session.latestChoice ? 'ok' : 'warn') + '">' + status + '</span></td>' +
               '<td class="muted">' + escapeHtml(formatDate(session.updatedAt || session.createdAt)) + '</td>' +
-              '<td><a class="btn small" href="test.html?sessionId=' + encodeURIComponent(session.id) + '">Open</a></td>' +
+              '<td><div class="row-actions"><button class="btn small primary" data-session-detail="' + escapeHtml(session.id) + '" type="button">Details</button><a class="btn small" href="test.html?sessionId=' + encodeURIComponent(session.id) + '">Advanced</a></div></td>' +
             '</tr>';
           }).join('') +
           '</tbody>' +
         '</table>';
+      els.sessionsTable.querySelectorAll('[data-session-detail]').forEach((button) => {
+        button.addEventListener('click', () => loadSessionDetail(button.getAttribute('data-session-detail')));
+      });
+      renderHistoryPager();
+    }
+
+    function renderSessionDetail(session) {
+      const messages = session.messages || [];
+      const searchRuns = session.searchRuns || [];
+      const choices = session.choices || [];
+      const latestRun = searchRuns[0];
+      const results = latestRun && Array.isArray(latestRun.searchResults) ? latestRun.searchResults.slice(0, 8) : [];
+      els.sessionDetail.classList.remove('hidden');
+      els.sessionDetail.innerHTML =
+        '<div class="row-top">' +
+          '<div><h2 class="panel-title">Request detail</h2><p class="panel-note">' + escapeHtml(session.id) + '</p></div>' +
+          '<a class="btn small" href="test.html?sessionId=' + encodeURIComponent(session.id) + '">Open advanced</a>' +
+        '</div>' +
+        '<div class="detail-grid">' +
+          '<section class="detail-section"><h3>Messages</h3><div class="detail-list">' +
+            (messages.length ? messages.map((message) => '<div class="detail-item"><strong>' + escapeHtml(message.role || 'message') + ' · ' + escapeHtml(formatDate(message.createdAt)) + '</strong>' + escapeHtml(message.content || '') + '</div>').join('') : '<div class="empty">No messages stored.</div>') +
+          '</div></section>' +
+          '<section class="detail-section"><h3>Searches</h3><div class="detail-list">' +
+            (searchRuns.length ? searchRuns.map((run) => '<div class="detail-item"><strong>' + escapeHtml(formatDate(run.createdAt)) + '</strong>' + escapeHtml(run.queryText || 'Search run') + '<div class="muted">' + escapeHtml(String((run.searchResults || []).length)) + ' result(s)</div></div>').join('') : '<div class="empty">No searches yet.</div>') +
+          '</div></section>' +
+          '<section class="detail-section"><h3>Latest results</h3><div class="detail-list">' +
+            (results.length ? results.map((result) => '<div class="detail-item"><strong>' + escapeHtml(result.title || 'Product') + '</strong>' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(result.source || 'merchant') + '<div class="row-actions" style="margin-top:6px;"><button class="btn small primary" data-select-product="' + escapeHtml(result.id || '') + '" data-session-id="' + escapeHtml(session.id) + '" type="button">Select</button><a class="btn small" href="' + escapeHtml(result.url || '#') + '" target="_blank" rel="noopener">Merchant</a></div></div>').join('') : '<div class="empty">No results in latest search.</div>') +
+          '</div></section>' +
+          '<section class="detail-section"><h3>Refine request</h3><form class="mini-form" data-refine-session="' + escapeHtml(session.id) + '">' +
+            '<label class="full">What should change?' +
+              '<textarea data-refine-message="' + escapeHtml(session.id) + '" placeholder="Cheaper, different color, faster delivery, only local shops..."></textarea>' +
+            '</label>' +
+            '<button class="btn small primary" type="submit">Refine</button>' +
+          '</form></section>' +
+          '<section class="detail-section"><h3>Selected products</h3><div class="detail-list">' +
+            (choices.length ? choices.map((choice) => {
+              const result = choice.searchResult || {};
+              return '<div class="detail-item"><strong>' + escapeHtml(result.title || 'Selected product') + '</strong>' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(formatDate(choice.chosenAt)) + '<div class="row-actions" style="margin-top:6px;"><a class="btn small" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Merchant</a></div></div>';
+            }).join('') : '<div class="empty">No selected products yet.</div>') +
+          '</div></section>' +
+        '</div>';
+      els.sessionDetail.querySelectorAll('[data-select-product]').forEach((button) => {
+        button.addEventListener('click', () => selectProduct(button.getAttribute('data-session-id'), button.getAttribute('data-select-product')));
+      });
+      els.sessionDetail.querySelectorAll('[data-refine-session]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          refineSession(form.getAttribute('data-refine-session'));
+        });
+      });
+      els.sessionDetail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function selectProduct(sessionId, productId) {
+      if (!sessionId || !productId) return;
+      try {
+        setStatus('Saving selected product...', 'info');
+        await api('/me/sessions/' + encodeURIComponent(sessionId) + '/choice/' + encodeURIComponent(productId), { method: 'POST' });
+        await loadSessionDetail(sessionId);
+        await loadDashboard();
+        setStatus('Selected product saved to your dashboard.', 'success');
+      } catch (error) {
+        setStatus(error.message || 'Could not save selected product.', 'error');
+      }
+    }
+
+    async function refineSession(sessionId) {
+      if (!sessionId) return;
+      const input = els.sessionDetail.querySelector('[data-refine-message="' + CSS.escape(sessionId) + '"]');
+      const message = input ? input.value.trim() : '';
+      if (!message) {
+        setStatus('Enter feedback for the request refinement.', 'error');
+        return;
+      }
+      try {
+        setStatus('Refining request...', 'info');
+        await api('/me/sessions/' + encodeURIComponent(sessionId) + '/feedback', {
+          method: 'POST',
+          body: JSON.stringify({ message }),
+        });
+        if (input) input.value = '';
+        await loadSessionDetail(sessionId);
+        await loadDashboard();
+        setStatus('Request refined and results refreshed.', 'success');
+      } catch (error) {
+        setStatus(error.message || 'Could not refine request.', 'error');
+      }
+    }
+
+    async function loadSessionDetail(id) {
+      if (!id) return;
+      try {
+        setStatus('Loading request detail...', 'info');
+        const data = await api('/me/sessions/' + encodeURIComponent(id));
+        renderSessionDetail(data.session);
+        clearStatus();
+      } catch (error) {
+        setStatus(error.message || 'Could not load request detail.', 'error');
+      }
+    }
+
+    function renderSavedPager() {
+      if (!els.savedPager) return;
+      const shown = savedState.items.length;
+      const total = savedState.total || shown;
+      if (!shown) {
+        els.savedPager.innerHTML = '';
+        return;
+      }
+      const hasMore = shown < total;
+      els.savedPager.innerHTML =
+        '<span class="muted">Showing ' + escapeHtml(String(shown)) + ' of ' + escapeHtml(String(total)) + ' saved search(es)</span>' +
+        (hasMore ? '<button class="btn small" id="loadMoreSavedBtn" type="button">Load more saved</button>' : '');
+      const button = document.getElementById('loadMoreSavedBtn');
+      if (button) {
+        button.addEventListener('click', () => loadSavedPage(savedState.page + 1, true).catch((error) => setStatus(error.message, 'error')));
+      }
     }
 
     function renderSaved(items) {
       if (!items.length) {
         els.savedList.innerHTML = '<div class="empty">Saved searches will appear here.</div>';
+        renderSavedPager();
         return;
       }
-      els.savedList.innerHTML = items.slice(0, 6).map((item) => {
+      els.savedList.innerHTML = items.map((item) => {
         const query = savedQueryText(item);
         const intents = query || (Array.isArray(item.productIntents) ? item.productIntents.join(', ') : 'Reusable criteria');
+        const priorities = Array.isArray(item.priorities) ? item.priorities.filter((value) => typeof value === 'string') : [];
         return '<div class="list-row">' +
-          '<div class="row-top"><div><div class="row-title">' + escapeHtml(item.name) + '</div><div class="muted">' + escapeHtml(intents) + '</div></div></div>' +
+          '<div class="row-top"><div><div class="row-title">' + escapeHtml(item.name) + '</div><div class="muted">' + escapeHtml(intents) + '</div>' + (priorities.length ? '<div class="muted">Priority: ' + escapeHtml(priorities.join(' > ')) + '</div>' : '') + '</div></div>' +
           '<div class="row-actions">' +
             '<button class="btn small primary" data-run="' + escapeHtml(item.id) + '" type="button">Run</button>' +
             '<button class="btn small" data-edit-saved="' + escapeHtml(item.id) + '" type="button">Edit</button>' +
@@ -837,6 +1199,7 @@
           els.savedName.value = item.name || '';
           els.savedQuery.value = savedQueryText(item);
           els.savedProfileSelect.value = item.profileId || '';
+          setPriorityOrder('saved', item.priorities);
           document.getElementById('saveCriteriaBtn').textContent = 'Update search';
           els.savedName.focus();
         });
@@ -844,29 +1207,63 @@
       els.savedList.querySelectorAll('[data-delete-saved]').forEach((button) => {
         button.addEventListener('click', () => deleteSaved(button.getAttribute('data-delete-saved')));
       });
+      renderSavedPager();
+    }
+
+    function renderChoicePager() {
+      if (!els.choicePager) return;
+      const shown = choiceState.items.length;
+      const total = choiceState.total || shown;
+      if (!shown) {
+        els.choicePager.innerHTML = '';
+        return;
+      }
+      const hasMore = shown < total;
+      els.choicePager.innerHTML =
+        '<span class="muted">Showing ' + escapeHtml(String(shown)) + ' of ' + escapeHtml(String(total)) + ' selected product(s)</span>' +
+        (hasMore ? '<button class="btn small" id="loadMoreChoicesBtn" type="button">Load more selected</button>' : '');
+      const button = document.getElementById('loadMoreChoicesBtn');
+      if (button) {
+        button.addEventListener('click', () => loadChoicePage(choiceState.page + 1, true).catch((error) => setStatus(error.message, 'error')));
+      }
     }
 
     function renderChoices(items) {
       if (!items.length) {
         els.choiceList.innerHTML = '<div class="empty">Selected merchant links will appear here.</div>';
+        renderChoicePager();
         return;
       }
-      els.choiceList.innerHTML = items.slice(0, 6).map((choice) => {
+      els.choiceList.innerHTML = items.map((choice) => {
         const result = choice.searchResult || {};
+        const session = choice.session || {};
+        const profile = session.profile ? session.profile.name : '';
         return '<div class="list-row">' +
           '<div class="row-title">' + escapeHtml(result.title || 'Selected product') + '</div>' +
-          '<div class="muted">' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(formatDate(choice.chosenAt)) + '</div>' +
-          '<div class="row-actions"><a class="btn small" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Merchant</a></div>' +
+          '<div class="muted">' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(formatDate(choice.chosenAt)) + (profile ? ' · ' + escapeHtml(profile) : '') + '</div>' +
+          '<div class="row-actions"><a class="btn small" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Merchant</a>' + (session.id ? '<button class="btn small" data-choice-session="' + escapeHtml(session.id) + '" type="button">Request</button>' : '') + '</div>' +
         '</div>';
       }).join('');
+      els.choiceList.querySelectorAll('[data-choice-session]').forEach((button) => {
+        button.addEventListener('click', () => loadSessionDetail(button.getAttribute('data-choice-session')));
+      });
+      renderChoicePager();
     }
 
     function renderProfiles(items) {
       const options = '<option value="">Default profile</option>' + items.map((profile) => {
         return '<option value="' + escapeHtml(profile.id) + '">' + escapeHtml(profile.name || profile.id) + (profile.role ? ' (' + escapeHtml(profile.role) + ')' : '') + '</option>';
       }).join('');
+      const filterValue = els.historyProfileFilter ? els.historyProfileFilter.value : '';
+      const filterOptions = '<option value="">All profiles</option>' + items.map((profile) => {
+        return '<option value="' + escapeHtml(profile.id) + '">' + escapeHtml(profile.name || profile.id) + (profile.role ? ' (' + escapeHtml(profile.role) + ')' : '') + '</option>';
+      }).join('');
       els.profileSelect.innerHTML = options;
       els.savedProfileSelect.innerHTML = options;
+      if (els.historyProfileFilter) {
+        els.historyProfileFilter.innerHTML = filterOptions;
+        els.historyProfileFilter.value = items.some((profile) => profile.id === filterValue) ? filterValue : '';
+      }
       if (!items.length) {
         els.profileList.innerHTML = '<div class="empty">Create a profile above to reuse recipient preferences.</div>';
         return;
@@ -896,22 +1293,52 @@
       });
     }
 
+    async function loadHistoryPage(page = 1, append = false) {
+      const sessions = await api(historySessionsPath(page));
+      const items = sessions.items || [];
+      const pagination = sessions.pagination || {};
+      historyState.page = Number(pagination.page || page);
+      historyState.total = Number(pagination.total || items.length);
+      historyState.items = append ? historyState.items.concat(items) : items;
+      renderSessions(historyState.items);
+      return sessions;
+    }
+
+    async function loadChoicePage(page = 1, append = false) {
+      const choices = await api('/me/choices?page=' + encodeURIComponent(String(page)) + '&limit=' + encodeURIComponent(String(choiceState.limit)));
+      const items = choices.items || [];
+      const pagination = choices.pagination || {};
+      choiceState.page = Number(pagination.page || page);
+      choiceState.total = Number(pagination.total || items.length);
+      choiceState.items = append ? choiceState.items.concat(items) : items;
+      renderChoices(choiceState.items);
+      return choices;
+    }
+
+    async function loadSavedPage(page = 1, append = false) {
+      const saved = await api('/saved-criteria?page=' + encodeURIComponent(String(page)) + '&limit=' + encodeURIComponent(String(savedState.limit)));
+      const items = saved.items || [];
+      const pagination = saved.pagination || {};
+      savedState.page = Number(pagination.page || page);
+      savedState.total = Number(pagination.total || items.length);
+      savedState.items = append ? savedState.items.concat(items) : items;
+      renderSaved(savedState.items);
+      return saved;
+    }
+
     async function loadDashboard() {
       clearStatus();
-      const [me, dashboard, sessions, profiles, saved] = await Promise.all([
+      const [me, dashboard, profiles] = await Promise.all([
         api('/me'),
         api('/me/dashboard'),
-        api('/me/sessions?limit=12'),
         api('/profiles'),
-        api('/saved-criteria'),
       ]);
-      localStorage.setItem('user', JSON.stringify(me.user));
       showDashboard(me.user);
       renderStats(dashboard.summary || {});
-      renderSessions(sessions.items || dashboard.recentSessions || []);
-      renderChoices(dashboard.recentChoices || []);
       renderProfiles(profiles.items || []);
-      renderSaved(saved.items || []);
+      await loadHistoryPage(1, false);
+      await loadChoicePage(1, false);
+      await loadSavedPage(1, false);
     }
 
     async function runSaved(id) {
@@ -933,12 +1360,14 @@
       const name = els.savedName.value.trim();
       const query = els.savedQuery.value.trim();
       const profileId = els.savedProfileSelect.value || undefined;
+      const priorities = readPriorityOrder('saved');
       if (!name || !query) {
         setStatus('Saved search needs a name and search text.', 'error');
         return;
       }
       const body = {
         name,
+        priorities,
         productIntents: [query],
         filters: { queryText: query },
         profileId,
@@ -1015,16 +1444,23 @@
         return;
       }
       const profileId = els.profileSelect.value || undefined;
+      const priorities = readPriorityOrder('search');
       try {
         setStatus('Creating your authenticated session...', 'info');
+        const createPayload = {};
+        if (profileId) createPayload.profileId = profileId;
+        if (priorities) createPayload.priorities = priorities;
         const session = await api('/me/sessions', {
           method: 'POST',
-          body: JSON.stringify(profileId ? { profileId } : {}),
+          body: JSON.stringify(createPayload),
         });
         setStatus('Searching...', 'info');
+        const queryPayload = { text };
+        if (profileId) queryPayload.profileId = profileId;
+        if (priorities) queryPayload.priorities = priorities;
         await api('/me/sessions/' + encodeURIComponent(session.sessionId) + '/query', {
           method: 'POST',
-          body: JSON.stringify(profileId ? { text, profileId } : { text }),
+          body: JSON.stringify(queryPayload),
         });
         window.location.href = 'test.html?sessionId=' + encodeURIComponent(session.sessionId);
       } catch (error) {
@@ -1037,6 +1473,33 @@
       els.registerBtn.addEventListener('click', () => { window.location.href = authUrl('/register'); });
       els.logoutBtn.addEventListener('click', () => { clearAuth(); window.location.href = '/'; });
       els.refreshBtn.addEventListener('click', () => loadDashboard().catch((error) => setStatus(error.message, 'error')));
+      els.historyFilterForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        resetHistoryState();
+        loadDashboard().catch((error) => setStatus(error.message, 'error'));
+      });
+      els.historySearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          resetHistoryState();
+          loadDashboard().catch((error) => setStatus(error.message, 'error'));
+        }
+      });
+      els.historyProfileFilter.addEventListener('change', () => {
+        resetHistoryState();
+        loadDashboard().catch((error) => setStatus(error.message, 'error'));
+      });
+      els.historyStatusFilter.addEventListener('change', () => {
+        resetHistoryState();
+        loadDashboard().catch((error) => setStatus(error.message, 'error'));
+      });
+      els.clearHistoryFiltersBtn.addEventListener('click', () => {
+        els.historySearchInput.value = '';
+        els.historyProfileFilter.value = '';
+        els.historyStatusFilter.value = '';
+        resetHistoryState();
+        loadDashboard().catch((error) => setStatus(error.message, 'error'));
+      });
       els.searchForm.addEventListener('submit', createSearch);
       els.savedForm.addEventListener('submit', saveCriteria);
       els.cancelSavedEditBtn.addEventListener('click', resetSavedForm);

@@ -770,11 +770,11 @@
   <main>
     <section class="container hero" id="product">
       <div class="hero-copy">
-        <h1>Shop Assistant</h1>
-        <p>AI finds products, compares offers, and keeps every customer request in one secure workspace.</p>
+        <h1 id="landingHeadline">Shop Assistant</h1>
+        <p id="landingSubheadline">AI finds products, compares offers, and keeps every customer request in one secure workspace.</p>
         <div class="hero-actions">
-          <a class="btn primary" href="#search">Start a search</a>
-          <a class="btn" href="dashboard.html">View dashboard</a>
+          <a class="btn primary" id="landingPrimaryCta" href="#search">Start a search</a>
+          <a class="btn" id="landingSecondaryCta" href="dashboard.html">View dashboard</a>
           <a class="btn text" href="#contact">Talk to us</a>
         </div>
         <div class="hero-proof" aria-label="Product capabilities">
@@ -968,8 +968,8 @@
       <div class="container two-col">
         <div>
           <div class="section-head" style="display:block;margin-bottom:0;">
-            <h2>Bring this buying assistant into your customer flow.</h2>
-            <p style="margin-top:16px;">Send a request for a commercial setup, integration, or managed search workflow. Text, voice, and documents are supported.</p>
+            <h2 id="landingContactHeadline">Bring this buying assistant into your customer flow.</h2>
+            <p id="landingContactSubheadline" style="margin-top:16px;">Send a request for a commercial setup, integration, or managed search workflow. Text, voice, and documents are supported.</p>
           </div>
           <div class="list">
             <div class="list-item"><span class="check">✓</span><span>Lead capture supports text, multiple contact methods, optional voice messages, and documents.</span></div>
@@ -1027,7 +1027,7 @@
 
   <footer>
     <div class="container footer-inner">
-      <div>Shop Assistant - AI product search, customer dashboards, and admin controls.</div>
+      <div id="landingFooterTagline">Shop Assistant - AI product search, customer dashboards, and admin controls.</div>
       <div class="footer-links">
         <a href="privacy.html">Privacy</a>
         <a href="cookies.html">Cookies</a>
@@ -1047,6 +1047,30 @@
 
   <script>
     (function() {
+      function setText(id, value) {
+        var el = document.getElementById(id);
+        if (!el || typeof value !== 'string') return;
+        var text = value.replace(/\s+/g, ' ').trim();
+        if (text) el.textContent = text;
+      }
+      fetch('/api/public/settings/landing')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          var settings = data && data.publicLanding;
+          if (!settings) return;
+          setText('landingHeadline', settings.headline);
+          setText('landingSubheadline', settings.subheadline);
+          setText('landingPrimaryCta', settings.primaryCtaLabel);
+          setText('landingSecondaryCta', settings.secondaryCtaLabel);
+          setText('landingContactHeadline', settings.contactHeadline);
+          setText('landingContactSubheadline', settings.contactSubheadline);
+          setText('submit-lead', settings.leadSubmitLabel);
+          setText('landingFooterTagline', settings.footerTagline);
+        })
+        .catch(function() {});
+    })();
+
+    (function() {
       var banner = document.getElementById('cookie-banner');
       var key = 'shop_assistant_cookie_consent';
       function hide() { if (banner) banner.classList.add('hidden'); }
@@ -1059,14 +1083,22 @@
     })();
 
     (function() {
+      var ACCESS_TOKEN_KEY = 'shop_assistant_access_token';
       var TOKEN_KEY = 'shop_assistant_admin_token';
       var apiBase = window.location.origin + '/api';
       function getToken() {
-        var p = new URLSearchParams(window.location.search);
-        if (p.get('token')) return p.get('token').trim();
         var stored = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
         if (stored) return stored;
-        return (localStorage.getItem('accessToken') || '').trim();
+        var sessionToken = (sessionStorage.getItem(ACCESS_TOKEN_KEY) || '').trim();
+        if (sessionToken) return sessionToken;
+        var legacyToken = (localStorage.getItem('accessToken') || '').trim();
+        if (legacyToken) {
+          sessionStorage.setItem(ACCESS_TOKEN_KEY, legacyToken);
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          return legacyToken;
+        }
+        return '';
       }
       function authHeaders() {
         var h = { 'Content-Type': 'application/json' };
@@ -1114,8 +1146,6 @@
           })
           .then(function(sessionId) {
             var url = 'test.html?sessionId=' + encodeURIComponent(sessionId);
-            var token = getToken();
-            if (token) url += '&token=' + encodeURIComponent(token);
             window.location.href = url;
           })
           .catch(function(err) {

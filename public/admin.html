@@ -121,12 +121,17 @@
       gap: 1rem;
       align-items: start;
     }
+    .ops-grid > section {
+      min-width: 0;
+      overflow-x: auto;
+    }
     .detail-box {
       border: 1px solid #e2e8f0;
       border-radius: 0.5rem;
       background: #f8fafc;
       padding: 1rem;
       min-height: 180px;
+      min-width: 0;
       overflow: auto;
       font-size: 0.875rem;
     }
@@ -210,8 +215,11 @@
     @media (max-width: 720px) {
       body { padding: 0.75rem; }
       .auth-row input { width: min(100%, 320px); }
-      .tabs { overflow-x: auto; padding-bottom: 0.25rem; }
+      .tabs { flex-wrap: wrap; overflow-x: visible; padding-bottom: 0.25rem; }
+      .tabs button { flex: 1 1 calc(50% - 0.25rem); }
+      table { display: block; max-width: 100%; overflow-x: auto; }
       .ops-grid { grid-template-columns: 1fr; }
+      .compact-table { min-width: 640px; }
     }
   </style>
 </head>
@@ -276,6 +284,8 @@
     <div id="overviewStatus" class="status" style="display: none;"></div>
     <button type="button" class="btn btn-primary" id="loadOverviewBtn">Refresh overview</button>
     <div id="overviewSummary" class="form-grid" style="margin-top: 1rem;"></div>
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Operational health</h3>
+    <div id="overviewHealth" class="form-grid"></div>
     <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Current safe settings</h3>
     <div id="overviewSettings" style="font-size: 0.875rem; color: #334155;"></div>
     <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Recent sessions</h3>
@@ -299,6 +309,16 @@
       <button type="button" class="btn btn-secondary" id="loadMoreSessionsBtn">More sessions</button>
       <button type="button" class="btn btn-secondary" id="loadMoreLeadsBtn">More leads</button>
     </div>
+    <div class="form-grid" style="max-width: none; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+      <div>
+        <label for="operationsSessionFilter">Find sessions</label>
+        <input type="search" id="operationsSessionFilter" maxlength="120" placeholder="Session, user, profile, message, or query" />
+      </div>
+      <div>
+        <label for="operationsLeadFilter">Find leads</label>
+        <input type="search" id="operationsLeadFilter" maxlength="120" placeholder="Lead, source, status, assignee, CRM id, AI id, or message" />
+      </div>
+    </div>
     <div class="ops-grid">
       <section>
         <h3 style="margin-bottom: 0.5rem;">Sessions</h3>
@@ -308,7 +328,7 @@
         </table>
         <h3 style="margin: 1.5rem 0 0.5rem;">Lead requests</h3>
         <table class="compact-table">
-          <thead><tr><th>Lead</th><th>Contact</th><th>Message</th><th>Created</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Lead</th><th>Status</th><th>Contact</th><th>Message</th><th>Created</th><th>Actions</th></tr></thead>
           <tbody id="operationsLeadsBody"></tbody>
         </table>
       </section>
@@ -386,30 +406,96 @@
   </div>
 
   <div id="panel-profiles" class="panel">
-    <h2>Account profiles (10.3 multi-user)</h2>
-    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">Create profiles (e.g. Mom, Dad, Child) for the current user. Sessions and saved searches can be linked to a profile.</p>
+    <h2>Account data</h2>
+    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">Admin-only visibility and editing for customer profiles and saved search templates across accounts.</p>
     <div id="profilesStatus" class="status" style="display: none;"></div>
-    <button type="button" class="btn btn-primary" id="loadProfilesBtn">Refresh list</button>
-    <table style="margin-top: 1rem;">
-      <thead>
-        <tr><th>Name</th><th>Role</th><th>Actions</th></tr>
-      </thead>
-      <tbody id="profilesTableBody"></tbody>
-    </table>
-    <h3 style="margin-top: 2rem; margin-bottom: 0.5rem;">Add profile</h3>
-    <div class="form-grid" style="max-width: 400px;">
+    <div class="actions" style="margin-bottom: 1rem; flex-wrap: wrap;">
+      <button type="button" class="btn btn-primary" id="loadProfilesBtn">Refresh account data</button>
+      <button type="button" class="btn btn-secondary" id="loadMoreProfilesBtn">More profiles</button>
+      <button type="button" class="btn btn-secondary" id="loadMoreSavedCriteriaAdminBtn">More saved searches</button>
+    </div>
+    <div class="form-grid" style="max-width: none; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
       <div>
-        <label for="profileName">Name *</label>
-        <input type="text" id="profileName" placeholder="e.g. Mom" />
+        <label for="adminProfileFilter">Find profiles</label>
+        <input type="search" id="adminProfileFilter" maxlength="120" placeholder="Profile, role, user, or profile id" />
       </div>
       <div>
-        <label for="profileRole">Role</label>
-        <input type="text" id="profileRole" placeholder="e.g. mom" />
+        <label for="adminSavedCriteriaFilter">Find saved searches</label>
+        <input type="search" id="adminSavedCriteriaFilter" maxlength="120" placeholder="Saved search, user, profile, or id" />
       </div>
-      <div>
-        <button type="button" class="btn btn-primary" id="addProfileBtn">Add profile</button>
-        <button type="button" class="btn btn-secondary" id="cancelProfileEditBtn" style="display: none;">Cancel edit</button>
-      </div>
+    </div>
+    <div class="ops-grid">
+      <section>
+        <h3 style="margin-bottom: 0.5rem;">Profiles</h3>
+        <table class="compact-table" style="margin-top: 1rem;">
+          <thead>
+            <tr><th>User</th><th>Name</th><th>Role</th><th>Sessions</th><th>Saved searches</th><th>Updated</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="profilesTableBody"></tbody>
+        </table>
+        <div id="adminProfilesPager" class="hint"></div>
+        <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Saved searches</h3>
+        <table class="compact-table" style="margin-top: 1rem;">
+          <thead>
+            <tr><th>User</th><th>Name</th><th>Profile</th><th>Runs</th><th>Updated</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="adminSavedCriteriaTableBody"></tbody>
+        </table>
+        <div id="adminSavedCriteriaPager" class="hint"></div>
+      </section>
+      <section>
+        <div class="detail-box">
+          <h3>Profile editor</h3>
+          <input type="hidden" id="adminProfileId" />
+          <p class="hint" id="adminProfileUser">Select a profile to edit account-facing labels.</p>
+          <div class="form-grid" style="max-width: none;">
+            <div>
+              <label for="adminProfileName">Name *</label>
+              <input type="text" id="adminProfileName" maxlength="120" placeholder="e.g. Mom" />
+            </div>
+            <div>
+              <label for="adminProfileRole">Role</label>
+              <input type="text" id="adminProfileRole" maxlength="120" placeholder="e.g. recipient" />
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary" id="saveAdminProfileBtn">Save profile</button>
+              <button type="button" class="btn btn-secondary" id="clearAdminProfileBtn">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div class="detail-box" style="margin-top: 1rem;">
+          <h3>Saved search editor</h3>
+          <input type="hidden" id="adminSavedCriteriaId" />
+          <p class="hint" id="adminSavedCriteriaUser">Select a saved search to edit reusable request criteria.</p>
+          <div class="form-grid" style="max-width: none;">
+            <div>
+              <label for="adminSavedCriteriaName">Name *</label>
+              <input type="text" id="adminSavedCriteriaName" maxlength="255" />
+            </div>
+            <div>
+              <label for="adminSavedCriteriaProfileId">Profile id</label>
+              <input type="text" id="adminSavedCriteriaProfileId" placeholder="Leave blank for default profile" />
+              <small class="hint">Must belong to the saved search user.</small>
+            </div>
+            <div>
+              <label for="adminSavedCriteriaPriorities">Priorities JSON</label>
+              <textarea id="adminSavedCriteriaPriorities" placeholder='["price","quality"]'></textarea>
+            </div>
+            <div>
+              <label for="adminSavedCriteriaIntents">Product intents JSON</label>
+              <textarea id="adminSavedCriteriaIntents" placeholder='["school shoes size 35"]'></textarea>
+            </div>
+            <div>
+              <label for="adminSavedCriteriaFilters">Filters JSON</label>
+              <textarea id="adminSavedCriteriaFilters" placeholder='{"delivery":"Prague"}'></textarea>
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary" id="saveAdminSavedCriteriaBtn">Save saved search</button>
+              <button type="button" class="btn btn-secondary" id="clearAdminSavedCriteriaBtn">Clear</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -446,6 +532,40 @@
         <small class="hint">Integer 5-30. Applied to new query and feedback searches.</small>
       </div>
       <div>
+        <label>Landing headline</label>
+        <input type="text" id="landingHeadlineInput" maxlength="80" />
+        <small class="hint">Public marketing copy. 80 characters max.</small>
+      </div>
+      <div>
+        <label>Landing subheadline</label>
+        <textarea id="landingSubheadlineInput" maxlength="220"></textarea>
+        <small class="hint">Public marketing copy. 220 characters max.</small>
+      </div>
+      <div>
+        <label>Primary CTA label</label>
+        <input type="text" id="landingPrimaryCtaInput" maxlength="40" />
+      </div>
+      <div>
+        <label>Secondary CTA label</label>
+        <input type="text" id="landingSecondaryCtaInput" maxlength="40" />
+      </div>
+      <div>
+        <label>Contact section headline</label>
+        <input type="text" id="landingContactHeadlineInput" maxlength="120" />
+      </div>
+      <div>
+        <label>Contact section subheadline</label>
+        <textarea id="landingContactSubheadlineInput" maxlength="260"></textarea>
+      </div>
+      <div>
+        <label>Lead submit label</label>
+        <input type="text" id="landingLeadSubmitInput" maxlength="40" />
+      </div>
+      <div>
+        <label>Footer tagline</label>
+        <input type="text" id="landingFooterTaglineInput" maxlength="160" />
+      </div>
+      <div>
         <button type="button" class="btn btn-primary" id="saveModeBtn">Save settings</button>
       </div>
     </div>
@@ -468,6 +588,7 @@
     const AUTH_BASE = 'https://auth.alfares.cz';
     const CLIENT_ID = 'shop-assistant';
     const STATE_KEY = 'shop_assistant_admin_auth_state';
+    const ACCESS_TOKEN_KEY = 'shop_assistant_access_token';
     const TOKEN_KEY = 'shop_assistant_admin_token';
     const ADMIN_ROLES = ['global:superadmin', 'app:shop-assistant:admin'];
     const els = {
@@ -483,7 +604,16 @@
     function getToken() {
       var token = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
       if (token) return token;
-      return (localStorage.getItem('accessToken') || '').trim();
+      var sessionToken = (sessionStorage.getItem(ACCESS_TOKEN_KEY) || '').trim();
+      if (sessionToken) return sessionToken;
+      var legacyToken = (localStorage.getItem('accessToken') || '').trim();
+      if (legacyToken) {
+        sessionStorage.setItem(ACCESS_TOKEN_KEY, legacyToken);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        return legacyToken;
+      }
+      return '';
     }
 
     function authUrl(path) {
@@ -495,28 +625,30 @@
     }
 
     function parseAuthFragment() {
-      if (!window.location.hash || !window.location.hash.includes('access_token=')) return;
+      if (!window.location.hash || !window.location.hash.includes('access_token=')) return 'none';
       const params = new URLSearchParams(window.location.hash.slice(1));
       const accessToken = params.get('access_token');
-      const refreshToken = params.get('refresh_token');
       const returnedState = params.get('state');
       const expectedState = sessionStorage.getItem(STATE_KEY);
-      if (expectedState && returnedState && expectedState !== returnedState) {
+      if (!expectedState || !returnedState || expectedState !== returnedState) {
         clearAuth();
         showGate('Authentication state did not match. Please sign in again.', 'error');
         window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
-        return;
+        return 'rejected';
       }
       if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
+        sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
         sessionStorage.setItem(TOKEN_KEY, accessToken);
       }
-      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       sessionStorage.removeItem(STATE_KEY);
       window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+      return 'accepted';
     }
 
     function clearAuth() {
+      sessionStorage.removeItem(ACCESS_TOKEN_KEY);
       sessionStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
@@ -573,9 +705,14 @@
       token = (token || '').trim();
       if (token) {
         sessionStorage.setItem(TOKEN_KEY, token);
-        localStorage.setItem('accessToken', token);
+        sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
       }
-      else sessionStorage.removeItem(TOKEN_KEY);
+      else {
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+      }
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       if (els.tokenInput) els.tokenInput.value = token;
       if (els.tokenStatus) els.tokenStatus.textContent = token ? 'Token saved. Validating admin role...' : '';
       updatePromptFormAuth();
@@ -651,14 +788,18 @@
       }
     }
 
-    parseAuthFragment();
+    var authFragmentState = parseAuthFragment();
 
+    var rejectedTokenUrl = false;
     if (window.location.search) {
       const p = new URLSearchParams(window.location.search);
       if (p.get('token')) {
-        setToken(p.get('token'));
-        if (els.tokenStatus) els.tokenStatus.textContent = 'Token from URL saved. Validating admin role...';
-        checkTokenValidity();
+        rejectedTokenUrl = true;
+        p.delete('token');
+        const nextSearch = p.toString();
+        const nextUrl = window.location.pathname + (nextSearch ? '?' + nextSearch : '') + window.location.hash;
+        window.history.replaceState(null, document.title, nextUrl);
+        showGate('Token URLs are not accepted. Sign in with Auth or paste the admin JWT manually.', 'error');
       }
       var sid = p.get('sessionId');
       if (sid && window.location.hash === '#flow') {
@@ -669,12 +810,24 @@
         document.getElementById('panel-flow').classList.add('active');
         document.getElementById('loadFlowBtn').click();
       }
-    } else if (getToken()) {
+    }
+
+    if (getToken()) {
       if (els.tokenInput) els.tokenInput.value = getToken();
       if (els.tokenStatus) els.tokenStatus.textContent = 'Token found. Validating admin role...';
       checkTokenValidity();
-    } else {
+    } else if (authFragmentState !== 'rejected' && !rejectedTokenUrl && !document.body.classList.contains('admin-unlocked')) {
       checkTokenValidity();
+    }
+    if (authFragmentState === 'rejected') {
+      setTimeout(function() {
+        showGate('Authentication state did not match. Please sign in again.', 'error');
+      }, 0);
+    }
+    if (rejectedTokenUrl) {
+      setTimeout(function() {
+        showGate('Token URLs are not accepted. Sign in with Auth or paste the admin JWT manually.', 'error');
+      }, 0);
     }
     updatePromptFormAuth();
 
@@ -718,6 +871,18 @@
         ];
         document.getElementById('overviewSummary').innerHTML = summaryItems.map(function(item) {
           return '<div style="border:1px solid #dbe3ea;border-radius:0.5rem;padding:0.85rem;background:#f8fafc;"><strong style="display:block;font-size:1.4rem;color:#0f172a;">' + escapeHtml(item[1] == null ? '0' : String(item[1])) + '</strong><span style="font-size:0.8rem;color:#64748b;">' + escapeHtml(item[0]) + '</span></div>';
+        }).join('');
+        const health = data.health || {};
+        const triage = health.leadTriage || {};
+        const healthItems = [
+          ['Open lead requests', health.openLeadRequests, 'New, contacted, and qualified lead requests needing admin action.'],
+          ['New leads', triage.new, 'Fresh requests that have not been triaged yet.'],
+          ['Zero-result searches 24h', health.zeroResultSearchRunsLast24h, 'Recent search runs where no products were returned.'],
+          ['Agent errors 24h', health.agentErrorsLast24h, 'Recent agent communication records marked as errors.'],
+          ['Search runs 24h', health.searchRunsLast24h, 'Recent customer search activity in the overview window.'],
+        ];
+        document.getElementById('overviewHealth').innerHTML = healthItems.map(function(item) {
+          return '<div style="border:1px solid #dbe3ea;border-radius:0.5rem;padding:0.85rem;background:#fff;"><strong style="display:block;font-size:1.25rem;color:#0f172a;">' + escapeHtml(item[1] == null ? '0' : String(item[1])) + '</strong><span style="display:block;font-size:0.8rem;color:#334155;">' + escapeHtml(item[0]) + '</span><small style="display:block;margin-top:0.35rem;color:#64748b;">' + escapeHtml(item[2]) + '</small></div>';
         }).join('');
         const settings = data.settings || {};
         document.getElementById('overviewSettings').innerHTML =
@@ -765,6 +930,62 @@
       return (first.type ? first.type + ': ' : '') + first.value;
     }
 
+    function formatLeadStatus(status) {
+      const value = String(status || 'new').replace(/_/g, ' ');
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function leadStatusOption(value, selected) {
+      return '<option value="' + escapeHtml(value) + '"' + (selected === value ? ' selected' : '') + '>' + escapeHtml(formatLeadStatus(value)) + '</option>';
+    }
+
+    function leadStatusSelect(value) {
+      const selected = ['new', 'contacted', 'qualified', 'won', 'lost', 'spam'].includes(value) ? value : 'new';
+      return '<select id="leadTriageStatusInput">' +
+        leadStatusOption('new', selected) +
+        leadStatusOption('contacted', selected) +
+        leadStatusOption('qualified', selected) +
+        leadStatusOption('won', selected) +
+        leadStatusOption('lost', selected) +
+        leadStatusOption('spam', selected) +
+      '</select>';
+    }
+
+    function priorityOption(value, label, selected) {
+      return '<option value="' + escapeHtml(value) + '"' + (selected ? ' selected' : '') + '>' + escapeHtml(label) + '</option>';
+    }
+
+    function prioritySelect(id, value) {
+      return '<select id="' + escapeHtml(id) + '">' +
+        priorityOption('', '—', !value) +
+        priorityOption('price', 'price', value === 'price') +
+        priorityOption('quality', 'quality', value === 'quality') +
+        priorityOption('location', 'location', value === 'location') +
+      '</select>';
+    }
+
+    function readPriorityOrder() {
+      const values = ['sessionPriority1', 'sessionPriority2', 'sessionPriority3']
+        .map(function(id) { const el = document.getElementById(id); return el ? el.value : ''; })
+        .filter(Boolean);
+      const unique = [];
+      values.forEach(function(value) {
+        if (!unique.includes(value)) unique.push(value);
+      });
+      return unique.length ? unique : null;
+    }
+
+    function operationFilterValue(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
+    }
+
+    function operationListUrl(kind, page, limit, query) {
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (query) params.set('q', query);
+      return API_BASE + '/admin/operations/' + kind + '?' + params.toString();
+    }
+
     async function loadOperations() {
       if (!getToken()) {
         showOperationsStatus('Sign in with an authorized admin account to load operations.', 'error');
@@ -772,9 +993,11 @@
       }
       showOperationsStatus('Loading operations...', 'info');
       try {
+        const sessionQuery = operationFilterValue('operationsSessionFilter');
+        const leadQuery = operationFilterValue('operationsLeadFilter');
         const [sessions, leads] = await Promise.all([
-          fetch(API_BASE + '/admin/operations/sessions?page=' + operationsState.sessionsPage + '&limit=' + operationsState.sessionsLimit, { headers: authHeaders() }),
-          fetch(API_BASE + '/admin/operations/leads?page=' + operationsState.leadsPage + '&limit=' + operationsState.leadsLimit, { headers: authHeaders() }),
+          fetch(operationListUrl('sessions', operationsState.sessionsPage, operationsState.sessionsLimit, sessionQuery), { headers: authHeaders() }),
+          fetch(operationListUrl('leads', operationsState.leadsPage, operationsState.leadsLimit, leadQuery), { headers: authHeaders() }),
         ]);
         if (sessions.status === 401 || leads.status === 401) { showOperationsStatus('Invalid or missing JWT. Sign in again.', 'error'); return; }
         if (sessions.status === 403 || leads.status === 403) { showOperationsStatus('Token valid but missing admin role.', 'error'); return; }
@@ -815,12 +1038,13 @@
       tbody.innerHTML = items.map(function(lead) {
         return '<tr>' +
           '<td title="' + escapeHtml(lead.id) + '">' + escapeHtml(shortId(lead.id)) + '</td>' +
+          '<td>' + escapeHtml(formatLeadStatus(lead.triageStatus)) + '</td>' +
           '<td>' + escapeHtml(firstContact(lead.contactMethods)) + '</td>' +
           '<td>' + escapeHtml(lead.messagePreview || lead.message || '') + '</td>' +
           '<td>' + escapeHtml(formatDate(lead.createdAt)) + '</td>' +
           '<td><button type="button" class="btn btn-secondary" data-lead-id="' + escapeHtml(lead.id) + '">Inspect</button></td>' +
         '</tr>';
-      }).join('') || '<tr><td colspan="5">No lead requests.</td></tr>';
+      }).join('') || '<tr><td colspan="6">No lead requests.</td></tr>';
       tbody.querySelectorAll('button[data-lead-id]').forEach(function(btn) {
         btn.onclick = function() { loadOperationLeadDetail(btn.getAttribute('data-lead-id')); };
       });
@@ -841,6 +1065,7 @@
           return;
         }
         const latestRun = (session.searchRuns || [])[0];
+        const priorities = Array.isArray(session.priorityOrder) ? session.priorityOrder : [];
         detail.innerHTML =
           '<h3>Session ' + escapeHtml(shortId(session.id)) + '</h3>' +
           '<p><strong>User:</strong> ' + escapeHtml(session.userId || 'Anonymous') + '</p>' +
@@ -850,6 +1075,17 @@
           '<p><strong>Search runs:</strong> ' + escapeHtml(String((session.searchRuns || []).length)) + '</p>' +
           '<p><strong>Choices:</strong> ' + escapeHtml(String((session.choices || []).length)) + '</p>' +
           '<p><strong>Agent communications:</strong> ' + escapeHtml(String((session.agentCommunications || []).length)) + '</p>' +
+          '<h3 style="margin-top:1rem;">Admin edits</h3>' +
+          '<div class="form-grid" style="max-width:none;margin-bottom:0.75rem;">' +
+            '<div><label>Priority order</label><div class="actions">' +
+              prioritySelect('sessionPriority1', priorities[0]) +
+              prioritySelect('sessionPriority2', priorities[1]) +
+              prioritySelect('sessionPriority3', priorities[2]) +
+            '</div><small class="hint">Allowed values: price, quality, location. Duplicate values are collapsed on save.</small></div>' +
+            '<div><label for="sessionProfileIdInput">Profile id</label><input type="text" id="sessionProfileIdInput" value="' + escapeHtml(session.profileId || '') + '" placeholder="Clear to remove profile" />' +
+            '<small class="hint">For user-bound sessions, the profile must belong to the same user. Anonymous sessions can only clear this value.</small></div>' +
+            '<div><button type="button" class="btn btn-primary" id="saveSessionOpsBtn" data-session-id="' + escapeHtml(session.id) + '">Save session edits</button></div>' +
+          '</div>' +
           '<h3 style="margin-top:1rem;">Latest query</h3>' +
           '<pre>' + escapeHtml(latestRun ? latestRun.queryText : 'No search runs yet.') + '</pre>' +
           '<h3 style="margin-top:1rem;">Stored detail</h3>' +
@@ -859,9 +1095,44 @@
             choices: session.choices,
             agentCommunications: session.agentCommunications,
           })) + '</pre>';
+        const saveBtn = document.getElementById('saveSessionOpsBtn');
+        if (saveBtn) {
+          saveBtn.onclick = function() { saveOperationSessionDetail(saveBtn.getAttribute('data-session-id')); };
+        }
       } catch (e) {
         detail.innerHTML = '<h3>Session detail</h3><p style="color:#991b1b;">Error: ' + escapeHtml(e.message) + '</p>';
       }
+    }
+
+    async function saveOperationSessionDetail(id) {
+      if (!id) return;
+      const btn = document.getElementById('saveSessionOpsBtn');
+      const profileInput = document.getElementById('sessionProfileIdInput');
+      const profileId = profileInput && profileInput.value.trim() ? profileInput.value.trim() : null;
+      try {
+        if (btn) btn.disabled = true;
+        const r = await fetch(API_BASE + '/admin/operations/sessions/' + encodeURIComponent(id), {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ priorityOrder: readPriorityOrder(), profileId: profileId }),
+        });
+        if (r.status === 401) { showOperationsStatus('Invalid or missing JWT. Sign in again.', 'error'); return; }
+        if (r.status === 403) { showOperationsStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        showOperationsStatus('Session edits saved.', 'success');
+        const data = await r.json();
+        await renderUpdatedSessionDetail(data.session);
+        await loadOperations();
+      } catch (e) {
+        showOperationsStatus('Error saving session edits: ' + e.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function renderUpdatedSessionDetail(session) {
+      if (!session || !session.id) return;
+      await loadOperationSessionDetail(session.id);
     }
 
     async function loadOperationLeadDetail(id) {
@@ -883,13 +1154,58 @@
           '<p><strong>Source:</strong> ' + escapeHtml(lead.sourceLabel || lead.sourceService || '—') + '</p>' +
           '<p><strong>CRM lead id:</strong> ' + escapeHtml(lead.leadId || 'Pending') + '</p>' +
           '<p><strong>AI submission:</strong> ' + escapeHtml(lead.aiSubmissionId || 'Pending') + '</p>' +
+          '<p><strong>Triage:</strong> ' + escapeHtml(formatLeadStatus(lead.triageStatus)) + '</p>' +
+          '<p><strong>Assigned:</strong> ' + escapeHtml(lead.assignedTo || 'Unassigned') + '</p>' +
+          '<p><strong>Triaged:</strong> ' + escapeHtml(lead.triagedAt ? formatDate(lead.triagedAt) : 'Not yet') + '</p>' +
           '<p><strong>Created:</strong> ' + escapeHtml(formatDate(lead.createdAt)) + '</p>' +
+          '<h3 style="margin-top:1rem;">Lead triage</h3>' +
+          '<div class="form-grid" style="max-width:none;margin-bottom:0.75rem;">' +
+            '<div><label for="leadTriageStatusInput">Status</label>' + leadStatusSelect(lead.triageStatus) + '</div>' +
+            '<div><label for="leadAssignedToInput">Assigned to</label><input type="text" id="leadAssignedToInput" maxlength="120" value="' + escapeHtml(lead.assignedTo || '') + '" placeholder="Owner, team, or email" /></div>' +
+            '<div style="grid-column:1/-1;"><label for="leadAdminNotesInput">Admin notes</label><textarea id="leadAdminNotesInput" maxlength="2000" rows="5" placeholder="Internal follow-up notes. Do not paste secrets.">' + escapeHtml(lead.adminNotes || '') + '</textarea></div>' +
+            '<div><button type="button" class="btn btn-primary" id="saveLeadOpsBtn" data-lead-id="' + escapeHtml(lead.id) + '">Save lead triage</button></div>' +
+          '</div>' +
           '<h3 style="margin-top:1rem;">Message</h3>' +
           '<pre>' + escapeHtml(lead.message || '') + '</pre>' +
           '<h3 style="margin-top:1rem;">Contact and metadata</h3>' +
-          '<pre>' + escapeHtml(safeJson({ contactMethods: lead.contactMethods, metadata: lead.metadata, sourceUrl: lead.sourceUrl })) + '</pre>';
+          '<pre>' + escapeHtml(safeJson({ contactMethods: lead.contactMethods, metadata: lead.metadata, sourceUrl: lead.sourceUrl, triagedBy: lead.triagedBy })) + '</pre>';
+        const saveBtn = document.getElementById('saveLeadOpsBtn');
+        if (saveBtn) {
+          saveBtn.onclick = function() { saveOperationLeadDetail(saveBtn.getAttribute('data-lead-id')); };
+        }
       } catch (e) {
         detail.innerHTML = '<h3>Lead detail</h3><p style="color:#991b1b;">Error: ' + escapeHtml(e.message) + '</p>';
+      }
+    }
+
+    async function saveOperationLeadDetail(id) {
+      if (!id) return;
+      const btn = document.getElementById('saveLeadOpsBtn');
+      const statusInput = document.getElementById('leadTriageStatusInput');
+      const assignedInput = document.getElementById('leadAssignedToInput');
+      const notesInput = document.getElementById('leadAdminNotesInput');
+      try {
+        if (btn) btn.disabled = true;
+        const r = await fetch(API_BASE + '/admin/operations/leads/' + encodeURIComponent(id), {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            triageStatus: statusInput ? statusInput.value : 'new',
+            assignedTo: assignedInput && assignedInput.value.trim() ? assignedInput.value.trim() : null,
+            adminNotes: notesInput && notesInput.value.trim() ? notesInput.value.trim() : null,
+          }),
+        });
+        if (r.status === 401) { showOperationsStatus('Invalid or missing JWT. Sign in again.', 'error'); return; }
+        if (r.status === 403) { showOperationsStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        showOperationsStatus('Lead triage saved.', 'success');
+        const data = await r.json();
+        if (data.lead && data.lead.id) await loadOperationLeadDetail(data.lead.id);
+        await loadOperations();
+      } catch (e) {
+        showOperationsStatus('Error saving lead triage: ' + e.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
@@ -898,6 +1214,26 @@
       operationsState.leadsPage = 1;
       loadOperations();
     };
+    document.getElementById('operationsSessionFilter').addEventListener('input', function() {
+      operationsState.sessionsPage = 1;
+    });
+    document.getElementById('operationsLeadFilter').addEventListener('input', function() {
+      operationsState.leadsPage = 1;
+    });
+    document.getElementById('operationsSessionFilter').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        operationsState.sessionsPage = 1;
+        loadOperations();
+      }
+    });
+    document.getElementById('operationsLeadFilter').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        operationsState.leadsPage = 1;
+        loadOperations();
+      }
+    });
     document.getElementById('loadMoreSessionsBtn').onclick = function() {
       operationsState.sessionsPage += 1;
       loadOperations();
@@ -1051,155 +1387,273 @@
 
     document.getElementById('loadModelsBtn').onclick = loadModels;
 
-    // Profiles (10.3)
-    var editingProfileId = null;
+    // Admin account data: profiles and saved searches
+    var accountDataState = { profilesPage: 1, savedPage: 1, limit: 10, profiles: [], saved: [], profilesPagination: {}, savedPagination: {} };
 
     function showProfilesStatus(msg, type) {
       const el = document.getElementById('profilesStatus');
+      if (!msg) {
+        el.style.display = 'none';
+        return;
+      }
       el.textContent = msg;
       el.className = 'status ' + (type || 'info');
       el.style.display = 'block';
     }
 
-    async function loadProfilesList() {
+    function accountFilterValue(id) {
+      const el = document.getElementById(id);
+      return el ? el.value.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
+    }
+
+    function adminOperationListUrl(kind, page) {
+      const params = new URLSearchParams({ page: String(page), limit: String(accountDataState.limit) });
+      const q = kind === 'profiles' ? accountFilterValue('adminProfileFilter') : accountFilterValue('adminSavedCriteriaFilter');
+      if (q) params.set('q', q);
+      return API_BASE + '/admin/operations/' + kind + '?' + params.toString();
+    }
+
+    function compactJson(value) {
+      if (value == null) return '';
+      try {
+        return JSON.stringify(value);
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function prettyJson(value) {
+      if (value == null) return '';
+      try {
+        return JSON.stringify(value, null, 2);
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function parseJsonField(id) {
+      const el = document.getElementById(id);
+      const value = el ? el.value.trim() : '';
+      if (!value) return null;
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        throw new Error(document.querySelector('label[for="' + id + '"]').textContent + ' must be valid JSON.');
+      }
+    }
+
+    async function loadProfilesList(scope) {
+      scope = scope || 'all';
+      const appendProfiles = scope === 'profiles';
+      const appendSaved = scope === 'saved';
       if (!getToken()) {
         const authEl = document.getElementById('authRequired');
         if (authEl) authEl.style.display = 'block';
-        showProfilesStatus('Save a valid JWT token to load profiles.', 'error');
+        showProfilesStatus('Sign in with an authorized admin account to load account data.', 'error');
         return;
       }
+      showProfilesStatus('Loading account data...', 'info');
       try {
-        const r = await fetch(API_BASE + '/profiles', { headers: authHeaders() });
-        if (r.status === 401) {
+        const [profilesResponse, savedResponse] = await Promise.all([
+          fetch(adminOperationListUrl('profiles', accountDataState.profilesPage), { headers: authHeaders() }),
+          fetch(adminOperationListUrl('saved-criteria', accountDataState.savedPage), { headers: authHeaders() }),
+        ]);
+        if (profilesResponse.status === 401 || savedResponse.status === 401) {
           const authEl = document.getElementById('authRequired');
           if (authEl) authEl.style.display = 'block';
           showProfilesStatus('Invalid or missing JWT. Save a valid token.', 'error');
           return;
         }
-        if (r.status === 403) {
+        if (profilesResponse.status === 403 || savedResponse.status === 403) {
           const authEl = document.getElementById('authRequired');
           if (authEl) authEl.style.display = 'block';
           showProfilesStatus('Token valid but missing admin role. Assign global:superadmin or app:shop-assistant:admin in auth-microservice.', 'error');
           return;
         }
-        if (!r.ok) throw new Error(r.statusText);
-        const data = await r.json();
-        const items = (data.items || data || []);
-        const tbody = document.getElementById('profilesTableBody');
-        tbody.innerHTML = items.map(function(p) {
-          var tr = document.createElement('tr');
-          tr.setAttribute('data-profile-id', p.id);
-          tr.setAttribute('data-profile-name', p.name || '');
-          tr.setAttribute('data-profile-role', p.role || '');
-          tr.innerHTML = '<td>' + escapeHtml(p.name || '') + '</td>' +
-            '<td>' + escapeHtml(p.role || '') + '</td>' +
-            '<td class="actions">' +
-              '<button type="button" class="btn btn-secondary" data-action="edit">Edit</button> ' +
-              '<button type="button" class="btn btn-danger" data-action="delete">Delete</button>' +
-            '</td>';
-          return tr.outerHTML;
-        }).join('') || '<tr><td colspan="3">No profiles. Add one below.</td></tr>';
-        tbody.querySelectorAll('button[data-action="edit"]').forEach(function(btn) {
-          btn.onclick = function() {
-            var tr = btn.closest('tr');
-            if (!tr) return;
-            editProfile(tr.getAttribute('data-profile-id'), tr.getAttribute('data-profile-name') || '', tr.getAttribute('data-profile-role') || '');
-          };
-        });
-        tbody.querySelectorAll('button[data-action="delete"]').forEach(function(btn) {
-          btn.onclick = function() {
-            var tr = btn.closest('tr');
-            if (!tr) return;
-            deleteProfile(tr.getAttribute('data-profile-id'));
-          };
-        });
-        showProfilesStatus('Loaded ' + items.length + ' profile(s).', 'success');
+        if (!profilesResponse.ok) throw new Error(await profilesResponse.text() || profilesResponse.statusText);
+        if (!savedResponse.ok) throw new Error(await savedResponse.text() || savedResponse.statusText);
+        const profilesData = await profilesResponse.json();
+        const savedData = await savedResponse.json();
+        if (scope !== 'saved') {
+          accountDataState.profiles = appendProfiles ? accountDataState.profiles.concat(profilesData.items || []) : (profilesData.items || []);
+          accountDataState.profilesPagination = profilesData.pagination || {};
+        }
+        if (scope !== 'profiles') {
+          accountDataState.saved = appendSaved ? accountDataState.saved.concat(savedData.items || []) : (savedData.items || []);
+          accountDataState.savedPagination = savedData.pagination || {};
+        }
+        renderAdminProfiles(accountDataState.profiles, accountDataState.profilesPagination);
+        renderAdminSavedCriteria(accountDataState.saved, accountDataState.savedPagination);
+        showProfilesStatus('Account data loaded.', 'success');
       } catch (e) {
         showProfilesStatus('Error: ' + e.message, 'error');
       }
     }
 
-    function editProfile(id, name, role) {
-      editingProfileId = id;
-      document.getElementById('profileName').value = name || '';
-      document.getElementById('profileRole').value = role || '';
-      document.getElementById('addProfileBtn').textContent = 'Update profile';
-      document.getElementById('cancelProfileEditBtn').style.display = 'inline-block';
+    function renderAdminProfiles(items, pagination) {
+      const tbody = document.getElementById('profilesTableBody');
+      tbody.innerHTML = items.map(function(profile) {
+        const counts = profile._count || {};
+        return '<tr>' +
+          '<td title="' + escapeHtml(profile.userId || '') + '">' + escapeHtml(shortId(profile.userId || '—')) + '</td>' +
+          '<td>' + escapeHtml(profile.name || '') + '</td>' +
+          '<td>' + escapeHtml(profile.role || '—') + '</td>' +
+          '<td>' + escapeHtml(String(counts.sessions || 0)) + '</td>' +
+          '<td>' + escapeHtml(String(counts.savedCriteria || 0)) + '</td>' +
+          '<td>' + escapeHtml(formatDate(profile.updatedAt)) + '</td>' +
+          '<td><button type="button" class="btn btn-secondary" data-profile-id="' + escapeHtml(profile.id) + '">Edit</button></td>' +
+        '</tr>';
+      }).join('') || '<tr><td colspan="7">No profiles found.</td></tr>';
+      tbody.querySelectorAll('button[data-profile-id]').forEach(function(btn) {
+        btn.onclick = function() {
+          const profile = accountDataState.profiles.find(function(candidate) { return candidate.id === btn.getAttribute('data-profile-id'); });
+          if (profile) fillAdminProfileEditor(profile);
+        };
+      });
+      const shown = items.length;
+      const total = pagination.total || shown;
+      document.getElementById('adminProfilesPager').textContent = shown ? 'Showing ' + shown + ' of ' + total + ' profile(s).' : '';
+      document.getElementById('loadMoreProfilesBtn').style.display = shown < total ? 'inline-block' : 'none';
     }
 
-    window.editProfile = editProfile;
+    function renderAdminSavedCriteria(items, pagination) {
+      const tbody = document.getElementById('adminSavedCriteriaTableBody');
+      tbody.innerHTML = items.map(function(item) {
+        const profileName = item.profile ? item.profile.name : (item.profileId || 'Default');
+        const counts = item._count || {};
+        return '<tr>' +
+          '<td title="' + escapeHtml(item.userId || '') + '">' + escapeHtml(shortId(item.userId || '—')) + '</td>' +
+          '<td>' + escapeHtml(item.name || '') + '</td>' +
+          '<td title="' + escapeHtml(item.profileId || '') + '">' + escapeHtml(profileName) + '</td>' +
+          '<td>' + escapeHtml(String(counts.sessions || 0)) + '</td>' +
+          '<td>' + escapeHtml(formatDate(item.updatedAt)) + '</td>' +
+          '<td><button type="button" class="btn btn-secondary" data-saved-id="' + escapeHtml(item.id) + '">Edit</button></td>' +
+        '</tr>';
+      }).join('') || '<tr><td colspan="6">No saved searches found.</td></tr>';
+      tbody.querySelectorAll('button[data-saved-id]').forEach(function(btn) {
+        btn.onclick = function() {
+          const item = accountDataState.saved.find(function(candidate) { return candidate.id === btn.getAttribute('data-saved-id'); });
+          if (item) fillAdminSavedCriteriaEditor(item);
+        };
+      });
+      const shown = items.length;
+      const total = pagination.total || shown;
+      document.getElementById('adminSavedCriteriaPager').textContent = shown ? 'Showing ' + shown + ' of ' + total + ' saved search(es).' : '';
+      document.getElementById('loadMoreSavedCriteriaAdminBtn').style.display = shown < total ? 'inline-block' : 'none';
+    }
 
-    async function deleteProfile(id) {
-      if (!confirm('Delete this profile?')) return;
+    function fillAdminProfileEditor(profile) {
+      document.getElementById('adminProfileId').value = profile.id || '';
+      document.getElementById('adminProfileName').value = profile.name || '';
+      document.getElementById('adminProfileRole').value = profile.role || '';
+      document.getElementById('adminProfileUser').textContent = 'User: ' + (profile.userId || '—') + ' · Profile: ' + (profile.id || '—');
+    }
+
+    function clearAdminProfileEditor() {
+      document.getElementById('adminProfileId').value = '';
+      document.getElementById('adminProfileName').value = '';
+      document.getElementById('adminProfileRole').value = '';
+      document.getElementById('adminProfileUser').textContent = 'Select a profile to edit account-facing labels.';
+    }
+
+    function fillAdminSavedCriteriaEditor(item) {
+      document.getElementById('adminSavedCriteriaId').value = item.id || '';
+      document.getElementById('adminSavedCriteriaName').value = item.name || '';
+      document.getElementById('adminSavedCriteriaProfileId').value = item.profileId || '';
+      document.getElementById('adminSavedCriteriaPriorities').value = prettyJson(item.priorities);
+      document.getElementById('adminSavedCriteriaIntents').value = prettyJson(item.productIntents);
+      document.getElementById('adminSavedCriteriaFilters').value = prettyJson(item.filters);
+      document.getElementById('adminSavedCriteriaUser').textContent = 'User: ' + (item.userId || '—') + ' · Saved search: ' + (item.id || '—');
+    }
+
+    function clearAdminSavedCriteriaEditor() {
+      document.getElementById('adminSavedCriteriaId').value = '';
+      document.getElementById('adminSavedCriteriaName').value = '';
+      document.getElementById('adminSavedCriteriaProfileId').value = '';
+      document.getElementById('adminSavedCriteriaPriorities').value = '';
+      document.getElementById('adminSavedCriteriaIntents').value = '';
+      document.getElementById('adminSavedCriteriaFilters').value = '';
+      document.getElementById('adminSavedCriteriaUser').textContent = 'Select a saved search to edit reusable request criteria.';
+    }
+
+    document.getElementById('loadProfilesBtn').onclick = function() {
+      accountDataState.profilesPage = 1;
+      accountDataState.savedPage = 1;
+      loadProfilesList('all');
+    };
+    document.getElementById('loadMoreProfilesBtn').onclick = function() {
+      accountDataState.profilesPage += 1;
+      loadProfilesList('profiles');
+    };
+    document.getElementById('loadMoreSavedCriteriaAdminBtn').onclick = function() {
+      accountDataState.savedPage += 1;
+      loadProfilesList('saved');
+    };
+    document.getElementById('adminProfileFilter').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        accountDataState.profilesPage = 1;
+        loadProfilesList('all');
+      }
+    });
+    document.getElementById('adminSavedCriteriaFilter').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        accountDataState.savedPage = 1;
+        loadProfilesList('all');
+      }
+    });
+    document.getElementById('clearAdminProfileBtn').onclick = clearAdminProfileEditor;
+    document.getElementById('clearAdminSavedCriteriaBtn').onclick = clearAdminSavedCriteriaEditor;
+
+    document.getElementById('saveAdminProfileBtn').onclick = async function() {
+      const id = document.getElementById('adminProfileId').value.trim();
+      const name = document.getElementById('adminProfileName').value.trim();
+      const role = document.getElementById('adminProfileRole').value.trim();
+      if (!id) { showProfilesStatus('Select a profile first.', 'error'); return; }
+      if (!name) { showProfilesStatus('Profile name is required.', 'error'); return; }
       try {
-        const r = await fetch(API_BASE + '/profiles/' + encodeURIComponent(id), { method: 'DELETE', headers: authHeaders() });
+        const r = await fetch(API_BASE + '/admin/operations/profiles/' + encodeURIComponent(id), {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ name: name, role: role || null }),
+        });
         if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
-        if (!r.ok) throw new Error(r.statusText);
-        showProfilesStatus('Profile deleted.', 'success');
-        if (editingProfileId === id) {
-          editingProfileId = null;
-          document.getElementById('profileName').value = '';
-          document.getElementById('profileRole').value = '';
-          document.getElementById('addProfileBtn').textContent = 'Add profile';
-          document.getElementById('cancelProfileEditBtn').style.display = 'none';
-        }
-        loadProfilesList();
-      } catch (e) {
-        showProfilesStatus('Error: ' + e.message, 'error');
-      }
-    }
-
-    window.deleteProfile = deleteProfile;
-
-    document.getElementById('loadProfilesBtn').onclick = loadProfilesList;
-
-    document.getElementById('addProfileBtn').onclick = async function() {
-      const name = (document.getElementById('profileName').value || '').trim();
-      if (!name) {
-        showProfilesStatus('Name is required.', 'error');
-        return;
-      }
-      const role = (document.getElementById('profileRole').value || '').trim();
-      const id = editingProfileId;
-      try {
-        if (id) {
-          const r = await fetch(API_BASE + '/profiles/' + encodeURIComponent(id), {
-            method: 'PUT',
-            headers: authHeaders(),
-            body: JSON.stringify({ name: name, role: role || undefined }),
-          });
-          if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
-          if (!r.ok) throw new Error(r.statusText);
-          showProfilesStatus('Profile updated.', 'success');
-        } else {
-          const r = await fetch(API_BASE + '/profiles', {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify({ name: name, role: role || undefined }),
-          });
-          if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
-          if (!r.ok) throw new Error(r.statusText);
-          showProfilesStatus('Profile created.', 'success');
-        }
-        editingProfileId = null;
-        document.getElementById('profileName').value = '';
-        document.getElementById('profileRole').value = '';
-        document.getElementById('addProfileBtn').textContent = 'Add profile';
-        document.getElementById('cancelProfileEditBtn').style.display = 'none';
-        loadProfilesList();
+        if (r.status === 403) { showProfilesStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        showProfilesStatus('Profile updated.', 'success');
+        accountDataState.profilesPage = 1;
+        loadProfilesList('all');
       } catch (e) {
         showProfilesStatus('Error: ' + e.message, 'error');
       }
     };
 
-    document.getElementById('cancelProfileEditBtn').onclick = function() {
-      editingProfileId = null;
-      document.getElementById('profileName').value = '';
-      document.getElementById('profileRole').value = '';
-      document.getElementById('addProfileBtn').textContent = 'Add profile';
-      document.getElementById('cancelProfileEditBtn').style.display = 'none';
-      showProfilesStatus('', 'info');
-      document.getElementById('profilesStatus').style.display = 'none';
+    document.getElementById('saveAdminSavedCriteriaBtn').onclick = async function() {
+      const id = document.getElementById('adminSavedCriteriaId').value.trim();
+      const name = document.getElementById('adminSavedCriteriaName').value.trim();
+      if (!id) { showProfilesStatus('Select a saved search first.', 'error'); return; }
+      if (!name) { showProfilesStatus('Saved search name is required.', 'error'); return; }
+      try {
+        const payload = {
+          name: name,
+          profileId: document.getElementById('adminSavedCriteriaProfileId').value.trim() || null,
+          priorities: parseJsonField('adminSavedCriteriaPriorities'),
+          productIntents: parseJsonField('adminSavedCriteriaIntents'),
+          filters: parseJsonField('adminSavedCriteriaFilters'),
+        };
+        const r = await fetch(API_BASE + '/admin/operations/saved-criteria/' + encodeURIComponent(id), {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify(payload),
+        });
+        if (r.status === 401) { showProfilesStatus('Invalid or missing JWT.', 'error'); return; }
+        if (r.status === 403) { showProfilesStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        showProfilesStatus('Saved search updated.', 'success');
+        accountDataState.savedPage = 1;
+        loadProfilesList('all');
+      } catch (e) {
+        showProfilesStatus('Error: ' + e.message, 'error');
+      }
     };
 
     // Execution mode
@@ -1208,6 +1662,37 @@
       el.textContent = msg;
       el.className = 'status ' + (type || 'info');
       el.style.display = 'block';
+    }
+
+    function fillLandingSettings(publicLanding) {
+      publicLanding = publicLanding || {};
+      const fields = {
+        landingHeadlineInput: publicLanding.headline,
+        landingSubheadlineInput: publicLanding.subheadline,
+        landingPrimaryCtaInput: publicLanding.primaryCtaLabel,
+        landingSecondaryCtaInput: publicLanding.secondaryCtaLabel,
+        landingContactHeadlineInput: publicLanding.contactHeadline,
+        landingContactSubheadlineInput: publicLanding.contactSubheadline,
+        landingLeadSubmitInput: publicLanding.leadSubmitLabel,
+        landingFooterTaglineInput: publicLanding.footerTagline,
+      };
+      Object.keys(fields).forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.value = fields[id] || '';
+      });
+    }
+
+    function readLandingSettings() {
+      return {
+        headline: document.getElementById('landingHeadlineInput').value,
+        subheadline: document.getElementById('landingSubheadlineInput').value,
+        primaryCtaLabel: document.getElementById('landingPrimaryCtaInput').value,
+        secondaryCtaLabel: document.getElementById('landingSecondaryCtaInput').value,
+        contactHeadline: document.getElementById('landingContactHeadlineInput').value,
+        contactSubheadline: document.getElementById('landingContactSubheadlineInput').value,
+        leadSubmitLabel: document.getElementById('landingLeadSubmitInput').value,
+        footerTagline: document.getElementById('landingFooterTaglineInput').value,
+      };
     }
 
     async function loadExecutionMode() {
@@ -1227,6 +1712,7 @@
         const maxInput = document.getElementById('maxSearchResultsInput');
         sel.value = data.agentExecutionMode === 'queue' ? 'queue' : 'sync';
         maxInput.value = data.maxSearchResults || 20;
+        fillLandingSettings(data.publicLanding);
         showModeStatus('Current settings loaded.', 'success');
       } catch (e) {
         showModeStatus('Error: ' + e.message, 'error');
@@ -1236,11 +1722,12 @@
     document.getElementById('saveModeBtn').onclick = async function() {
       const agentExecutionMode = document.getElementById('executionModeSelect').value;
       const maxSearchResults = Number(document.getElementById('maxSearchResultsInput').value);
+      const publicLanding = readLandingSettings();
       try {
         const r = await fetch(API_BASE + '/admin/settings', {
           method: 'PUT',
           headers: authHeaders(),
-          body: JSON.stringify({ agentExecutionMode, maxSearchResults }),
+          body: JSON.stringify({ agentExecutionMode, maxSearchResults, publicLanding }),
         });
         if (r.status === 401) {
           showModeStatus('Invalid or missing JWT.', 'error');
@@ -1252,6 +1739,7 @@
         }
         if (!r.ok) throw new Error(await r.text() || r.statusText);
         const data = await r.json();
+        fillLandingSettings(data.publicLanding);
         showModeStatus('Settings saved: mode=' + data.agentExecutionMode + ', maxSearchResults=' + data.maxSearchResults, 'success');
       } catch (e) {
         showModeStatus('Error: ' + e.message, 'error');
