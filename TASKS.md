@@ -46,8 +46,11 @@
 - [x] 2026-06-13 SA-G7 Auth callback state hardening implemented for dashboard/admin; missing or mismatched state fragments are rejected, URL fragments are cleaned, and browser QA passed
 - [x] 2026-06-13 SA-G7 session-scoped token storage implemented for landing/dashboard/admin/test pages; persistent access/refresh token writes removed, legacy persistent tokens migrated/cleared, browser QA passed
 - [x] 2026-06-13 SA-G7 persistent user identity storage removed from dashboard; user is rendered from /api/me only, persistent user read/write scan and browser QA passed
+- [x] 2026-06-13 SA-G7 admin auth-failure lockdown implemented; protected admin fetches now lock the admin shell on 401/403, build passed, and in-app browser QA covered expired-auth and missing-role responses
 - [x] 2026-06-13 SA-G3 saved criteria session traceability implemented with Prisma migration, runCriteria linkage, and current-user dashboard/session response fields; prisma generate/build passed; deploy/migration apply pending owner approval
 - [x] 2026-06-13 SA-G3 saved criteria traceability deployed; Prisma migration status up to date, health passed, unauthenticated /api/me and /api/saved-criteria returned 401; customer-token run smoke pending
 - [x] 2026-06-13 SA-G3 rebuilt/pushed Shop Assistant image and reran live customer-token saved-criteria traceability smoke; usedSavedCriteriaId and relation matched saved criteria id; token/password not printed
 
 - [x] 2026-06-13 SA-G5 lead forwarding resilience implemented with migration-backed integration statuses, durable local capture on downstream forwarding failure, protected operations status fields, prisma generate/build/prisma validate passed; deployment pending owner approval
+
+- [x] 2026-06-13 SA-G5 deployment attempted after approval; image build/push succeeded after disabling Nest asset watchers, but Kubernetes rollout timed out with new pod stuck ContainerCreating/Pulling before app start; rollout undo restored previous ready pod and production remained HTTP 200

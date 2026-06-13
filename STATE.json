@@ -10,9 +10,11 @@
     "open_task_ids": [
         "SA-G7-T1"
     ],
-    "last_milestone": "SA-G5-lead-forwarding-resilience-implemented-build-passed-pending-deploy",
-    "next_focus": "owner approval is needed before deploying SA-G5 lead forwarding resilience and applying prisma/migrations/20260613_add_lead_forwarding_status; after deploy, run live lead capture smoke and verify leadForwardingStatus/aiAnalysisStatus in protected admin operations response",
-    "blockers": [],
+    "last_milestone": "SA-G5-image-built-pushed-deployment-blocked-by-runtime-pull-rollback-stable",
+    "next_focus": "resolve alfares Kubernetes/container-runtime image pull/create blocker for shop-assistant rollout, then rerun ./scripts/deploy.sh, confirm prisma migration 20260613_add_lead_forwarding_status applies, and run live lead capture smoke",
+    "blockers": [
+        "SA-G5 production rollout blocked on alfares node/container-runtime image pull/create path: new pod stayed ContainerCreating/Pulling before app startup; rollout undo restored previous ready pod"
+    ],
     "budget_units_used": 0,
     "metrics": {
         "custom": {
@@ -641,6 +643,34 @@
                 "migration": "prisma/migrations/20260613_add_lead_forwarding_status/migration.sql",
                 "validation": "npm run prisma:generate passed; npm run build passed; npx prisma validate passed; static secret scan found no embedded secret values",
                 "deployment_pending": "owner approval required before production deploy and migration apply"
+            },
+            "sa_g7_t1_admin_auth_failure_lockdown": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "page": "public/admin.html",
+                "scope": [
+                    "401 clears session auth and locks admin shell",
+                    "403 locks admin shell with missing-role message",
+                    "protected admin fetches share auth-failure handling",
+                    "late overview validation cannot re-unlock after auth is cleared"
+                ],
+                "validation": "npm run build passed; in-app browser mocked 401 and 403 lockout QA passed",
+                "screenshots": [
+                    "/private/tmp/shop-assistant-admin-401-lockout-qa.png",
+                    "/private/tmp/shop-assistant-admin-403-lockout-qa.png"
+                ],
+                "live_validation_pending": "owner-approved deploy plus real admin/non-admin Auth smoke checks"
+            },
+            "sa_g5_deployment_attempt": {
+                "date": "2026-06-13",
+                "status": "blocked_runtime_pull_rollback_stable",
+                "image_digest": "sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011",
+                "build_fix_commit": "9dafe1c",
+                "deployment_script": "./scripts/deploy.sh",
+                "failed_pod": "shop-assistant-65988f784d-c226c",
+                "stable_pod": "shop-assistant-5b699c65f6-szhz2",
+                "production_health": "https://shop-assistant.alfares.cz/ returned HTTP 200 during failed rollout",
+                "migration_applied": false
             }
         }
     }
