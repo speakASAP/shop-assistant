@@ -10,8 +10,8 @@
     "open_task_ids": [
         "SA-G7-T1"
     ],
-    "last_milestone": "SA-G7-persistent-user-identity-storage-removed-built-and-browser-qa-passed",
-    "next_focus": "owner approval is needed before deploying latest SA-G7 dashboard/admin/settings/lead-triage/health-overview/account-data/token-and-state-hardening/session-token-storage/user-storage-cleanup changes and applying pending migrations; valid customer token is needed for live dashboard history filters, history pagination, selected-products pagination, saved-search pagination, priority-control, product-selection, request-refinement, and saved-criteria traceability smoke; valid admin/non-admin credentials are needed for SA-G7 admin live checks including Auth callback cleanup/state validation, overview health, account data, operations filters, and lead triage",
+    "last_milestone": "SA-G5-lead-forwarding-resilience-implemented-build-passed-pending-deploy",
+    "next_focus": "owner approval is needed before deploying SA-G5 lead forwarding resilience and applying prisma/migrations/20260613_add_lead_forwarding_status; after deploy, run live lead capture smoke and verify leadForwardingStatus/aiAnalysisStatus in protected admin operations response",
     "blockers": [],
     "budget_units_used": 0,
     "metrics": {
@@ -629,6 +629,18 @@
                 "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard hash callback, verified URL fragment cleaned and signed-in dashboard rendered with no console errors",
                 "security_boundary": "Shop Assistant frontend no longer writes authenticated user identity/email to persistent browser storage; dashboard state continues to come from current-user APIs",
                 "live_validation_pending": "owner-approved deploy and real customer Auth callback success smoke"
+            },
+            "sa_g5_lead_forwarding_resilience": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_pending_deploy",
+                "task": "docs/intent-preservation/tasks/SA-G5-T1.md",
+                "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G5-LEAD-FORWARDING.md",
+                "context_package": "docs/intent-preservation/context-packages/CP-SA-G5-LEAD-FORWARDING.md",
+                "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G5-LEAD-FORWARDING.md",
+                "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G5-LEAD-FORWARDING.md",
+                "migration": "prisma/migrations/20260613_add_lead_forwarding_status/migration.sql",
+                "validation": "npm run prisma:generate passed; npm run build passed; npx prisma validate passed; static secret scan found no embedded secret values",
+                "deployment_pending": "owner approval required before production deploy and migration apply"
             }
         }
     }
