@@ -49,3 +49,5 @@
 - [x] 2026-06-13 SA-G3 saved criteria session traceability implemented with Prisma migration, runCriteria linkage, and current-user dashboard/session response fields; prisma generate/build passed; deploy/migration apply pending owner approval
 - [x] 2026-06-13 SA-G3 saved criteria traceability deployed; Prisma migration status up to date, health passed, unauthenticated /api/me and /api/saved-criteria returned 401; customer-token run smoke pending
 - [x] 2026-06-13 SA-G3 rebuilt/pushed Shop Assistant image and reran live customer-token saved-criteria traceability smoke; usedSavedCriteriaId and relation matched saved criteria id; token/password not printed
+
+- [x] 2026-06-13 SA-G5 lead forwarding resilience implemented with migration-backed integration statuses, durable local capture on downstream forwarding failure, protected operations status fields, prisma generate/build/prisma validate passed; deployment pending owner approval

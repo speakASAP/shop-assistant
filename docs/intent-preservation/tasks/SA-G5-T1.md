@@ -1,7 +1,7 @@
 # Task: SA-G5-T1 Lead Forwarding Resilience
 
     id: SA-G5-T1
-    status: in_progress
+    status: implemented_build_passed_pending_deploy
     owner: shop-assistant-owner
     created: 2026-06-13
     last_updated: 2026-06-13
