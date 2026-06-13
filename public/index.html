@@ -150,12 +150,12 @@
       transform: none;
     }
     .hero {
-      padding: 70px 0 42px;
+      padding: 62px 0 58px;
       display: grid;
       grid-template-columns: minmax(0, 0.95fr) minmax(480px, 1.05fr);
       gap: 44px;
       align-items: center;
-      min-height: calc(100vh - 72px);
+      min-height: min(780px, calc(100vh - 72px));
     }
     .hero-copy h1 {
       margin: 0;
@@ -203,7 +203,7 @@
     .product-preview {
       display: grid;
       gap: 12px;
-      align-self: stretch;
+      align-self: center;
     }
     .preview-window {
       background: var(--surface);
@@ -635,8 +635,7 @@
     }
     #cookie-banner {
       position: fixed;
-      left: 16px;
-      right: 16px;
+      right: 18px;
       bottom: 16px;
       z-index: 30;
       border: 1px solid #334155;
@@ -644,6 +643,7 @@
       color: #fff;
       border-radius: 8px;
       padding: 14px;
+      max-width: 760px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -738,6 +738,8 @@
         grid-template-columns: 1fr;
       }
       #cookie-banner {
+        left: 14px;
+        right: 14px;
         align-items: stretch;
         flex-direction: column;
       }

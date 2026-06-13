@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shop Assistant — Admin</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial,sans-serif' font-size='22' font-weight='700' fill='white'%3ESA%3C/text%3E%3C/svg%3E">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -114,6 +115,39 @@
     .agent-message-content { white-space: pre-wrap; word-break: break-word; }
     .empty-state { text-align: center; padding: 2rem; color: #64748b; }
     .actions { display: flex; gap: 0.5rem; }
+    .ops-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    .detail-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      background: #f8fafc;
+      padding: 1rem;
+      min-height: 180px;
+      overflow: auto;
+      font-size: 0.875rem;
+    }
+    .detail-box h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    .detail-box pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.8rem;
+      color: #334155;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .compact-table td {
+      vertical-align: top;
+    }
     .onboarding {
       background: white;
       padding: 1rem 1.5rem;
@@ -134,36 +168,101 @@
     .onboarding li {
       margin-bottom: 0.25rem;
     }
+    .admin-gate {
+      background: white;
+      border: 1px solid #dbe3ea;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      max-width: 760px;
+      margin: 2.5rem auto;
+      padding: 1.5rem;
+    }
+    .admin-gate h2 {
+      font-size: 1.35rem;
+      margin-bottom: 0.5rem;
+    }
+    .admin-gate p {
+      color: #64748b;
+      margin-bottom: 1rem;
+    }
+    .admin-gate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .manual-token {
+      margin-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 1rem;
+    }
+    .manual-token summary {
+      cursor: pointer;
+      color: #0f766e;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .manual-token .auth-row {
+      margin-top: 0.75rem;
+    }
+    .admin-locked #adminShell { display: none; }
+    .admin-unlocked #adminGate { display: none; }
+    @media (max-width: 720px) {
+      body { padding: 0.75rem; }
+      .auth-row input { width: min(100%, 320px); }
+      .tabs { overflow-x: auto; padding-bottom: 0.25rem; }
+      .ops-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
-<body>
+<body class="admin-locked">
   <div class="header">
     <h1>Shop Assistant — Admin</h1>
     <div class="auth-row">
-      <input type="password" id="tokenInput" placeholder="JWT token (from auth-microservice)" />
-      <button type="button" class="btn btn-primary" id="saveTokenBtn">Save token</button>
+      <button type="button" class="btn btn-primary" id="loginBtn">Sign in with Auth</button>
+      <button type="button" class="btn btn-secondary" id="logoutBtn" style="display: none;">Logout</button>
       <span id="tokenStatus" style="font-size: 0.8rem; color: #64748b;"></span>
     </div>
   </div>
 
+  <section id="adminGate" class="admin-gate">
+    <h2>Admin access requires an authorized account</h2>
+    <p>Sign in through the authentication service. The admin APIs still enforce JWT validation and require <code>global:superadmin</code> or <code>app:shop-assistant:admin</code>.</p>
+    <div id="adminGateStatus" class="status info">Checking admin session...</div>
+    <div class="admin-gate-actions">
+      <button type="button" class="btn btn-primary" id="gateLoginBtn">Sign in with Auth</button>
+      <a class="btn btn-secondary" href="dashboard.html">Open customer dashboard</a>
+      <a class="btn btn-secondary" href="/">Back to site</a>
+    </div>
+    <details class="manual-token">
+      <summary>Advanced: paste an admin JWT manually</summary>
+      <div class="auth-row">
+        <input type="password" id="tokenInput" placeholder="Admin JWT token" autocomplete="off" />
+        <button type="button" class="btn btn-primary" id="saveTokenBtn">Use token</button>
+        <button type="button" class="btn btn-secondary" id="clearTokenBtn">Clear</button>
+      </div>
+    </details>
+  </section>
+
+  <main id="adminShell">
   <div class="onboarding" id="onboarding-message">
-    <h2>First-time setup (after deploy)</h2>
+    <h2>Admin setup checklist</h2>
     <ol>
-      <li><strong>Get an admin JWT token</strong> from <code>auth-microservice</code> (<a href="/getting-admin-token.html" target="_blank" style="color: #14b8a6; text-decoration: underline;">see step-by-step guide</a>) and paste it into the field above, then click <strong>“Save token”</strong>. Without a token you can only view the Agent flow.</li>
+      <li><strong>Sign in through Auth</strong>. Your account must have <code>global:superadmin</code> or <code>app:shop-assistant:admin</code> in the authentication microservice.</li>
       <li><strong>Configure agent prompts</strong> in the <strong>“Prompts (CRUD)”</strong> tab: create at least one <strong>active</strong> prompt for each type: <code>COMMUNICATION</code>, <code>SEARCH</code>, <code>COMPARISON</code>, <code>LOCATION</code>, <code>PRESENTATION</code>. Use placeholders like <code>{{userInput}}</code>, <code>{{queryText}}</code>, <code>{{searchResults}}</code>, <code>{{previousParams}}</code> as described in the docs.</li>
       <li><strong>Select AI models</strong> in the <strong>“AI Models”</strong> tab (load models from ai-microservice) and assign the desired model to each prompt.</li>
-      <li><strong>Choose execution mode</strong> in the <strong>“Execution mode”</strong> tab: start with <code>sync</code> for simple setups, or <code>queue</code> to enable the in-memory AgentQueue with limited concurrency.</li>
-      <li><strong>Test the assistant UI</strong>: open <code>/test.html?token=YOUR_TOKEN</code> or the main landing page with <code>?token=YOUR_TOKEN</code>. On the Test page you can create sessions, chat with the assistant, and see progress/intermediary/final results.</li>
-      <li><strong>Set up profiles and saved searches</strong> (optional): on <code>test.html</code> with a token, use the <strong>Account</strong> and <strong>Saved searches</strong> sections to create profiles (e.g. Mom/Dad/Child) and reusable search templates.</li>
+      <li><strong>Choose safe service settings</strong> in the <strong>“Execution mode”</strong> tab. Only non-secret settings are editable here.</li>
+      <li><strong>Use the customer dashboard</strong> for account-bound searches and profiles; keep the advanced test interface for diagnostics.</li>
     </ol>
   </div>
 
   <div id="authRequired" class="status info" style="display: none;">
-    Save a valid JWT token to use Prompts and AI Models. Agent flow can be viewed without token.
+    Sign in with an authorized admin account to use this panel.
   </div>
 
   <div class="tabs">
     <button type="button" data-tab="overview">Admin Overview</button>
+    <button type="button" data-tab="operations">Operations</button>
     <button type="button" data-tab="prompts" class="active">Prompts (CRUD)</button>
     <button type="button" data-tab="models">AI Models</button>
     <button type="button" data-tab="profiles">Profiles</button>
@@ -189,6 +288,35 @@
       <thead><tr><th>Lead</th><th>Source</th><th>CRM</th><th>AI analysis</th><th>Created</th></tr></thead>
       <tbody id="overviewLeadsBody"></tbody>
     </table>
+  </div>
+
+  <div id="panel-operations" class="panel">
+    <h2>Operations</h2>
+    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">Admin-only operational records for sessions, searches, selected products, messages, agent communication, and lead requests.</p>
+    <div id="operationsStatus" class="status" style="display: none;"></div>
+    <div class="actions" style="margin-bottom: 1rem; flex-wrap: wrap;">
+      <button type="button" class="btn btn-primary" id="loadOperationsBtn">Refresh operations</button>
+      <button type="button" class="btn btn-secondary" id="loadMoreSessionsBtn">More sessions</button>
+      <button type="button" class="btn btn-secondary" id="loadMoreLeadsBtn">More leads</button>
+    </div>
+    <div class="ops-grid">
+      <section>
+        <h3 style="margin-bottom: 0.5rem;">Sessions</h3>
+        <table class="compact-table">
+          <thead><tr><th>Session</th><th>User</th><th>Profile</th><th>Activity</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody id="operationsSessionsBody"></tbody>
+        </table>
+        <h3 style="margin: 1.5rem 0 0.5rem;">Lead requests</h3>
+        <table class="compact-table">
+          <thead><tr><th>Lead</th><th>Contact</th><th>Message</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="operationsLeadsBody"></tbody>
+        </table>
+      </section>
+      <aside class="detail-box" id="operationsDetail">
+        <h3>Record detail</h3>
+        <p style="color:#64748b;">Select a session or lead to inspect stored messages, search runs, results, choices, agent communications, contact methods, and external submission ids.</p>
+      </aside>
+    </div>
   </div>
 
   <div id="panel-prompts" class="panel active">
@@ -333,23 +461,104 @@
     <div id="flowStatus" class="status" style="display: none;"></div>
     <div id="flowContent" style="margin-top: 1rem;"></div>
   </div>
+  </main>
 
   <script>
     const API_BASE = window.location.origin + '/api';
+    const AUTH_BASE = 'https://auth.alfares.cz';
+    const CLIENT_ID = 'shop-assistant';
+    const STATE_KEY = 'shop_assistant_admin_auth_state';
     const TOKEN_KEY = 'shop_assistant_admin_token';
+    const ADMIN_ROLES = ['global:superadmin', 'app:shop-assistant:admin'];
+    const els = {
+      gate: document.getElementById('adminGate'),
+      gateStatus: document.getElementById('adminGateStatus'),
+      loginBtn: document.getElementById('loginBtn'),
+      gateLoginBtn: document.getElementById('gateLoginBtn'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      tokenInput: document.getElementById('tokenInput'),
+      tokenStatus: document.getElementById('tokenStatus'),
+    };
 
     function getToken() {
-      // Prefer the token currently in the input so "what you see is what we use" (avoids using a different token from localStorage).
-      var inputEl = document.getElementById('tokenInput');
-      var fromInput = (inputEl && (inputEl.value || '').trim()) || '';
-      if (fromInput) {
-        sessionStorage.setItem(TOKEN_KEY, fromInput);
-        return fromInput;
-      }
       var token = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
       if (token) return token;
-      // Fallback: existing access token from other app context (e.g. landing login).
       return (localStorage.getItem('accessToken') || '').trim();
+    }
+
+    function authUrl(path) {
+      const state = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+      sessionStorage.setItem(STATE_KEY, state);
+      const returnUrl = window.location.origin + window.location.pathname;
+      const params = new URLSearchParams({ return_url: returnUrl, client_id: CLIENT_ID, state });
+      return AUTH_BASE + path + '?' + params.toString();
+    }
+
+    function parseAuthFragment() {
+      if (!window.location.hash || !window.location.hash.includes('access_token=')) return;
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      const returnedState = params.get('state');
+      const expectedState = sessionStorage.getItem(STATE_KEY);
+      if (expectedState && returnedState && expectedState !== returnedState) {
+        clearAuth();
+        showGate('Authentication state did not match. Please sign in again.', 'error');
+        window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        return;
+      }
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
+        sessionStorage.setItem(TOKEN_KEY, accessToken);
+      }
+      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+      sessionStorage.removeItem(STATE_KEY);
+      window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+    }
+
+    function clearAuth() {
+      sessionStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      if (els.tokenInput) els.tokenInput.value = '';
+    }
+
+    function showGate(message, type) {
+      document.body.classList.remove('admin-unlocked');
+      document.body.classList.add('admin-locked');
+      if (els.logoutBtn) els.logoutBtn.style.display = 'none';
+      if (els.loginBtn) els.loginBtn.style.display = 'inline-block';
+      if (els.gateStatus) {
+        els.gateStatus.textContent = message || 'Sign in with an authorized admin account.';
+        els.gateStatus.className = 'status ' + (type || 'info');
+        els.gateStatus.style.display = 'block';
+      }
+      if (els.tokenStatus) els.tokenStatus.textContent = 'Admin sign-in required.';
+      updatePromptFormAuth();
+    }
+
+    function showAdmin(message) {
+      document.body.classList.remove('admin-locked');
+      document.body.classList.add('admin-unlocked');
+      if (els.logoutBtn) els.logoutBtn.style.display = 'inline-block';
+      if (els.loginBtn) els.loginBtn.style.display = 'none';
+      if (els.tokenStatus) els.tokenStatus.textContent = message || 'Authorized admin session active.';
+      const authEl = document.getElementById('authRequired');
+      if (authEl) authEl.style.display = 'none';
+      updatePromptFormAuth();
+      setTimeout(refreshActiveAdminTab, 0);
+    }
+
+    function refreshActiveAdminTab() {
+      var activeTab = document.querySelector('.tabs button.active');
+      if (!activeTab || !getToken()) return;
+      if (activeTab.dataset.tab === 'overview') loadAdminOverview();
+      else if (activeTab.dataset.tab === 'operations') loadOperations();
+      else if (activeTab.dataset.tab === 'prompts') loadPrompts();
+      else if (activeTab.dataset.tab === 'models') loadModels();
+      else if (activeTab.dataset.tab === 'profiles') loadProfilesList();
+      else if (activeTab.dataset.tab === 'mode') loadExecutionMode();
     }
 
     function updatePromptFormAuth() {
@@ -362,21 +571,32 @@
 
     function setToken(token) {
       token = (token || '').trim();
-      if (token) sessionStorage.setItem(TOKEN_KEY, token);
+      if (token) {
+        sessionStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem('accessToken', token);
+      }
       else sessionStorage.removeItem(TOKEN_KEY);
-      document.getElementById('tokenInput').value = token;
-      document.getElementById('tokenStatus').textContent = token ? 'Token saved' : '';
+      if (els.tokenInput) els.tokenInput.value = token;
+      if (els.tokenStatus) els.tokenStatus.textContent = token ? 'Token saved. Validating admin role...' : '';
       updatePromptFormAuth();
     }
 
-    document.getElementById('saveTokenBtn').onclick = function() {
-      const t = document.getElementById('tokenInput').value.trim();
+    function startLogin() {
+      window.location.href = authUrl('/login');
+    }
+
+    if (els.loginBtn) els.loginBtn.onclick = startLogin;
+    if (els.gateLoginBtn) els.gateLoginBtn.onclick = startLogin;
+    if (els.logoutBtn) els.logoutBtn.onclick = function() {
+      clearAuth();
+      showGate('Signed out. Sign in with an authorized admin account to continue.', 'info');
+    };
+
+    document.getElementById('saveTokenBtn').onclick = async function() {
+      const t = (els.tokenInput && els.tokenInput.value || '').trim();
       setToken(t);
-      document.getElementById('tokenStatus').textContent = t
-        ? 'Token saved. You can now manage prompts and models.'
-        : 'Token cleared. Set a valid JWT to use admin actions.';
-      checkTokenValidity();
-      // Refresh current tab data so we use the just-saved token and clear "Invalid or missing JWT" if it was shown.
+      await checkTokenValidity();
+      if (!document.body.classList.contains('admin-unlocked')) return;
       var activeTab = document.querySelector('.tabs button.active');
       if (t && activeTab) {
         if (activeTab.dataset.tab === 'prompts') loadPrompts();
@@ -385,59 +605,60 @@
         else if (activeTab.dataset.tab === 'mode') loadExecutionMode();
       }
     };
+    document.getElementById('clearTokenBtn').onclick = function() {
+      clearAuth();
+      showGate('Token cleared. Sign in with Auth or paste a valid admin JWT.', 'info');
+    };
 
     async function checkTokenValidity() {
       try {
         const token = getToken();
         const onboardingEl = document.getElementById('onboarding-message');
-        if (!onboardingEl) return;
 
         if (!token) {
-          onboardingEl.style.display = 'block';
+          if (onboardingEl) onboardingEl.style.display = 'block';
+          showGate('Sign in with an authorized admin account.', 'info');
           return;
         }
 
         try {
-          const r = await fetch(API_BASE + '/admin/prompts?limit=1', { 
+          const r = await fetch(API_BASE + '/admin/overview', { 
             headers: authHeaders(),
             method: 'GET'
           });
-          if (r.status === 401 || r.status === 403) {
-            onboardingEl.style.display = 'block';
-            if (r.status === 403) {
-              const ps = document.getElementById('promptsStatus');
-              if (ps) {
-                ps.textContent = 'Token valid but missing admin role. Run assign-role-by-email.sh in auth-microservice for your user.';
-                ps.className = 'status error';
-                ps.style.display = 'block';
-              }
-            }
+          if (r.status === 401) {
+            clearAuth();
+            if (onboardingEl) onboardingEl.style.display = 'block';
+            showGate('Authentication expired or missing. Please sign in again.', 'error');
+          } else if (r.status === 403) {
+            if (onboardingEl) onboardingEl.style.display = 'block';
+            showGate('Your account is signed in but does not have a Shop Assistant admin role.', 'error');
           } else if (r.ok) {
-            onboardingEl.style.display = 'none';
+            if (onboardingEl) onboardingEl.style.display = 'block';
+            showAdmin('Authorized admin session active.');
           } else {
-            // If API returns error but token exists, assume token is valid (API might be unavailable)
-            // Only show onboarding if we get auth errors
-            onboardingEl.style.display = 'none';
+            showGate('Admin validation failed with HTTP ' + r.status + '. Try again or use a fresh admin token.', 'error');
           }
         } catch (fetchError) {
-          // If API is unavailable but token exists, assume setup is complete
           console.warn('Token validation check failed (API may be unavailable):', fetchError);
-          onboardingEl.style.display = 'none';
+          showGate('Could not validate admin access. Check network/API status and try again.', 'error');
         }
       } catch (e) {
         console.error('Error in checkTokenValidity:', e);
         const onboardingEl = document.getElementById('onboarding-message');
         if (onboardingEl) onboardingEl.style.display = 'block';
+        showGate('Could not validate admin access. Please sign in again.', 'error');
       }
     }
+
+    parseAuthFragment();
 
     if (window.location.search) {
       const p = new URLSearchParams(window.location.search);
       if (p.get('token')) {
         setToken(p.get('token'));
-        document.getElementById('tokenStatus').textContent = 'Token from URL saved. You can now use admin actions.';
+        if (els.tokenStatus) els.tokenStatus.textContent = 'Token from URL saved. Validating admin role...';
         checkTokenValidity();
-        setTimeout(function() { loadPrompts(); }, 0);
       }
       var sid = p.get('sessionId');
       if (sid && window.location.hash === '#flow') {
@@ -449,13 +670,10 @@
         document.getElementById('loadFlowBtn').click();
       }
     } else if (getToken()) {
-      document.getElementById('tokenInput').value = getToken();
-      document.getElementById('tokenStatus').textContent = 'Token in use. You can manage prompts and models.';
+      if (els.tokenInput) els.tokenInput.value = getToken();
+      if (els.tokenStatus) els.tokenStatus.textContent = 'Token found. Validating admin role...';
       checkTokenValidity();
-      // Prompts tab is default; load list so we show data or a clear error (e.g. token expired).
-      setTimeout(function() { loadPrompts(); }, 0);
     } else {
-      document.getElementById('tokenStatus').textContent = 'Token required for admin actions. Paste a JWT and click "Save token".';
       checkTokenValidity();
     }
     updatePromptFormAuth();
@@ -518,6 +736,177 @@
       }
     }
 
+    var operationsState = { sessionsPage: 1, leadsPage: 1, sessionsLimit: 10, leadsLimit: 10 };
+
+    function showOperationsStatus(msg, type) {
+      const el = document.getElementById('operationsStatus');
+      el.textContent = msg;
+      el.className = 'status ' + (type || 'info');
+      el.style.display = msg ? 'block' : 'none';
+    }
+
+    function shortId(value) {
+      if (!value) return '—';
+      return String(value).length > 10 ? String(value).slice(0, 8) + '...' : String(value);
+    }
+
+    function safeJson(value) {
+      try {
+        return JSON.stringify(value ?? null, null, 2);
+      } catch (e) {
+        return String(value ?? '');
+      }
+    }
+
+    function firstContact(contactMethods) {
+      const list = Array.isArray(contactMethods) ? contactMethods : [];
+      const first = list.find(function(item) { return item && item.value; });
+      if (!first) return '—';
+      return (first.type ? first.type + ': ' : '') + first.value;
+    }
+
+    async function loadOperations() {
+      if (!getToken()) {
+        showOperationsStatus('Sign in with an authorized admin account to load operations.', 'error');
+        return;
+      }
+      showOperationsStatus('Loading operations...', 'info');
+      try {
+        const [sessions, leads] = await Promise.all([
+          fetch(API_BASE + '/admin/operations/sessions?page=' + operationsState.sessionsPage + '&limit=' + operationsState.sessionsLimit, { headers: authHeaders() }),
+          fetch(API_BASE + '/admin/operations/leads?page=' + operationsState.leadsPage + '&limit=' + operationsState.leadsLimit, { headers: authHeaders() }),
+        ]);
+        if (sessions.status === 401 || leads.status === 401) { showOperationsStatus('Invalid or missing JWT. Sign in again.', 'error'); return; }
+        if (sessions.status === 403 || leads.status === 403) { showOperationsStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!sessions.ok) throw new Error(await sessions.text() || sessions.statusText);
+        if (!leads.ok) throw new Error(await leads.text() || leads.statusText);
+        renderOperationsSessions(await sessions.json());
+        renderOperationsLeads(await leads.json());
+        showOperationsStatus('Operations loaded.', 'success');
+      } catch (e) {
+        showOperationsStatus('Error: ' + e.message, 'error');
+      }
+    }
+
+    function renderOperationsSessions(data) {
+      const tbody = document.getElementById('operationsSessionsBody');
+      const items = data.items || [];
+      tbody.innerHTML = items.map(function(session) {
+        const counts = session._count || {};
+        const profile = session.profile ? (session.profile.name || session.profile.id) : (session.profileId || '—');
+        const activity = 'M ' + (counts.messages || 0) + ' / S ' + (counts.searchRuns || 0) + ' / C ' + (counts.choices || 0);
+        return '<tr>' +
+          '<td title="' + escapeHtml(session.id) + '">' + escapeHtml(shortId(session.id)) + '</td>' +
+          '<td>' + escapeHtml(session.userId ? shortId(session.userId) : 'Anonymous') + '</td>' +
+          '<td>' + escapeHtml(profile) + '</td>' +
+          '<td>' + escapeHtml(activity) + '</td>' +
+          '<td>' + escapeHtml(formatDate(session.updatedAt)) + '</td>' +
+          '<td><button type="button" class="btn btn-secondary" data-session-id="' + escapeHtml(session.id) + '">Inspect</button></td>' +
+        '</tr>';
+      }).join('') || '<tr><td colspan="6">No sessions.</td></tr>';
+      tbody.querySelectorAll('button[data-session-id]').forEach(function(btn) {
+        btn.onclick = function() { loadOperationSessionDetail(btn.getAttribute('data-session-id')); };
+      });
+    }
+
+    function renderOperationsLeads(data) {
+      const tbody = document.getElementById('operationsLeadsBody');
+      const items = data.items || [];
+      tbody.innerHTML = items.map(function(lead) {
+        return '<tr>' +
+          '<td title="' + escapeHtml(lead.id) + '">' + escapeHtml(shortId(lead.id)) + '</td>' +
+          '<td>' + escapeHtml(firstContact(lead.contactMethods)) + '</td>' +
+          '<td>' + escapeHtml(lead.messagePreview || lead.message || '') + '</td>' +
+          '<td>' + escapeHtml(formatDate(lead.createdAt)) + '</td>' +
+          '<td><button type="button" class="btn btn-secondary" data-lead-id="' + escapeHtml(lead.id) + '">Inspect</button></td>' +
+        '</tr>';
+      }).join('') || '<tr><td colspan="5">No lead requests.</td></tr>';
+      tbody.querySelectorAll('button[data-lead-id]').forEach(function(btn) {
+        btn.onclick = function() { loadOperationLeadDetail(btn.getAttribute('data-lead-id')); };
+      });
+    }
+
+    async function loadOperationSessionDetail(id) {
+      const detail = document.getElementById('operationsDetail');
+      detail.innerHTML = '<h3>Session detail</h3><p style="color:#64748b;">Loading...</p>';
+      try {
+        const r = await fetch(API_BASE + '/admin/operations/sessions/' + encodeURIComponent(id), { headers: authHeaders() });
+        if (r.status === 401) { showOperationsStatus('Invalid or missing JWT. Sign in again.', 'error'); return; }
+        if (r.status === 403) { showOperationsStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        const data = await r.json();
+        const session = data.session;
+        if (!session) {
+          detail.innerHTML = '<h3>Session detail</h3><p style="color:#64748b;">Session not found.</p>';
+          return;
+        }
+        const latestRun = (session.searchRuns || [])[0];
+        detail.innerHTML =
+          '<h3>Session ' + escapeHtml(shortId(session.id)) + '</h3>' +
+          '<p><strong>User:</strong> ' + escapeHtml(session.userId || 'Anonymous') + '</p>' +
+          '<p><strong>Profile:</strong> ' + escapeHtml(session.profile ? session.profile.name : (session.profileId || '—')) + '</p>' +
+          '<p><strong>Updated:</strong> ' + escapeHtml(formatDate(session.updatedAt)) + '</p>' +
+          '<p><strong>Messages:</strong> ' + escapeHtml(String((session.messages || []).length)) + '</p>' +
+          '<p><strong>Search runs:</strong> ' + escapeHtml(String((session.searchRuns || []).length)) + '</p>' +
+          '<p><strong>Choices:</strong> ' + escapeHtml(String((session.choices || []).length)) + '</p>' +
+          '<p><strong>Agent communications:</strong> ' + escapeHtml(String((session.agentCommunications || []).length)) + '</p>' +
+          '<h3 style="margin-top:1rem;">Latest query</h3>' +
+          '<pre>' + escapeHtml(latestRun ? latestRun.queryText : 'No search runs yet.') + '</pre>' +
+          '<h3 style="margin-top:1rem;">Stored detail</h3>' +
+          '<pre>' + escapeHtml(safeJson({
+            messages: session.messages,
+            searchRuns: session.searchRuns,
+            choices: session.choices,
+            agentCommunications: session.agentCommunications,
+          })) + '</pre>';
+      } catch (e) {
+        detail.innerHTML = '<h3>Session detail</h3><p style="color:#991b1b;">Error: ' + escapeHtml(e.message) + '</p>';
+      }
+    }
+
+    async function loadOperationLeadDetail(id) {
+      const detail = document.getElementById('operationsDetail');
+      detail.innerHTML = '<h3>Lead detail</h3><p style="color:#64748b;">Loading...</p>';
+      try {
+        const r = await fetch(API_BASE + '/admin/operations/leads/' + encodeURIComponent(id), { headers: authHeaders() });
+        if (r.status === 401) { showOperationsStatus('Invalid or missing JWT. Sign in again.', 'error'); return; }
+        if (r.status === 403) { showOperationsStatus('Token valid but missing admin role.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        const data = await r.json();
+        const lead = data.lead;
+        if (!lead) {
+          detail.innerHTML = '<h3>Lead detail</h3><p style="color:#64748b;">Lead not found.</p>';
+          return;
+        }
+        detail.innerHTML =
+          '<h3>Lead ' + escapeHtml(shortId(lead.id)) + '</h3>' +
+          '<p><strong>Source:</strong> ' + escapeHtml(lead.sourceLabel || lead.sourceService || '—') + '</p>' +
+          '<p><strong>CRM lead id:</strong> ' + escapeHtml(lead.leadId || 'Pending') + '</p>' +
+          '<p><strong>AI submission:</strong> ' + escapeHtml(lead.aiSubmissionId || 'Pending') + '</p>' +
+          '<p><strong>Created:</strong> ' + escapeHtml(formatDate(lead.createdAt)) + '</p>' +
+          '<h3 style="margin-top:1rem;">Message</h3>' +
+          '<pre>' + escapeHtml(lead.message || '') + '</pre>' +
+          '<h3 style="margin-top:1rem;">Contact and metadata</h3>' +
+          '<pre>' + escapeHtml(safeJson({ contactMethods: lead.contactMethods, metadata: lead.metadata, sourceUrl: lead.sourceUrl })) + '</pre>';
+      } catch (e) {
+        detail.innerHTML = '<h3>Lead detail</h3><p style="color:#991b1b;">Error: ' + escapeHtml(e.message) + '</p>';
+      }
+    }
+
+    document.getElementById('loadOperationsBtn').onclick = function() {
+      operationsState.sessionsPage = 1;
+      operationsState.leadsPage = 1;
+      loadOperations();
+    };
+    document.getElementById('loadMoreSessionsBtn').onclick = function() {
+      operationsState.sessionsPage += 1;
+      loadOperations();
+    };
+    document.getElementById('loadMoreLeadsBtn').onclick = function() {
+      operationsState.leadsPage += 1;
+      loadOperations();
+    };
+
     // Tabs
     document.querySelectorAll('.tabs button').forEach(function(btn) {
       btn.onclick = function() {
@@ -526,6 +915,7 @@
         btn.classList.add('active');
         document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
         if (btn.dataset.tab === 'overview') loadAdminOverview();
+        if (btn.dataset.tab === 'operations') loadOperations();
         if (btn.dataset.tab === 'models') loadModels();
         if (btn.dataset.tab === 'profiles') loadProfilesList();
         if (btn.dataset.tab === 'mode') loadExecutionMode();

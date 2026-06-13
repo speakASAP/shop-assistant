@@ -216,3 +216,161 @@ Remaining validation:
 - Live admin overview/settings smoke checks with a valid admin token.
 - Live client dashboard smoke checks with a valid customer token.
 - Verify persisted settings survive restart after deployment/staging run.
+
+## Implementation Slice 2026-06-13: Commercial Landing Page Upgrade
+
+Scope implemented:
+
+- Replaced `public/index.html` with a focused commercial SaaS landing page for Shop Assistant.
+- Preserved the existing static/Nest asset architecture; no new frontend framework was introduced.
+- Removed duplicated local auth-modal/register/login code from the landing page and routed account actions to `dashboard.html`, which uses the Auth-hosted login/register handoff.
+- Added a first viewport with product name `Shop Assistant`, direct commercial positioning, CTAs for search/dashboard/contact, and code-native product previews for search results, customer dashboard, and admin settings.
+- Added sections for request workflow, authenticated customer workspace, role-protected admin controls, anonymous landing-page search, lead/contact capture, AI transparency, legal links, and cookie consent.
+- Preserved anonymous public search flow through `/api/sessions` and `/api/sessions/:id/query`.
+- Preserved lead capture through `/api/leads/submit`, including text, multiple contact methods, optional voice recording, and optional file attachments.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static visual QA:
+
+- Concept generated with built-in image generation: `/Users/Sergej.Stasok/.codex/generated_images/019ebf8a-12cf-76d0-a4ff-b0e77b729ec8/ig_091e46bc69d1ea65016a2cfce725fc8191ad2b4c3fc1d36651.png`.
+- Browser plugin tools were not exposed in this turn, so Playwright Chromium was used as the browser fallback.
+- Final screenshots:
+  - `/private/tmp/shop-assistant-landing-desktop-final.png`
+  - `/private/tmp/shop-assistant-landing-mobile-final.png`
+  - `/private/tmp/shop-assistant-landing-desktop-clean.png`
+  - `/private/tmp/shop-assistant-landing-mobile-clean.png`
+- Desktop and mobile screenshot checks: no console/page errors, no horizontal overflow, H1 `Shop Assistant`, product preview visible, request form present, lead form present.
+- Interaction smoke checks: cookie consent hides banner; dynamic contact row creation works; browser-required form validation prevents empty required submissions.
+
+Design comparison notes:
+
+- Matched the concept's white/slate SaaS direction, teal primary actions, small-radius panels, product UI previews, customer-dashboard section, admin-operations section, and compact lead form.
+- Implemented product visuals as code-native UI instead of shipping a static screenshot, so request/search/dashboard/admin content remains maintainable and responsive.
+- Intentional deviation: concept included a more detailed product results table and sidebar; implementation uses lighter static product panels to fit the existing single-file static asset architecture and keep mobile readability high.
+- Above-the-fold copy checked: H1 `Shop Assistant`; CTAs `Start a search`, `View dashboard`, `Talk to us`; nav routes `Product`, `Dashboard`, `Admin`, `Contact`, `API Status`; no decorative hero eyebrow/kicker/pill was introduced.
+
+Remaining validation:
+
+- Live anonymous search from the deployed landing page after owner-approved deploy.
+- Live lead submission from the deployed landing page after owner-approved deploy.
+- Live authenticated dashboard/admin checks with valid customer and admin tokens.
+
+## Implementation Slice 2026-06-13: Admin Auth-Hosted Login Gate
+
+Scope implemented:
+
+- Updated `public/admin.html` so the admin UI is locked by default behind an admin access gate.
+- Added Auth-hosted login navigation to `https://auth.alfares.cz/login` with `client_id=shop-assistant`, `return_url`, and `state`.
+- Added Auth fragment parsing for `access_token`, `refresh_token`, and `state`, matching the dashboard handoff pattern.
+- Added state mismatch handling that clears tokens and requires a fresh login.
+- Validates admin access through `GET /api/admin/overview` before revealing the admin tabs and panels.
+- Keeps the admin shell hidden for missing tokens, expired/invalid tokens, or users without the `global:superadmin` / `app:shop-assistant:admin` role.
+- Added logout/clear behavior that removes stored admin/customer tokens and returns to the locked gate.
+- Kept manual JWT paste as an advanced fallback rather than the primary login path.
+- Updated admin setup copy so operators sign in through Auth instead of manually fetching a JWT first.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static admin auth QA:
+
+- Browser plugin tools were not exposed in this turn, so Playwright Chromium was used as the browser fallback.
+- Locked/no-token state:
+  - screenshot: `/private/tmp/shop-assistant-admin-locked-final.png`
+  - body class: `admin-locked`
+  - admin gate visible: yes
+  - admin shell visible: no
+  - console/page errors: none
+  - no horizontal overflow
+- Authorized mocked state:
+  - screenshot: `/private/tmp/shop-assistant-admin-authorized-final.png`
+  - body class: `admin-unlocked`
+  - admin gate visible: no
+  - admin shell visible: yes
+  - prompts refresh loaded mocked response
+  - console/page errors: none
+  - failing requests: none
+  - no horizontal overflow
+- Forbidden mocked state:
+  - gate remained locked when `/api/admin/overview` returned `403`
+  - gate message told the user the signed-in account lacks a Shop Assistant admin role
+- Auth navigation check:
+  - Sign-in button navigated to `https://auth.alfares.cz/login`
+  - included `client_id=shop-assistant`
+  - included `return_url=http://127.0.0.1:4824/admin.html`
+  - included a generated `state`
+
+Security and boundary evidence:
+
+- Frontend now hides admin surfaces until a backend role-protected admin API validates the token.
+- Backend authorization remains authoritative; this slice does not rely on client-side role decoding for access.
+- Manual token paste remains available only as an advanced fallback for diagnostics.
+
+Remaining validation:
+
+- Live Auth-hosted admin login with a real admin account.
+- Live Auth-hosted forbidden check with a real non-admin account.
+- Live deployed admin smoke after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Admin Operations Data Drill-Down
+
+Scope implemented:
+
+- Added `src/admin/operations.controller.ts` with role-protected admin operations endpoints:
+  - `GET /api/admin/operations/sessions`
+  - `GET /api/admin/operations/sessions/:id`
+  - `GET /api/admin/operations/leads`
+  - `GET /api/admin/operations/leads/:id`
+- Registered `OperationsController` in `src/admin/admin.module.ts`.
+- Session list includes user/profile linkage, timestamps, and counts for messages, search runs, choices, and agent communications.
+- Session detail includes profile, messages, search runs with bounded search results, selected product choices, and bounded agent communications.
+- Lead list includes source, contact methods, message preview, external CRM lead id, AI submission id, metadata, and timestamps.
+- Lead detail includes full saved lead message, contact methods, metadata, source URL, CRM lead id, and AI submission id.
+- Added an `Operations` tab in `public/admin.html` with session/lead lists, refresh/more controls, and a detail pane for selected records.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static/mocked admin operations QA:
+
+- Browser plugin tools were not exposed in this turn, so Playwright Chromium was used as the browser fallback.
+- Mocked authorized admin state loaded the `Operations` tab.
+- Mocked `GET /api/admin/operations/sessions` rendered one session row.
+- Mocked `GET /api/admin/operations/leads` rendered one lead row.
+- Mocked session detail rendered the latest query containing `red silk skirt`.
+- Mocked lead detail rendered CRM lead id `crm-1`.
+- Final screenshots:
+  - `/private/tmp/shop-assistant-admin-operations-list.png`
+  - `/private/tmp/shop-assistant-admin-operations-detail.png`
+- Console/page errors: none.
+- Failing requests: none.
+- Horizontal overflow: none at 1440px desktop viewport.
+
+Security and boundary evidence:
+
+- All new operations endpoints use `JwtAuthGuard`, `RolesGuard`, and roles `global:superadmin` / `app:shop-assistant:admin`.
+- Endpoints are bounded by pagination and relation limits where records can be large.
+- Backend role checks remain authoritative; the UI only consumes admin data after admin authorization succeeds.
+
+Remaining validation:
+
+- Live operations list/detail smoke with a real admin token.
+- Live forbidden check with a real non-admin token.
+- Deployed operations UI verification after owner-approved deploy.
