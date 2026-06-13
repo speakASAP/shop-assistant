@@ -1,7 +1,7 @@
 # Validation Report: SA-G5 Lead Forwarding Resilience
 
     id: VAL-SA-G5-LEAD-FORWARDING
-    status: implemented_build_passed_pending_deploy
+    status: deployment_attempt_blocked_runtime_pull
     owner: shop-assistant-owner
     created: 2026-06-13
     task: docs/intent-preservation/tasks/SA-G5-T1.md
@@ -25,4 +25,16 @@
 
 ## Deployment
 
-Pending owner approval. No production deploy was run for this SA-G5 slice during implementation validation.
+- 2026-06-13: Owner approved deployment.
+- 2026-06-13: First Docker build failed in `npm run build` with `EMFILE: too many open files, watch '/app/public'` because Nest asset watching was enabled in `nest-cli.json`.
+- 2026-06-13: Fixed build hardening by changing Nest asset `watchAssets` to `false`; `npm run build` passed and commit `9dafe1c` was pushed.
+- 2026-06-13: Docker image build passed and was pushed as `localhost:5000/shop-assistant:latest` with registry push digest `sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011`.
+- 2026-06-13: `./scripts/deploy.sh` preflight passed, manifests applied, and rollout restart began.
+- 2026-06-13: Rollout timed out while new pod `shop-assistant-65988f784d-c226c` stayed in `ContainerCreating` / image `Pulling` before app startup; no application logs were available.
+- 2026-06-13: Kubernetes events showed cluster/runtime pull and pod sandbox delays across multiple services, indicating a node/container-runtime deployment blocker rather than an SA-G5 application crash.
+- 2026-06-13: Production remained available from old pod `shop-assistant-5b699c65f6-szhz2`; `curl -I https://shop-assistant.alfares.cz/` returned HTTP 200.
+- 2026-06-13: Rolled back the timed-out rollout with `kubectl rollout undo deployment/shop-assistant -n statex-apps`; deployment reported successfully rolled out on the previous ready replica.
+
+## Deployment Result
+
+SA-G5 image is built and pushed, but production is not running the SA-G5 pod because the rollout was blocked before container startup by the node/runtime image pull/create path. Prisma migration `20260613_add_lead_forwarding_status` was not applied during this failed rollout.
