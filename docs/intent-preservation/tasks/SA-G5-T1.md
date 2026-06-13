@@ -1,7 +1,7 @@
 # Task: SA-G5-T1 Lead Forwarding Resilience
 
     id: SA-G5-T1
-    status: deployment_attempt_blocked_runtime_pull
+    status: deployed_live_lead_smoke_passed
     owner: shop-assistant-owner
     created: 2026-06-13
     last_updated: 2026-06-13
