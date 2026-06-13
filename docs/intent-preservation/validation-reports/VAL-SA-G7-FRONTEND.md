@@ -2789,3 +2789,15 @@ Remaining validation:
 - Owner-approved image build/push using `scripts/build-and-push-image.sh`.
 - Owner-approved deploy with `EXPECTED_SOURCE_FINGERPRINT=51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6`.
 - Post-deploy no-secret smoke, token-backed customer/admin/non-admin smoke, and browser verification.
+
+
+## 2026-06-13 SA-G7 Deployment Smoke Cleanup
+
+- Commit `8e1a8a2` cleaned the frontend/auth smoke surface: Auth-hosted login/register pages, admin token-paste removal, protected agent communications, deployment preflight scripts, and rollout runbook.
+- Commit `e8540f0` fixed smoke body matching by replacing `printf | grep -q` checks under `pipefail` with here-string grep checks.
+- Build validation passed via `npm run build`.
+- Rollout preflight passed with clean worktree at `8e1a8a2`, then labeled image build/push produced digest `sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7`.
+- Final smoke-helper-only image was built and pushed with registry digest `sha256:721849d59a864601a1b75cbeb3b36cc2ff52bf44955f94f2066a2fc9ba5d2637` and source fingerprint `c09672d4307fd946f2ed23a9a6241f2219ced966484741d8dd012417b9ac46e9`; runtime app image remained on `sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7` after the final-label rollout hit a node/container creation delay and was rolled back.
+- Kubernetes final state: one ready pod `shop-assistant-59b9f5bb49-thkhv`, deployment successfully rolled out, `/health` returned `{"status":"ok"}`.
+- Standalone `./scripts/post-deploy-check.sh` passed after cleanup: SA-G7 live frontend/auth smoke reported `Failures: 0`, `Skipped optional checks: 3` for absent optional customer/admin/non-admin tokens.
+- Required unauthenticated checks passed: `/api/me`, `/api/me/dashboard`, `/api/admin/overview`, `/api/admin/settings`, and `/api/sessions/smoke/agent-communications` returned 401; `POST /api/auth/login` and `POST /api/auth/register` returned 404.
