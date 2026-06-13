@@ -3,1113 +3,1096 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop Assistant — AI Shopping. Voice or Text. Best Price.</title>
-  <meta name="description" content="Say what you want. AI searches the web, refines with feedback, finds the best price. Integrate into your app or use as a service.">
+  <title>Shop Assistant - AI Product Search For Customers And Teams</title>
+  <meta name="description" content="Shop Assistant finds products, compares offers, and keeps every customer request in one secure workspace with customer dashboards and role-protected admin controls.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='39' text-anchor='middle' font-family='Arial,sans-serif' font-size='22' font-weight='700' fill='white'%3ESA%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --teal-900: #0f766e;
-      --teal-700: #0d9488;
-      --teal-600: #0d9488;
-      --teal-500: #14b8a6;
-      --amber-600: #d97706;
-      --amber-500: #f59e0b;
-      --slate-900: #0f172a;
-      --slate-700: #334155;
-      --slate-500: #64748b;
-      --slate-100: #f1f5f9;
-      --white: #ffffff;
+      --bg: #ffffff;
+      --bg-soft: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --line: #dbe3ea;
+      --line-strong: #b9c7d4;
+      --text: #102033;
+      --muted: #64748b;
+      --teal: #0f766e;
+      --teal-2: #0d9488;
+      --teal-soft: #e7f6f4;
+      --amber: #d97706;
+      --amber-soft: #fff7ed;
+      --danger: #b42318;
+      --ok: #15803d;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
     }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Outfit', sans-serif;
-      color: var(--slate-900);
-      line-height: 1.6;
+      margin: 0;
+      font-family: Outfit, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.45;
       overflow-x: hidden;
     }
-    .bg-pattern {
-      background-color: var(--slate-100);
-      background-image: radial-gradient(circle at 25% 25%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(217, 119, 6, 0.06) 0%, transparent 50%);
-    }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
     .container {
-      max-width: 1100px;
+      width: min(1180px, calc(100% - 40px));
       margin: 0 auto;
-      padding: 0 1.5rem;
     }
-    /* Navigation */
-    nav {
-      padding: 1.25rem 0;
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+    .nav {
+      min-height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 18px;
     }
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--teal-900);
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--teal);
+      font-weight: 800;
+      font-size: 19px;
+      text-decoration: none;
+      white-space: nowrap;
     }
-    .logo span {
-      color: var(--amber-600);
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--teal);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
     }
     .nav-links {
       display: flex;
-      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
     }
     .nav-links a {
-      color: var(--slate-700);
+      color: var(--muted);
       text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 7px;
+      white-space: nowrap;
     }
     .nav-links a:hover {
-      color: var(--teal-700);
+      color: var(--teal);
+      background: var(--teal-soft);
     }
-    .nav-auth {
+    .nav-actions {
       display: flex;
       align-items: center;
-      gap: 1rem;
-    }
-    .nav-auth-btn {
-      background: none;
-      border: none;
-      color: var(--slate-700);
-      font-weight: 500;
-      font-size: 1rem;
-      font-family: inherit;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      transition: all 0.2s;
-    }
-    .nav-auth-btn:hover {
-      color: var(--teal-700);
-      background: var(--slate-100);
-    }
-    .nav-auth-btn.primary {
-      background: var(--teal-600);
-      color: var(--white);
-    }
-    .nav-auth-btn.primary:hover {
-      background: var(--teal-700);
-    }
-    .nav-user-info {
-      font-size: 0.875rem;
-      color: var(--slate-500);
-    }
-      cursor: pointer;
-      padding: 0;
-    }
-    .nav-auth-btn:hover { color: var(--teal-700); }
-    /* Hero */
-    .hero {
-      padding: 4rem 0 5rem;
-      text-align: center;
-    }
-    .badge {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
-      color: white;
-      padding: 0.35rem 1rem;
-      border-radius: 2rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      letter-spacing: 0.02em;
-    }
-    .hero h1 {
-      font-size: clamp(2.25rem, 5vw, 3.5rem);
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 1.25rem;
-      color: var(--slate-900);
-    }
-    .hero h1 .highlight {
-      background: linear-gradient(135deg, var(--teal-700), var(--amber-600));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero p {
-      font-size: 1.25rem;
-      color: var(--slate-700);
-      max-width: 36rem;
-      margin: 0 auto 2rem;
-    }
-    .cta-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
     }
     .btn {
+      min-height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.875rem 1.75rem;
-      font-size: 1rem;
-      font-weight: 600;
-      font-family: inherit;
-      border-radius: 0.5rem;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 14px;
+      font-size: 14px;
+      font-weight: 800;
       text-decoration: none;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      border: none;
+      transition: border-color 0.16s, background 0.16s, color 0.16s, transform 0.16s, box-shadow 0.16s;
     }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
-      color: white;
-      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
+    .btn:hover {
+      border-color: var(--line-strong);
+      transform: translateY(-1px);
     }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4);
+    .btn.primary {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(15, 118, 110, 0.18);
     }
-    .btn-secondary {
-      background: white;
-      color: var(--teal-700);
-      border: 2px solid var(--teal-500);
+    .btn.primary:hover {
+      background: #115e59;
+      border-color: #115e59;
     }
-    .btn-secondary:hover {
-      background: var(--teal-50, #f0fdfa);
-      transform: translateY(-2px);
-    }
-    /* Features */
-    .section {
-      padding: 4rem 0;
-    }
-    .section-title {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 3rem;
-      color: var(--slate-900);
-    }
-    .section-title span {
-      color: var(--teal-700);
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-    .feature-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-      border: 1px solid rgba(20, 184, 166, 0.15);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
-    }
-    .feature-icon {
-      width: 3rem;
-      height: 3rem;
-      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
-      border-radius: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.25rem;
-    }
-    .feature-icon svg {
-      width: 1.5rem;
-      height: 1.5rem;
-      color: white;
-    }
-    .feature-card h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--slate-900);
-    }
-    .feature-card p {
-      color: var(--slate-500);
-      font-size: 0.95rem;
-    }
-    /* How it works */
-    .how-section {
-      background: white;
-    }
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      max-width: 36rem;
-      margin: 0 auto;
-    }
-    .step {
-      display: flex;
-      align-items: flex-start;
-      gap: 1.5rem;
-    }
-    .step-num {
-      flex-shrink: 0;
-      width: 2.5rem;
-      height: 2.5rem;
-      background: var(--teal-700);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-    .step h4 {
-      font-size: 1.1rem;
-      margin-bottom: 0.25rem;
-      color: var(--slate-900);
-    }
-    .step p {
-      color: var(--slate-500);
-      font-size: 0.95rem;
-    }
-    /* API / Integrate */
-    .api-section {
-      background: linear-gradient(135deg, var(--teal-900), #115e59);
-      color: white;
-      padding: 4rem 0;
-      text-align: center;
-    }
-    .api-section h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
-    .api-section p {
-      opacity: 0.9;
-      max-width: 32rem;
-      margin: 0 auto 2rem;
-    }
-    .api-section .btn-secondary {
-      border-color: white;
-      color: white;
+    .btn.text {
       background: transparent;
+      border-color: transparent;
+      color: var(--muted);
+      box-shadow: none;
     }
-    .api-section .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .btn.text:hover {
+      color: var(--teal);
+      background: var(--teal-soft);
+      transform: none;
     }
-    /* Footer */
-    footer {
-      padding: 2rem 0;
-      text-align: center;
-      color: var(--slate-500);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--slate-100);
+    .hero {
+      padding: 70px 0 42px;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(480px, 1.05fr);
+      gap: 44px;
+      align-items: center;
+      min-height: calc(100vh - 72px);
     }
-    footer a {
-      color: var(--teal-700);
-      text-decoration: none;
+    .hero-copy h1 {
+      margin: 0;
+      font-size: clamp(52px, 7vw, 88px);
+      line-height: 0.94;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--text);
     }
-    footer a:hover { text-decoration: underline; }
-    /* EU AI Act transparency notice */
-    .ai-notice {
-      background: rgba(15, 118, 110, 0.08);
-      border: 1px solid rgba(15, 118, 110, 0.3);
-      border-radius: 0.5rem;
-      padding: 1rem 1.5rem;
-      margin: 2rem 0;
-      font-size: 0.9rem;
+    .hero-copy p {
+      margin: 24px 0 0;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 21px;
+      line-height: 1.52;
     }
-    .ai-notice strong { color: var(--teal-900); }
-    /* Cookie consent banner */
-    #cookie-banner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--slate-900);
-      color: white;
-      padding: 1rem 1.5rem;
+    .hero-actions {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    .hero-proof {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
+      max-width: 650px;
+    }
+    .proof-item {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+    .proof-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .proof-label {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .product-preview {
+      display: grid;
+      gap: 12px;
+      align-self: stretch;
+    }
+    .preview-window {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .window-head {
+      min-height: 44px;
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
-      z-index: 9999;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--line);
+    }
+    .window-title {
+      color: var(--text);
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .window-status {
+      color: var(--teal);
+      background: var(--teal-soft);
+      border: 1px solid #b9e4df;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .preview-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .request-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+    .request-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+    .request-text {
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .results {
+      display: grid;
+      gap: 8px;
+    }
+    .result-row {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px;
+      background: #fff;
+    }
+    .thumb {
+      width: 42px;
+      height: 42px;
+      border-radius: 7px;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.2), rgba(217, 119, 6, 0.16)),
+        var(--surface-2);
+      border: 1px solid var(--line);
+    }
+    .result-title {
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .result-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .result-price {
+      color: var(--teal);
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mini-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      min-height: 150px;
+    }
+    .mini-title {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .metric-row, .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .metric-row:first-of-type, .setting-row:first-of-type { border-top: 0; }
+    .metric-row strong, .setting-row strong { color: var(--text); }
+    .switch {
+      width: 34px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--teal);
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .switch::after {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #fff;
+      position: absolute;
+      right: 3px;
+      top: 3px;
+    }
+    .section {
+      padding: 80px 0;
+    }
+    .section.soft {
+      background: var(--bg-soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-end;
+      margin-bottom: 30px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+    .section-head p {
+      margin: 0;
+      max-width: 470px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .workflow-card, .role-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      min-height: 190px;
+    }
+    .workflow-step {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--teal);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+    .workflow-card h3, .role-card h3 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+    .workflow-card p, .role-card p {
+      color: var(--muted);
+      margin: 12px 0 0;
+      font-size: 15px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 34px;
+      align-items: center;
+    }
+    .list {
+      display: grid;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .list-item {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .check {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--teal-soft);
+      color: var(--teal);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+    .dashboard-mock {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .dashboard-content {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .history-list {
+      display: grid;
+      gap: 8px;
+    }
+    .history-row {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+      background: #fff;
+    }
+    .history-row strong {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-row span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .role-card.admin {
+      background: #0f172a;
+      color: #fff;
+      border-color: #0f172a;
+    }
+    .role-card.admin p { color: #cbd5e1; }
+    .role-card .btn { margin-top: 18px; }
+    .notice {
+      margin-top: 30px;
+      border: 1px solid #b9e4df;
+      background: var(--teal-soft);
+      border-radius: 8px;
+      padding: 16px 18px;
+      color: #115e59;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .request-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .request-panel label {
+      display: block;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .request-panel textarea,
+    .request-panel input,
+    .request-panel select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      padding: 11px 12px;
+      outline: none;
+      font-size: 15px;
+    }
+    .request-panel textarea {
+      min-height: 118px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+    .request-panel textarea:focus,
+    .request-panel input:focus,
+    .request-panel select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .status {
+      display: none;
+      margin-top: 12px;
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .status.error {
+      display: block;
+      color: var(--danger);
+      background: #fee2e2;
+    }
+    .status.loading {
+      display: block;
+      color: var(--teal);
+      background: var(--teal-soft);
+    }
+    .status.success {
+      display: block;
+      color: var(--ok);
+      background: #dcfce7;
+    }
+    .lead-form {
+      display: grid;
+      gap: 12px;
+    }
+    .contact-row {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 10px;
+    }
+    .file-zone {
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      padding: 14px;
+      color: var(--muted);
+      background: var(--bg-soft);
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .file-zone.dragover {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+      color: var(--teal);
+    }
+    .file-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .file-list span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: #fff;
+    }
+    .ai-notice {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      padding: 18px 0;
+    }
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 24px 0 32px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .footer-links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    #cookie-banner {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      z-index: 30;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28);
     }
     #cookie-banner.hidden { display: none; }
-    #cookie-banner p { margin: 0; flex: 1; min-width: 200px; }
-    #cookie-banner a { color: var(--teal-500); }
-    #cookie-banner .btn-row { display: flex; gap: 0.5rem; }
+    #cookie-banner p {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+    #cookie-banner a { color: #7dd3fc; }
+    #cookie-banner .btn-row {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
     #cookie-banner button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      font-family: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: transparent;
+      color: #fff;
+      padding: 8px 11px;
+      font-weight: 800;
     }
     #cookie-banner .btn-accept {
-      background: var(--teal-500);
-      color: white;
+      border-color: var(--teal-2);
+      background: var(--teal-2);
     }
-    #cookie-banner .btn-decline {
-      background: transparent;
-      color: white;
-      border: 1px solid rgba(255,255,255,0.5);
+    @media (max-width: 980px) {
+      .nav {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding: 14px 0;
+      }
+      .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .hero, .two-col {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .hero {
+        padding-top: 48px;
+      }
+      .product-preview {
+        max-width: 760px;
+      }
+      .workflow, .role-grid {
+        grid-template-columns: 1fr;
+      }
+      .section-head {
+        display: grid;
+      }
     }
-    /* Auth modal */
-    #auth-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    #auth-modal-overlay.open { display: flex; }
-    #auth-modal {
-      background: white;
-      border-radius: 0.5rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      max-width: 420px;
-      width: 90%;
-      padding: 1.5rem 2rem;
-      position: relative;
-    }
-    #auth-modal h3 { margin: 0 0 1rem 0; font-size: 1.25rem; color: var(--slate-900); }
-    #auth-modal .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-    #auth-modal .auth-tabs button {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--slate-300);
-      background: white;
-      border-radius: 0.375rem;
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--slate-600);
-    }
-    #auth-modal .auth-tabs button.active { background: var(--teal-500); color: white; border-color: var(--teal-500); }
-    #auth-modal .auth-form { display: none; }
-    #auth-modal .auth-form.active { display: block; }
-    #auth-modal .form-group { margin-bottom: 1rem; }
-    #auth-modal .form-group label { display: block; margin-bottom: 0.25rem; font-weight: 500; color: var(--slate-700); font-size: 0.9rem; }
-    #auth-modal .form-group input {
-      width: 100%;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--slate-300);
-      border-radius: 0.375rem;
-      font-size: 1rem;
-    }
-    #auth-modal .auth-error { color: #dc2626; font-size: 0.875rem; margin-bottom: 0.75rem; display: none; }
-    #auth-modal .auth-error.show { display: block; }
-    #auth-modal .auth-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--slate-500); }
-    #auth-modal .auth-close:hover { color: var(--slate-900); }
-    .link-like { background: none; border: none; padding: 0; color: var(--teal-700); font-size: inherit; cursor: pointer; text-decoration: underline; }
-    .link-like:hover { color: var(--teal-900); }
-    /* Contact form */
-    .contact-section {
-      background: white;
-    }
-    .contact-form {
-      max-width: 36rem;
-      margin: 0 auto;
-      padding: 2rem;
-      background: var(--slate-100);
-      border-radius: 1rem;
-      border: 1px solid rgba(20, 184, 166, 0.2);
-    }
-    .contact-form label {
-      display: block;
-      font-weight: 600;
-      color: var(--slate-900);
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-    }
-    .contact-form textarea,
-    .contact-form input,
-    .contact-form select {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      font-family: inherit;
-      font-size: 1rem;
-      border: 1px solid var(--slate-300);
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .contact-form textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-    .contact-form .form-row {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-end;
-      margin-bottom: 1rem;
-    }
-    .contact-form .form-row .flex-1 { flex: 1; }
-    .contact-form .form-row .flex-2 { flex: 2; }
-    .contact-form .media-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .contact-form .media-btn {
-      padding: 0.75rem 1rem;
-      font-family: inherit;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border-radius: 0.5rem;
-      border: 2px solid var(--teal-500);
-      background: white;
-      color: var(--teal-700);
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .contact-form .media-btn:hover {
-      background: var(--teal-50, #f0fdfa);
-    }
-    .contact-form .media-btn.recording {
-      background: #fee2e2;
-      border-color: #dc2626;
-      color: #b91c1c;
-    }
-    .contact-form .file-zone {
-      border: 2px dashed var(--teal-400);
-      border-radius: 0.5rem;
-      padding: 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      background: white;
-      transition: background 0.2s;
-    }
-    .contact-form .file-zone:hover, .contact-form .file-zone.dragover {
-      background: rgba(20, 184, 166, 0.05);
-    }
-    .contact-form .file-list {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: var(--slate-600);
-    }
-    .contact-form .file-list span {
-      display: inline-block;
-      margin-right: 1rem;
-      margin-bottom: 0.25rem;
-    }
-    .contact-form .add-contact-btn {
-      padding: 0.5rem 1rem;
-      font-family: inherit;
-      font-size: 0.9rem;
-      border: 2px dashed var(--teal-400);
-      background: white;
-      color: var(--teal-700);
-      border-radius: 0.5rem;
-      cursor: pointer;
-    }
-    .contact-form .add-contact-btn:hover {
-      background: var(--teal-50, #f0fdfa);
-    }
-    .contact-form .submit-lead {
-      width: 100%;
-      padding: 1rem;
-      font-family: inherit;
-      font-size: 1.1rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      margin-top: 0.5rem;
-    }
-    .contact-form .submit-lead:hover:not(:disabled) {
-      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
-    }
-    .contact-form .submit-lead:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .contact-form .form-status {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-      font-size: 0.95rem;
-    }
-    .contact-form .form-status.success {
-      background: #d1fae5;
-      color: #065f46;
-    }
-    .contact-form .form-status.error {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-    /* Main request form at top (MVP) */
-    .main-request {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-      border: 1px solid rgba(20, 184, 166, 0.2);
-    }
-    .landing-profile-row { margin-bottom: 0.75rem; }
-    .landing-profile-row select { min-width: 200px; padding: 0.5rem; border: 2px solid var(--slate-200); border-radius: 0.5rem; }
-    .main-request label {
-      display: block;
-      font-weight: 600;
-      color: var(--slate-900);
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-    }
-    .main-request .request-input {
-      width: 100%;
-      min-height: 100px;
-      padding: 1rem 1.25rem;
-      font-family: inherit;
-      font-size: 1rem;
-      border: 2px solid var(--slate-300);
-      border-radius: 0.5rem;
-      resize: vertical;
-      transition: border-color 0.2s;
-    }
-    .main-request .request-input:focus {
-      outline: none;
-      border-color: var(--teal-500);
-    }
-    .main-request .request-row {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-    .main-request .btn-want {
-      padding: 0.875rem 1.75rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-    .main-request .btn-want:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.35);
-    }
-    .main-request .btn-want:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-    .main-request .request-status {
-      margin-top: 0.75rem;
-      font-size: 0.9rem;
-    }
-    .main-request .request-status.error {
-      color: #b91c1c;
-    }
-    .main-request .request-status.loading {
-      color: var(--teal-700);
+    @media (max-width: 680px) {
+      .container {
+        width: min(100% - 28px, 1180px);
+      }
+      .brand { font-size: 17px; }
+      .nav-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .nav-actions .btn {
+        flex: 1 1 auto;
+      }
+      .hero-copy h1 {
+        font-size: 48px;
+      }
+      .hero-copy p {
+        font-size: 18px;
+      }
+      .hero-proof, .preview-grid, .dashboard-content, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .result-row {
+        grid-template-columns: 38px minmax(0, 1fr);
+      }
+      .result-price {
+        grid-column: 2;
+      }
+      .section {
+        padding: 54px 0;
+      }
+      .contact-row {
+        grid-template-columns: 1fr;
+      }
+      #cookie-banner {
+        align-items: stretch;
+        flex-direction: column;
+      }
     }
   </style>
 </head>
-<body class="bg-pattern">
-  <header class="container">
-    <nav>
-      <div class="logo">Shop <span>Assistant</span></div>
+<body>
+  <header class="topbar">
+    <nav class="container nav" aria-label="Primary navigation">
+      <a class="brand" href="#">
+        <span class="brand-mark">SA</span>
+        <span>Shop Assistant</span>
+      </a>
       <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#how">How it works</a>
+        <a href="#product">Product</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="admin.html">Admin</a>
         <a href="#contact">Contact</a>
-        <a href="#api">API</a>
-        <a href="test.html">Test</a>
-        <a href="privacy.html">Privacy</a>
         <a href="/health" target="_blank" rel="noopener">API Status</a>
       </div>
-      <div class="nav-auth" id="nav-auth">
-        <span class="nav-user-info" id="nav-user-info" style="display: none;"></span>
-        <a href="login.html" class="nav-auth-btn" id="nav-login-link">Log in</a>
-        <a href="register.html" class="nav-auth-btn primary" id="nav-register-link">Register</a>
-        <button type="button" class="nav-auth-btn" id="nav-logout-btn" style="display: none;">Logout</button>
+      <div class="nav-actions">
+        <a class="btn text" href="dashboard.html">Sign in</a>
+        <a class="btn primary" href="dashboard.html">Open Dashboard</a>
       </div>
     </nav>
   </header>
 
-  <div id="auth-modal-overlay" aria-hidden="true">
-    <div id="auth-modal" role="dialog" aria-labelledby="auth-modal-title">
-      <button type="button" class="auth-close" id="auth-modal-close" aria-label="Close">&times;</button>
-      <h3 id="auth-modal-title">Sign in</h3>
-      <div class="auth-tabs">
-        <button type="button" id="auth-tab-register">Register</button>
-        <button type="button" id="auth-tab-login" class="active">Log in</button>
-      </div>
-      <div id="auth-error" class="auth-error"></div>
-      <form id="auth-register-form" class="auth-form">
-        <div class="form-group">
-          <label for="register-email">Email *</label>
-          <input type="email" id="register-email" required autocomplete="email" placeholder="you@example.com">
-        </div>
-        <div class="form-group">
-          <label for="register-password">Password *</label>
-          <input type="password" id="register-password" required autocomplete="new-password" placeholder="••••••••" minlength="8">
-        </div>
-        <div class="form-group">
-          <label for="register-firstName">First name</label>
-          <input type="text" id="register-firstName" autocomplete="given-name" placeholder="Optional">
-        </div>
-        <div class="form-group">
-          <label for="register-lastName">Last name</label>
-          <input type="text" id="register-lastName" autocomplete="family-name" placeholder="Optional">
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Register</button>
-      </form>
-      <form id="auth-login-form" class="auth-form active">
-        <div class="form-group">
-          <label for="login-email">Email *</label>
-          <input type="email" id="login-email" required autocomplete="email" placeholder="you@example.com">
-        </div>
-        <div class="form-group">
-          <label for="login-password">Password *</label>
-          <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••">
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Log in</button>
-      </form>
-    </div>
-  </div>
-
   <main>
-    <section class="hero container">
-      <form id="main-request-form" class="main-request" aria-label="Main search request">
-        <div id="landing-profile-row" class="landing-profile-row" style="display: none;">
-          <label for="landing-profile-select">Who is this for?</label>
-          <select id="landing-profile-select">
-            <option value="">Default</option>
-          </select>
+    <section class="container hero" id="product">
+      <div class="hero-copy">
+        <h1>Shop Assistant</h1>
+        <p>AI finds products, compares offers, and keeps every customer request in one secure workspace.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#search">Start a search</a>
+          <a class="btn" href="dashboard.html">View dashboard</a>
+          <a class="btn text" href="#contact">Talk to us</a>
         </div>
-        <p id="landing-profile-hint" class="landing-profile-hint" style="display: none; font-size: 0.875rem; color: var(--slate-500); margin-bottom: 0.75rem;">Optional: <button type="button" class="link-like" id="hint-register-btn">Register</button> or <button type="button" class="link-like" id="hint-login-btn">Log in</button> to save your session and choose who this search is for (e.g. family profiles). You can also save token in <a href="admin.html">Admin</a> or use <code>?token=…</code> in the URL.</p>
-        <label for="main-request-input">What do you want?</label>
-        <textarea id="main-request-input" class="request-input" name="request" required placeholder="Describe what you want to find...">Find a red silk skirt size 52, 48 cm long. Find a shop which delivers in the Czech Republic. Find the best quality skirt with the cheapest price and delivery.</textarea>
-        <div class="request-row">
-          <button type="submit" class="btn-want" id="main-request-btn">I want it</button>
+        <div class="hero-proof" aria-label="Product capabilities">
+          <div class="proof-item">
+            <div class="proof-value">Text or voice</div>
+            <div class="proof-label">Natural product requests</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-value">Private history</div>
+            <div class="proof-label">Customer dashboards</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-value">Role control</div>
+            <div class="proof-label">Admin-only settings</div>
+          </div>
         </div>
-        <div id="main-request-status" class="request-status" style="display: none;" role="status"></div>
-      </form>
-      <div class="badge">AI-powered shopping</div>
-      <div class="ai-notice" role="note" aria-label="AI transparency">
-        <strong>EU AI Act (Art. 50):</strong> You are interacting with an AI system. Shop Assistant uses AI (speech-to-text, language models, search) to process your requests and find products. Results are generated automatically and should be verified before purchase.
       </div>
-      <h1>Say what you want.<br><span class="highlight">Find the best price.</span></h1>
-      <p>Voice or text input. AI refines your search with feedback. Global web search. Direct redirect to the merchant. Simple.</p>
-      <div class="cta-group">
-        <a href="#api" class="btn btn-primary">Integrate now</a>
-        <a href="#how" class="btn btn-secondary">See how it works</a>
-        <a href="test.html" class="btn btn-secondary">Test Interface</a>
-      </div>
-    </section>
 
-    <section id="features" class="section container">
-      <h2 class="section-title">Why <span>Shop Assistant</span></h2>
-      <div class="features-grid">
-        <article class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+      <div class="product-preview" aria-label="Shop Assistant product preview">
+        <div class="preview-window">
+          <div class="window-head">
+            <span class="window-title">Live shopping request</span>
+            <span class="window-status">AI search ready</span>
           </div>
-          <h3>Voice or text</h3>
-          <p>"Я хочу" — say or type what you need. ASR transcribes voice; LLM extracts intent. Natural language in, products out.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          </div>
-          <h3>Iterative refinement</h3>
-          <p>Give feedback. AI refines constraints and searches again. Zero-effort refinement until you see the right offer.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          </div>
-          <h3>Global web search</h3>
-          <p>Serper, Brave, SerpAPI — we search across the web. Best price, best source. One choice, one redirect.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="how" class="section how-section container">
-      <h2 class="section-title">How it <span>works</span></h2>
-      <div class="steps">
-        <div class="step">
-          <span class="step-num">1</span>
-          <div>
-            <h4>Create session</h4>
-            <p>POST /api/sessions — get a sessionId. Optional userId for user-bound sessions.</p>
+          <div class="preview-body">
+            <div class="request-box">
+              <div class="request-label">Customer request</div>
+              <div class="request-text">Find a red silk skirt, size 52, 48 cm long, delivered in Czech Republic.</div>
+            </div>
+            <div class="results">
+              <div class="result-row">
+                <div class="thumb"></div>
+                <div>
+                  <div class="result-title">Silk blend skirt, red, EU 52</div>
+                  <div class="result-meta">Merchant page verified, delivery available</div>
+                </div>
+                <div class="result-price">1 290 CZK</div>
+              </div>
+              <div class="result-row">
+                <div class="thumb"></div>
+                <div>
+                  <div class="result-title">Formal red midi skirt</div>
+                  <div class="result-meta">Lower price, longer delivery window</div>
+                </div>
+                <div class="result-price">1 080 CZK</div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="step">
-          <span class="step-num">2</span>
-          <div>
-            <h4>Send query (text or voice URL)</h4>
-            <p>POST /api/sessions/:id/query with text or audioUrl. Receive search results with title, price, source, snippet.</p>
+        <div class="preview-grid">
+          <div class="mini-panel">
+            <div class="mini-title">Customer dashboard</div>
+            <div class="metric-row"><span>Searches</span><strong>42</strong></div>
+            <div class="metric-row"><span>Saved criteria</span><strong>8</strong></div>
+            <div class="metric-row"><span>Profiles</span><strong>Family</strong></div>
           </div>
-        </div>
-        <div class="step">
-          <span class="step-num">3</span>
-          <div>
-            <h4>Refine with feedback</h4>
-            <p>POST /api/sessions/:id/feedback with message and selectedIndices. AI refines and returns new results.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">4</span>
-          <div>
-            <h4>Redirect to product</h4>
-            <p>GET /api/sessions/:id/choice/:productId/redirect — 302 redirect to the merchant product page.</p>
+          <div class="mini-panel">
+            <div class="mini-title">Admin settings</div>
+            <div class="setting-row"><span>Max results</span><strong>20</strong></div>
+            <div class="setting-row"><span>Execution mode</span><strong>Sync</strong></div>
+            <div class="setting-row"><span>Role gate</span><span class="switch" aria-hidden="true"></span></div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="contact" class="section contact-section container">
-      <h2 class="section-title">Tell us what you <span>want to buy</span></h2>
-      <p style="text-align: center; color: var(--slate-600); max-width: 32rem; margin: 0 auto 2rem;">
-        Leave your request and contact details. We'll help you find the best price. Voice, text, or documents — your choice.
-      </p>
-      <form id="lead-form" class="contact-form">
-        <label for="lead-message">What goods do you want to buy? *</label>
-        <textarea id="lead-message" name="message" required placeholder="Describe your request: product name, category, budget, preferred merchants, etc."></textarea>
+    <section class="section soft">
+      <div class="container">
+        <div class="section-head">
+          <h2>From request to decision.</h2>
+          <p>The service turns messy shopping intent into comparable offers, then keeps the full trail available to the right customer or operator.</p>
+        </div>
+        <div class="workflow">
+          <article class="workflow-card">
+            <div class="workflow-step">1</div>
+            <h3>Describe</h3>
+            <p>Customers type or dictate what they need, including size, region, budget, delivery constraints, and quality preferences.</p>
+          </article>
+          <article class="workflow-card">
+            <div class="workflow-step">2</div>
+            <h3>Compare</h3>
+            <p>AI extracts intent, searches merchant pages, ranks offers, and supports feedback when the first result needs refinement.</p>
+          </article>
+          <article class="workflow-card">
+            <div class="workflow-step">3</div>
+            <h3>Decide</h3>
+            <p>Each session stores messages, selected products, saved criteria, and redirectable product choices for later review.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-        <label for="lead-name">Your name (optional)</label>
-        <input type="text" id="lead-name" name="name" placeholder="Your name">
+    <section class="section">
+      <div class="container two-col">
+        <div>
+          <div class="section-head" style="display:block;margin-bottom:0;">
+            <h2>Every customer gets a private workspace.</h2>
+            <p style="margin-top:16px;">The dashboard is built around authenticated history: searches, selected offers, reusable saved criteria, and profiles for different buyers.</p>
+          </div>
+          <div class="list">
+            <div class="list-item"><span class="check">✓</span><span>Authenticated `/api/me` endpoints keep dashboard data scoped to the signed-in customer.</span></div>
+            <div class="list-item"><span class="check">✓</span><span>Saved searches and profiles can be reused for family, teams, or recurring purchasing patterns.</span></div>
+            <div class="list-item"><span class="check">✓</span><span>Expired or invalid tokens are cleared instead of showing private dashboard data.</span></div>
+          </div>
+          <div class="hero-actions">
+            <a class="btn primary" href="dashboard.html">Open customer dashboard</a>
+          </div>
+        </div>
+        <div class="dashboard-mock">
+          <div class="window-head">
+            <span class="window-title">Customer dashboard</span>
+            <span class="window-status">Private</span>
+          </div>
+          <div class="dashboard-content">
+            <div class="mini-panel">
+              <div class="mini-title">History</div>
+              <div class="history-list">
+                <div class="history-row"><strong>School shoes size 35</strong><span>5 offers, 1 selected</span></div>
+                <div class="history-row"><strong>Compact washing machine</strong><span>12 offers, price refined</span></div>
+                <div class="history-row"><strong>Winter jacket under 150 EUR</strong><span>Saved as recurring search</span></div>
+              </div>
+            </div>
+            <div class="mini-panel">
+              <div class="mini-title">Profiles and criteria</div>
+              <div class="metric-row"><span>Mom</span><strong>EU 39</strong></div>
+              <div class="metric-row"><span>Child</span><strong>Age 8</strong></div>
+              <div class="metric-row"><span>Delivery</span><strong>CZ</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <label>Contact method(s) * — add how we can reach you</label>
-        <div id="contact-methods">
-          <div class="form-row contact-row">
-            <div class="flex-1">
-              <select name="contact_type_1" class="contact-type">
+    <section class="section soft">
+      <div class="container">
+        <div class="section-head">
+          <h2>Admin control without exposing unsafe settings.</h2>
+          <p>Operators can manage prompts, AI model routing, overview metrics, and safe runtime settings behind JWT and role checks.</p>
+        </div>
+        <div class="role-grid">
+          <article class="role-card admin">
+            <h3>Role-protected admin panel</h3>
+            <p>Admin screens require authenticated users with `global:superadmin` or `app:shop-assistant:admin` roles for sensitive operations.</p>
+            <a class="btn primary" href="admin.html">Open admin</a>
+          </article>
+          <article class="role-card">
+            <h3>Editable service settings</h3>
+            <p>Safe settings such as execution mode and maximum search results are persisted and applied to the application runtime.</p>
+            <a class="btn" href="admin.html">Review settings</a>
+          </article>
+          <article class="role-card">
+            <h3>Operational overview</h3>
+            <p>Admin summary data shows sessions, searches, leads, prompts, models, and current safe settings from one surface.</p>
+          </article>
+          <article class="role-card">
+            <h3>Authentication microservice aligned</h3>
+            <p>The public page routes users to the dashboard, while protected API surfaces rely on JWT guards and role metadata.</p>
+          </article>
+        </div>
+        <div class="notice" role="note">
+          AI transparency: Shop Assistant uses AI systems for speech-to-text, language understanding, search, and generated recommendations. Results should be verified before purchase.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="search">
+      <div class="container two-col">
+        <div>
+          <div class="section-head" style="display:block;margin-bottom:0;">
+            <h2>Try the request flow.</h2>
+            <p style="margin-top:16px;">Start an anonymous shopping session from the landing page, or sign in first to keep the request in your dashboard history.</p>
+          </div>
+          <div class="hero-actions">
+            <a class="btn" href="dashboard.html">Sign in for private history</a>
+            <a class="btn text" href="test.html">Advanced test interface</a>
+          </div>
+        </div>
+        <form id="main-request-form" class="request-panel" aria-label="Start a shopping search">
+          <label for="main-request-input">What do you want to find?</label>
+          <textarea id="main-request-input" required>Find a red silk skirt size 52, 48 cm long. Find a shop which delivers in the Czech Republic. Find the best quality skirt with the cheapest price and delivery.</textarea>
+          <div class="form-actions">
+            <button type="submit" class="btn primary" id="main-request-btn">Start search</button>
+            <a class="btn" href="dashboard.html">Use account</a>
+          </div>
+          <div id="main-request-status" class="status" role="status"></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section soft" id="contact">
+      <div class="container two-col">
+        <div>
+          <div class="section-head" style="display:block;margin-bottom:0;">
+            <h2>Bring this buying assistant into your customer flow.</h2>
+            <p style="margin-top:16px;">Send a request for a commercial setup, integration, or managed search workflow. Text, voice, and documents are supported.</p>
+          </div>
+          <div class="list">
+            <div class="list-item"><span class="check">✓</span><span>Lead capture supports text, multiple contact methods, optional voice messages, and documents.</span></div>
+            <div class="list-item"><span class="check">✓</span><span>REST APIs support session creation, query processing, feedback, product choice, profiles, and saved criteria.</span></div>
+            <div class="list-item"><span class="check">✓</span><span>Legal pages and cookie consent remain available from the public site.</span></div>
+          </div>
+        </div>
+        <form id="lead-form" class="request-panel lead-form" aria-label="Contact Shop Assistant">
+          <label for="lead-message">What goods or workflow do you need?</label>
+          <textarea id="lead-message" required placeholder="Describe your request, integration need, or buying workflow."></textarea>
+          <div class="form-grid">
+            <div>
+              <label for="lead-name">Name</label>
+              <input id="lead-name" type="text" placeholder="Optional">
+            </div>
+            <div>
+              <label for="contact-type-1">Contact method</label>
+              <select id="contact-type-1" class="contact-type">
                 <option value="email">Email</option>
                 <option value="phone">Phone</option>
                 <option value="telegram">Telegram</option>
                 <option value="whatsapp">WhatsApp</option>
               </select>
             </div>
-            <div class="flex-2">
-              <input type="text" name="contact_value_1" class="contact-value" placeholder="your@email.com" required>
+          </div>
+          <div id="contact-methods">
+            <div class="contact-row">
+              <select class="contact-type" aria-label="Contact type">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+                <option value="telegram">Telegram</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+              <input class="contact-value" type="text" placeholder="your@email.com" required aria-label="Contact value">
             </div>
           </div>
-        </div>
-        <button type="button" class="add-contact-btn" id="add-contact-btn">+ Add another contact</button>
-
-        <div class="media-row" style="margin-top: 1.5rem;">
-          <div>
-            <button type="button" class="media-btn" id="voice-btn">Record voice message</button>
-            <span id="recording-info" style="display: none; margin-left: 0.5rem; font-size: 0.9rem; color: var(--slate-600);"></span>
+          <div class="form-actions">
+            <button type="button" class="btn" id="add-contact-btn">Add contact</button>
+            <button type="button" class="btn" id="voice-btn">Record voice</button>
+            <span id="recording-info" style="display:none;color:var(--muted);font-size:14px;font-weight:700;"></span>
           </div>
-        </div>
-
-        <div style="margin-top: 1rem;">
-          <div class="file-zone" id="file-zone">
-            <p>Attach documents (optional)</p>
-            <p style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.5rem;">PDF, images, spreadsheets — drag & drop or click</p>
-          </div>
-          <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.jpg,.png,.txt,.xlsx,.xls" style="display: none;">
+          <div class="file-zone" id="file-zone">Attach files or click to browse</div>
+          <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.xlsx,.xls" style="display:none;">
           <div class="file-list" id="file-list"></div>
-        </div>
-
-        <button type="submit" class="submit-lead" id="submit-lead">Send request</button>
-        <div id="form-status" class="form-status" style="display: none;"></div>
-      </form>
-      <p style="text-align: center; font-size: 0.85rem; color: var(--slate-500); margin-top: 1rem;">
-        Your data is protected in accordance with GDPR. Confidentiality guaranteed.
-      </p>
-    </section>
-
-    <section id="api" class="api-section">
-      <div class="container">
-        <h2>Integrate Shop Assistant</h2>
-        <p>Add AI shopping to your app, voice assistant, or e-commerce flow. REST API. Optional JWT auth. Session-based.</p>
-        <div class="cta-group" style="justify-content: center; margin-top: 1.5rem;">
-          <a href="/health" class="btn btn-secondary" target="_blank" rel="noopener">API Status</a>
-          <a href="test.html" class="btn btn-primary">Test Interface</a>
-        </div>
+          <button type="submit" class="btn primary" id="submit-lead">Send request</button>
+          <div id="form-status" class="status" role="status"></div>
+        </form>
       </div>
     </section>
+
+    <div class="container ai-notice">
+      <strong>EU AI Act transparency:</strong> You are interacting with an AI-enabled service. Shop Assistant can use speech-to-text, language models, search providers, and automated ranking to process requests and identify products. Verify merchant pages, prices, delivery terms, and suitability before purchase.
+    </div>
   </main>
 
-  <footer class="container">
-    <p>Shop Assistant — AI shopping assistant. Voice or text. Best price.</p>
-    <p style="margin-top: 0.5rem;">
-      <a href="privacy.html">Privacy Policy</a> · <a href="cookies.html">Cookie Policy</a> · <a href="terms.html">Terms of Service</a>
-    </p>
+  <footer>
+    <div class="container footer-inner">
+      <div>Shop Assistant - AI product search, customer dashboards, and admin controls.</div>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="terms.html">Terms</a>
+        <a href="test.html">Advanced test</a>
+      </div>
+    </div>
   </footer>
 
   <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
-    <p>We use cookies to remember your preferences and improve our service. By clicking "Accept" you consent to our use of cookies. See our <a href="cookies.html">Cookie Policy</a>.</p>
+    <p>We use cookies to remember preferences and improve the service. Read the <a href="cookies.html">Cookie Policy</a>.</p>
     <div class="btn-row">
-      <button type="button" class="btn-decline" id="cookie-decline">Decline</button>
+      <button type="button" id="cookie-decline">Decline</button>
       <button type="button" class="btn-accept" id="cookie-accept">Accept</button>
     </div>
   </div>
 
   <script>
-    // Auth state management for navigation
-    (function() {
-      const token = localStorage.getItem('accessToken');
-      const user = JSON.parse(localStorage.getItem('user') || 'null');
-      const navAuth = document.getElementById('nav-auth');
-      const navLoginLink = document.getElementById('nav-login-link');
-      const navRegisterLink = document.getElementById('nav-register-link');
-      const navLogoutBtn = document.getElementById('nav-logout-btn');
-      const navUserInfo = document.getElementById('nav-user-info');
-
-      if (token && user && navAuth) {
-        // User is logged in
-        if (navLoginLink) navLoginLink.style.display = 'none';
-        if (navRegisterLink) navRegisterLink.style.display = 'none';
-        if (navLogoutBtn) {
-          navLogoutBtn.style.display = 'inline-block';
-          navLogoutBtn.addEventListener('click', function() {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
-            window.location.reload();
-          });
-        }
-        if (navUserInfo) {
-          navUserInfo.textContent = user.email || user.firstName || 'User';
-          navUserInfo.style.display = 'inline';
-        }
-      }
-    })();
-
     (function() {
       var banner = document.getElementById('cookie-banner');
       var key = 'shop_assistant_cookie_consent';
-      function hide() { banner.classList.add('hidden'); }
+      function hide() { if (banner) banner.classList.add('hidden'); }
       function save(val) { try { localStorage.setItem(key, val); } catch (e) {} }
-      if (localStorage.getItem(key)) { hide(); return; }
-      document.getElementById('cookie-accept').onclick = function() { save('accepted'); hide(); };
-      document.getElementById('cookie-decline').onclick = function() { save('declined'); hide(); };
+      try {
+        if (localStorage.getItem(key)) { hide(); return; }
+      } catch (e) {}
+      document.getElementById('cookie-accept').addEventListener('click', function() { save('accepted'); hide(); });
+      document.getElementById('cookie-decline').addEventListener('click', function() { save('declined'); hide(); });
     })();
 
     (function() {
       var TOKEN_KEY = 'shop_assistant_admin_token';
+      var apiBase = window.location.origin + '/api';
       function getToken() {
         var p = new URLSearchParams(window.location.search);
         if (p.get('token')) return p.get('token').trim();
         var stored = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
         if (stored) return stored;
-        // If the user is logged in, treat the access token as a valid token too.
         return (localStorage.getItem('accessToken') || '').trim();
       }
       function authHeaders() {
-        var t = getToken();
         var h = { 'Content-Type': 'application/json' };
-        if (t) h['Authorization'] = 'Bearer ' + t;
+        var token = getToken();
+        if (token) h.Authorization = 'Bearer ' + token;
         return h;
       }
-      var apiBase = window.location.origin + '/api';
-      var profileRow = document.getElementById('landing-profile-row');
-      var profileSelect = document.getElementById('landing-profile-select');
-      var profileHint = document.getElementById('landing-profile-hint');
-
-      async function checkTokenValidityLanding() {
-        var token = getToken();
-        var loggedIn = !!localStorage.getItem('accessToken');
-        if (!token) {
-          if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
-          if (profileRow) profileRow.style.display = 'none';
-          return;
-        }
-
-        try {
-          var r = await fetch(apiBase + '/profiles', { headers: { 'Authorization': 'Bearer ' + token } });
-          if (r.status === 401 || r.status === 403) {
-            if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
-            if (profileRow) profileRow.style.display = 'none';
-          } else if (r.ok) {
-            if (profileHint) profileHint.style.display = 'none';
-            if (profileRow) profileRow.style.display = 'block';
-            var data = await r.json().catch(function() { return null; });
-            if (profileSelect && data) {
-              var items = data.items || data || [];
-              profileSelect.innerHTML = '<option value="">Default</option>' + items.map(function(p) {
-                return '<option value="' + (p.id || '') + '">' + (p.name || p.id || '') + (p.role ? ' (' + p.role + ')' : '') + '</option>';
-              }).join('');
-            }
-          } else {
-            if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
-            if (profileRow) profileRow.style.display = 'none';
-          }
-        } catch (e) {
-          if (profileHint) profileHint.style.display = loggedIn ? 'none' : 'block';
-          if (profileRow) profileRow.style.display = 'none';
-        }
-      }
-
-      checkTokenValidityLanding();
-
-      var authOverlay = document.getElementById('auth-modal-overlay');
-      var authModalClose = document.getElementById('auth-modal-close');
-      var authTabRegister = document.getElementById('auth-tab-register');
-      var authTabLogin = document.getElementById('auth-tab-login');
-      var authRegisterForm = document.getElementById('auth-register-form');
-      var authLoginForm = document.getElementById('auth-login-form');
-      var authError = document.getElementById('auth-error');
-
-      function showAuthError(msg) {
-        if (authError) { authError.textContent = msg || ''; authError.classList.toggle('show', !!msg); }
-      }
-      function openAuthModal(tab) {
-        if (authOverlay) authOverlay.classList.add('open');
-        if (authOverlay) authOverlay.setAttribute('aria-hidden', 'false');
-        showAuthError('');
-        if (tab === 'register') {
-          if (authTabRegister) authTabRegister.classList.add('active');
-          if (authTabLogin) authTabLogin.classList.remove('active');
-          if (authRegisterForm) authRegisterForm.classList.add('active');
-          if (authLoginForm) authLoginForm.classList.remove('active');
-        } else {
-          if (authTabLogin) authTabLogin.classList.add('active');
-          if (authTabRegister) authTabRegister.classList.remove('active');
-          if (authLoginForm) authLoginForm.classList.add('active');
-          if (authRegisterForm) authRegisterForm.classList.remove('active');
-        }
-      }
-      function closeAuthModal() {
-        if (authOverlay) authOverlay.classList.remove('open');
-        if (authOverlay) authOverlay.setAttribute('aria-hidden', 'true');
-        showAuthError('');
-      }
-
-      // Nav buttons now redirect to dedicated pages (handled by nav-auth div)
-      // Hint buttons redirect to login/register pages
-      const hintRegisterBtn = document.getElementById('hint-register-btn');
-      const hintLoginBtn = document.getElementById('hint-login-btn');
-      if (hintRegisterBtn) {
-        hintRegisterBtn.addEventListener('click', function() { window.location.href = 'register.html'; });
-      }
-      if (hintLoginBtn) {
-        hintLoginBtn.addEventListener('click', function() { window.location.href = 'login.html'; });
-      }
-      document.getElementById('hint-login-btn').addEventListener('click', function() { window.location.href = 'login.html'; });
-
-      // Auth state management
-      (function() {
-        const token = localStorage.getItem('accessToken');
-        const user = JSON.parse(localStorage.getItem('user') || 'null');
-        const navAuth = document.getElementById('nav-auth');
-        const navLoginLink = document.getElementById('nav-login-link');
-        const navRegisterLink = document.getElementById('nav-register-link');
-        const navLogoutBtn = document.getElementById('nav-logout-btn');
-        const navUserInfo = document.getElementById('nav-user-info');
-
-        if (token && user) {
-          // User is logged in
-          navLoginLink.style.display = 'none';
-          navRegisterLink.style.display = 'none';
-          navLogoutBtn.style.display = 'inline-block';
-          navUserInfo.textContent = user.email || user.firstName || 'User';
-          navUserInfo.style.display = 'inline';
-        } else {
-          // User is not logged in
-          navLoginLink.style.display = 'inline-block';
-          navRegisterLink.style.display = 'inline-block';
-          navLogoutBtn.style.display = 'none';
-          navUserInfo.style.display = 'none';
-        }
-
-        // Logout handler
-        navLogoutBtn.addEventListener('click', function() {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
-          window.location.reload();
-        });
-      })();
-      if (authModalClose) authModalClose.addEventListener('click', closeAuthModal);
-      authOverlay.addEventListener('click', function(e) { if (e.target === authOverlay) closeAuthModal(); });
-      authTabRegister.addEventListener('click', function() { openAuthModal('register'); });
-      authTabLogin.addEventListener('click', function() { openAuthModal('login'); });
-
-      authRegisterForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        showAuthError('');
-        var email = document.getElementById('register-email').value.trim();
-        var password = document.getElementById('register-password').value;
-        var firstName = document.getElementById('register-firstName').value.trim();
-        var lastName = document.getElementById('register-lastName').value.trim();
-        if (!email || !password) { showAuthError('Email and password are required.'); return; }
-        if (password.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
-        var body = { email: email, password: password };
-        if (firstName) body.firstName = firstName;
-        if (lastName) body.lastName = lastName;
-        fetch(apiBase + '/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-          .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, status: r.status, data: data }; }); })
-          .then(function(result) {
-            if (result.ok && result.data && result.data.accessToken) {
-              sessionStorage.setItem(TOKEN_KEY, result.data.accessToken);
-              checkTokenValidityLanding();
-              closeAuthModal();
-              authRegisterForm.reset();
-            } else {
-              showAuthError(result.data && result.data.message ? result.data.message : 'Registration failed.');
-            }
-          })
-          .catch(function() { showAuthError('Network error. Please try again.'); });
-      });
-
-      authLoginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        showAuthError('');
-        var email = document.getElementById('login-email').value.trim();
-        var password = document.getElementById('login-password').value;
-        if (!email || !password) { showAuthError('Email and password are required.'); return; }
-        fetch(apiBase + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: password }) })
-          .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
-          .then(function(result) {
-            if (result.ok && result.data && result.data.accessToken) {
-              sessionStorage.setItem(TOKEN_KEY, result.data.accessToken);
-              checkTokenValidityLanding();
-              closeAuthModal();
-              authLoginForm.reset();
-            } else {
-              showAuthError(result.data && result.data.message ? result.data.message : 'Invalid credentials.');
-            }
-          })
-          .catch(function() { showAuthError('Network error. Please try again.'); });
-      });
-
       var mainForm = document.getElementById('main-request-form');
       var mainBtn = document.getElementById('main-request-btn');
       var mainStatus = document.getElementById('main-request-status');
+      if (!mainForm) return;
 
       mainForm.addEventListener('submit', function(e) {
         e.preventDefault();
         var text = (document.getElementById('main-request-input').value || '').trim();
         if (!text) {
           mainStatus.textContent = 'Please enter your request.';
-          mainStatus.className = 'request-status error';
-          mainStatus.style.display = 'block';
+          mainStatus.className = 'status error';
           return;
         }
-
-        var profileId = (profileSelect && profileSelect.value && profileSelect.value.trim()) ? profileSelect.value.trim() : undefined;
-        var sessionBody = profileId ? { profileId: profileId } : {};
-        var queryBody = { text: text };
-        if (profileId) queryBody.profileId = profileId;
-
         mainBtn.disabled = true;
-        mainStatus.textContent = 'Analyzing request…';
-        mainStatus.className = 'request-status loading';
-        mainStatus.style.display = 'block';
+        mainStatus.textContent = 'Creating session...';
+        mainStatus.className = 'status loading';
 
         fetch(apiBase + '/sessions', {
           method: 'POST',
           headers: authHeaders(),
-          body: JSON.stringify(sessionBody)
+          body: JSON.stringify({})
         })
           .then(function(r) {
             if (!r.ok) throw new Error('Failed to create session');
@@ -1117,26 +1100,25 @@
           })
           .then(function(data) {
             var sessionId = data.sessionId;
-            mainStatus.textContent = 'Searching…';
-            return fetch(apiBase + '/sessions/' + sessionId + '/query', {
+            mainStatus.textContent = 'Searching offers...';
+            return fetch(apiBase + '/sessions/' + encodeURIComponent(sessionId) + '/query', {
               method: 'POST',
               headers: authHeaders(),
-              body: JSON.stringify(queryBody)
+              body: JSON.stringify({ text: text })
             }).then(function(r) {
               if (!r.ok) return r.text().then(function(t) { throw new Error(t || 'Search failed'); });
               return r.json().then(function() { return sessionId; });
             });
           })
           .then(function(sessionId) {
-            mainStatus.textContent = 'Preparing results…';
             var url = 'test.html?sessionId=' + encodeURIComponent(sessionId);
-            if (getToken()) url += '&token=' + encodeURIComponent(getToken());
+            var token = getToken();
+            if (token) url += '&token=' + encodeURIComponent(token);
             window.location.href = url;
           })
           .catch(function(err) {
             mainStatus.textContent = err.message || 'Something went wrong. Please try again.';
-            mainStatus.className = 'request-status error';
-            mainStatus.style.display = 'block';
+            mainStatus.className = 'status error';
             mainBtn.disabled = false;
           });
       });
@@ -1144,6 +1126,7 @@
 
     (function() {
       var form = document.getElementById('lead-form');
+      if (!form) return;
       var voiceBtn = document.getElementById('voice-btn');
       var recordingInfo = document.getElementById('recording-info');
       var fileZone = document.getElementById('file-zone');
@@ -1153,7 +1136,6 @@
       var contactMethods = document.getElementById('contact-methods');
       var submitBtn = document.getElementById('submit-lead');
       var formStatus = document.getElementById('form-status');
-
       var voiceBlob = null;
       var mediaRecorder = null;
       var recordedChunks = [];
@@ -1165,27 +1147,25 @@
       function updateContactPlaceholder(select) {
         var input = select.closest('.contact-row').querySelector('.contact-value');
         var placeholders = { email: 'your@email.com', phone: '+420 123 456 789', telegram: '@username', whatsapp: '+420 123 456 789' };
-        input.placeholder = placeholders[select.value] || '';
+        input.placeholder = placeholders[select.value] || 'Contact value';
       }
-
-      contactMethods.querySelectorAll('.contact-type').forEach(function(s) {
-        s.addEventListener('change', function() { updateContactPlaceholder(s); });
+      contactMethods.querySelectorAll('.contact-type').forEach(function(select) {
+        select.addEventListener('change', function() { updateContactPlaceholder(select); });
       });
-
       addContactBtn.addEventListener('click', function() {
         var rows = contactMethods.querySelectorAll('.contact-row');
         if (rows.length >= 5) return;
-        var n = rows.length + 1;
         var row = document.createElement('div');
-        row.className = 'form-row contact-row';
-        row.innerHTML = '<div class="flex-1"><select name="contact_type_' + n + '" class="contact-type"><option value="email">Email</option><option value="phone">Phone</option><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option></select></div><div class="flex-2"><input type="text" name="contact_value_' + n + '" class="contact-value" placeholder="your@email.com"></div>';
+        row.className = 'contact-row';
+        row.innerHTML = '<select class="contact-type" aria-label="Contact type"><option value="email">Email</option><option value="phone">Phone</option><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option></select><input class="contact-value" type="text" placeholder="your@email.com" aria-label="Contact value">';
         row.querySelector('.contact-type').addEventListener('change', function() { updateContactPlaceholder(this); });
         contactMethods.appendChild(row);
       });
 
       function startRecording() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          alert('Voice recording is not supported in this browser.');
+          formStatus.textContent = 'Voice recording is not supported in this browser.';
+          formStatus.className = 'status error';
           return;
         }
         navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
@@ -1199,7 +1179,6 @@
           mediaRecorder.start();
           isRecording = true;
           voiceBtn.textContent = 'Stop recording';
-          voiceBtn.classList.add('recording');
           recordingStart = Date.now();
           recordingInterval = setInterval(function() {
             var s = Math.floor((Date.now() - recordingStart) / 1000);
@@ -1207,20 +1186,18 @@
             recordingInfo.style.display = 'inline';
           }, 1000);
         }).catch(function(err) {
-          alert('Microphone access denied: ' + (err.message || 'Please allow microphone access.'));
+          formStatus.textContent = 'Microphone access denied: ' + (err.message || 'Please allow microphone access.');
+          formStatus.className = 'status error';
         });
       }
-
       function stopRecording() {
         if (!mediaRecorder || !isRecording) return;
         mediaRecorder.stop();
         isRecording = false;
-        voiceBtn.textContent = 'Record voice message';
-        voiceBtn.classList.remove('recording');
+        voiceBtn.textContent = 'Record voice';
         clearInterval(recordingInterval);
         recordingInfo.style.display = 'none';
       }
-
       voiceBtn.addEventListener('click', function() {
         if (isRecording) stopRecording();
         else startRecording();
@@ -1238,99 +1215,89 @@
         if (this.files) addFiles(Array.from(this.files));
         this.value = '';
       });
-
       function addFiles(files) {
-        var max = 10;
-        files.slice(0, max - selectedFiles.length).forEach(function(f) {
-          if (f.size > 10 * 1024 * 1024) return;
-          selectedFiles.push(f);
+        files.slice(0, 10 - selectedFiles.length).forEach(function(file) {
+          if (file.size <= 10 * 1024 * 1024) selectedFiles.push(file);
         });
         renderFileList();
       }
-
       function renderFileList() {
-        fileList.innerHTML = selectedFiles.map(function(f, i) {
-          return '<span>📄 ' + f.name + ' (' + (f.size < 1024 ? f.size + ' B' : (f.size < 1048576 ? (f.size / 1024).toFixed(1) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB')) + ') <button type="button" onclick="window.removeLeadFile(' + i + ')" style="margin-left:0.5rem;cursor:pointer;background:none;border:none;color:var(--teal-700);">×</button></span>';
+        fileList.innerHTML = selectedFiles.map(function(file, index) {
+          var size = file.size < 1048576 ? (file.size / 1024).toFixed(1) + ' KB' : (file.size / 1048576).toFixed(1) + ' MB';
+          return '<span>' + file.name + ' (' + size + ') <button type="button" data-remove-file="' + index + '" style="border:0;background:transparent;color:var(--teal);font-weight:800;">x</button></span>';
         }).join('');
       }
-
-      window.removeLeadFile = function(i) {
-        selectedFiles.splice(i, 1);
+      fileList.addEventListener('click', function(e) {
+        var remove = e.target.getAttribute('data-remove-file');
+        if (remove == null) return;
+        selectedFiles.splice(Number(remove), 1);
         renderFileList();
-      };
+      });
 
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (isRecording) stopRecording();
-
         var message = document.getElementById('lead-message').value.trim();
         var name = document.getElementById('lead-name').value.trim();
-        var cm = [];
+        var contacts = [];
         contactMethods.querySelectorAll('.contact-row').forEach(function(row) {
           var type = row.querySelector('.contact-type').value;
-          var val = (row.querySelector('.contact-value').value || '').trim();
-          if (val) cm.push({ type: type, value: val });
+          var value = (row.querySelector('.contact-value').value || '').trim();
+          if (value) contacts.push({ type: type, value: value });
         });
-        if (!cm.length) {
-          formStatus.textContent = 'Please add at least one contact method.';
-          formStatus.className = 'form-status error';
-          formStatus.style.display = 'block';
+        if (!message) {
+          formStatus.textContent = 'Please describe the request.';
+          formStatus.className = 'status error';
           return;
         }
-
+        if (!contacts.length) {
+          formStatus.textContent = 'Please add at least one contact method.';
+          formStatus.className = 'status error';
+          return;
+        }
         submitBtn.disabled = true;
-        formStatus.style.display = 'none';
+        formStatus.textContent = 'Sending request...';
+        formStatus.className = 'status loading';
 
-        var useFormData = (voiceBlob || selectedFiles.length > 0);
-        var url = '/api/leads/submit';
+        var useFormData = voiceBlob || selectedFiles.length > 0;
+        var request = useFormData
+          ? fetchWithFormData(message, name, contacts)
+          : fetch('/api/leads/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message: message, name: name, contactMethods: contacts })
+            });
 
-        function showSuccess() {
-          formStatus.textContent = 'Request sent! We\'ll get back to you soon.';
-          formStatus.className = 'form-status success';
-          formStatus.style.display = 'block';
-          form.reset();
-          voiceBlob = null;
-          selectedFiles = [];
-          renderFileList();
-        }
-
-        function showError(msg) {
-          formStatus.textContent = msg || 'Failed to send. Please try again.';
-          formStatus.className = 'form-status error';
-          formStatus.style.display = 'block';
-        }
-
-        if (useFormData) {
-          var fd = new FormData();
-          fd.append('message', message);
-          if (name) fd.append('name', name);
-          fd.append('contactMethods', JSON.stringify(cm));
-          if (voiceBlob) fd.append('voice_file', voiceBlob, 'voice.webm');
-          selectedFiles.forEach(function(f) { fd.append('files', f); });
-
-          fetch(url, { method: 'POST', body: fd })
-            .then(function(r) {
-              if (r.ok) return r.json();
-              return r.text().then(function(t) { throw new Error(t || 'Request failed'); });
-            })
-            .then(function() { showSuccess(); })
-            .catch(function(err) { showError(err.message); })
-            .finally(function() { submitBtn.disabled = false; });
-        } else {
-          fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message, name: name, contactMethods: cm })
+        request
+          .then(function(r) {
+            if (r.ok) return r.json().catch(function() { return {}; });
+            return r.text().then(function(t) { throw new Error(t || 'Request failed'); });
           })
-            .then(function(r) {
-              if (r.ok) return r.json();
-              return r.text().then(function(t) { throw new Error(t || 'Request failed'); });
-            })
-            .then(function() { showSuccess(); })
-            .catch(function(err) { showError(err.message); })
-            .finally(function() { submitBtn.disabled = false; });
-        }
+          .then(function() {
+            formStatus.textContent = 'Request sent. We will get back to you soon.';
+            formStatus.className = 'status success';
+            form.reset();
+            voiceBlob = null;
+            selectedFiles = [];
+            renderFileList();
+          })
+          .catch(function(err) {
+            formStatus.textContent = err.message || 'Failed to send. Please try again.';
+            formStatus.className = 'status error';
+          })
+          .finally(function() {
+            submitBtn.disabled = false;
+          });
       });
+      function fetchWithFormData(message, name, contacts) {
+        var fd = new FormData();
+        fd.append('message', message);
+        if (name) fd.append('name', name);
+        fd.append('contactMethods', JSON.stringify(contacts));
+        if (voiceBlob) fd.append('voice_file', voiceBlob, 'voice.webm');
+        selectedFiles.forEach(function(file) { fd.append('files', file); });
+        return fetch('/api/leads/submit', { method: 'POST', body: fd });
+      }
     })();
   </script>
 </body>

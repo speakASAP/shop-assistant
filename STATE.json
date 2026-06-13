@@ -5,11 +5,13 @@
   "health": "ok",
   "cycle": 0,
   "last_cycle_at": "2026-06-12T00:00:00Z",
-  "tasks_active": 0,
+  "tasks_active": 1,
   "tasks_failed_last_cycle": 0,
-  "open_task_ids": [],
-  "last_milestone": "SA-G4-T1-production-vs-synthetic-aggregate-comparison-complete",
-  "next_focus": "verify production or staging session write path because production aggregate UX funnel remains zero",
+  "open_task_ids": [
+    "SA-G7-T1"
+  ],
+  "last_milestone": "SA-G7-migration-applied-and-unauthenticated-live-smoke-passed",
+  "next_focus": "run live admin/dashboard authenticated smoke checks with valid customer/admin tokens, then request owner approval for deployment and polish landing conversion page",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -38,6 +40,78 @@
         "production_messages": 0,
         "production_first_session_at": null,
         "production_last_session_at": null
+      },
+      "sa_g4_t1_write_path_check": {
+        "date": "2026-06-13",
+        "request": "POST https://shop-assistant.alfares.cz/api/sessions",
+        "synthetic_user_id": "synthetic-write-path-check-2026-06-13",
+        "production_metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-13-write-path.json",
+        "comparison": "reports/ux/sa-g4-t1-write-path-vs-synthetic-comparison-2026-06-13.json",
+        "production_sessions": 1,
+        "production_user_bound_sessions": 1,
+        "production_priority_scoped_sessions": 1,
+        "production_messages": 0,
+        "production_search_runs": 0,
+        "production_search_results": 0,
+        "production_first_session_at": "2026-06-13T03:48:23.996Z",
+        "production_last_session_at": "2026-06-13T03:48:23.996Z"
+      },
+      "sa_g7_t1_frontend_goal": {
+        "date": "2026-06-13",
+        "status": "planned",
+        "task": "docs/intent-preservation/tasks/SA-G7-T1.md",
+        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md",
+        "context_package": "docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md",
+        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md",
+        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md",
+        "first_implementation_slice": "SA-G7-B auth shell and SA-G7-C current-user dashboard APIs"
+      },
+      "sa_g7_t1_current_user_api_foundation": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed",
+        "new_module": "src/me",
+        "endpoints": [
+          "GET /api/me",
+          "GET /api/me/dashboard",
+          "GET /api/me/sessions",
+          "POST /api/me/sessions",
+          "GET /api/me/sessions/:id",
+          "POST /api/me/sessions/:id/query",
+          "POST /api/me/sessions/:id/feedback"
+        ],
+        "validation": "npm run build passed",
+        "runtime_smoke_limitation": "raw SSH start:prod could not reach db-server-postgres:5432; route mapping observed before Prisma startup failure"
+      },
+      "sa_g7_t1_dashboard_static_frontend": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_visual_qa_passed",
+        "page": "public/dashboard.html",
+        "landing_links": "public/index.html",
+        "validation": "npm run build passed; static Playwright screenshots passed for unauthenticated desktop/mobile gate",
+        "desktop_screenshot": "/private/tmp/shop-assistant-dashboard-desktop-final.png",
+        "mobile_screenshot": "/private/tmp/shop-assistant-dashboard-mobile-final.png",
+        "concept": "/Users/Sergej.Stasok/.codex/generated_images/019ebf8a-12cf-76d0-a4ff-b0e77b729ec8/ig_09e48a0f5812b98e016a2cf4f7f27c8191a963a48d697b9381.png",
+        "live_validation_pending": "database-connected runtime and test token required"
+      },
+      "sa_g7_t1_admin_overview_settings": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_migration_applied_unauthenticated_live_smoke_passed",
+        "migration": "prisma/migrations/20260613_add_app_settings/migration.sql",
+        "settings": [
+          "agentExecutionMode",
+          "maxSearchResults"
+        ],
+        "overview_endpoint": "GET /api/admin/overview",
+        "settings_endpoints": [
+          "GET /api/admin/settings",
+          "PUT /api/admin/settings",
+          "GET /api/admin/settings/agent-execution-mode",
+          "PUT /api/admin/settings/agent-execution-mode"
+        ],
+        "validation": "npm run prisma:generate && npm run build passed; static mocked Playwright admin UI QA passed; migration applied inside running pod; temporary DB-connected runtime returned 401 for unauthenticated /api/me, /api/me/dashboard, /api/admin/settings, and /api/admin/overview; /dashboard.html, /admin.html, and /health returned 200",
+        "screenshot": "/private/tmp/shop-assistant-admin-settings-final.png",
+        "migration_status": "20260613_add_app_settings applied via npx prisma migrate deploy inside running pod",
+        "live_validation_pending": "valid customer token and valid admin token required"
       }
     }
   }

@@ -1,0 +1,49 @@
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateSessionDto } from '../sessions/dto/create-session.dto';
+import { QueryDto } from '../sessions/dto/query.dto';
+import { FeedbackDto } from '../sessions/dto/feedback.dto';
+import { MeService } from './me.service';
+
+@Controller('me')
+@UseGuards(JwtAuthGuard)
+export class MeController {
+  constructor(private readonly me: MeService) {}
+
+  @Get()
+  async profile(@Req() req: any) {
+    return { user: req.user };
+  }
+
+  @Get('dashboard')
+  async dashboard(@Req() req: any) {
+    return this.me.getDashboard(req.user.id as string);
+  }
+
+  @Get('sessions')
+  async listSessions(@Req() req: any, @Query('page') page?: string, @Query('limit') limit?: string) {
+    const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(String(limit), 10) || 20));
+    return this.me.listSessions(req.user.id as string, pageNum, limitNum);
+  }
+
+  @Post('sessions')
+  async createSession(@Req() req: any, @Body() dto: CreateSessionDto) {
+    return this.me.createSession(req.user.id as string, dto.priorities, dto.profileId);
+  }
+
+  @Get('sessions/:id')
+  async getSession(@Req() req: any, @Param('id') id: string) {
+    return this.me.getSession(req.user.id as string, id);
+  }
+
+  @Post('sessions/:id/query')
+  async submitQuery(@Req() req: any, @Param('id') id: string, @Body() dto: QueryDto) {
+    return this.me.submitQuery(req.user.id as string, id, dto.text, dto.audioUrl, dto.priorities, dto.profileId);
+  }
+
+  @Post('sessions/:id/feedback')
+  async submitFeedback(@Req() req: any, @Param('id') id: string, @Body() dto: FeedbackDto) {
+    return this.me.submitFeedback(req.user.id as string, id, dto.message, dto.selectedIndices, dto.priorities, dto.profileId);
+  }
+}
