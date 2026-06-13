@@ -880,7 +880,13 @@
       const response = await fetch(API_BASE + path, Object.assign({}, options, { headers }));
       if (response.status === 401) {
         clearAuth();
+        showAuthGate('Authentication expired. Please log in again.');
         throw new Error('Authentication expired. Please log in again.');
+      }
+      if (response.status === 403) {
+        clearAuth();
+        showAuthGate('Your account is signed in but is not authorized to use this dashboard.');
+        throw new Error('Your account is signed in but is not authorized to use this dashboard.');
       }
       if (!response.ok) {
         const text = await response.text().catch(() => '');
@@ -1517,7 +1523,7 @@
       try {
         await loadDashboard();
       } catch (error) {
-        clearAuth();
+        if (getToken()) clearAuth();
         showAuthGate(error.message || 'Please log in again.');
       }
     }

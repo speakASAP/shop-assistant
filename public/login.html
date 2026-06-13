@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Shop Assistant</title>
+  <title>Sign In — Shop Assistant</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,24 +13,20 @@
       --teal-700: #0d9488;
       --teal-600: #0d9488;
       --teal-500: #14b8a6;
-      --amber-600: #d97706;
-      --amber-500: #f59e0b;
-      --slate-900: #0f172a;
-      --slate-700: #334155;
+      --slate-950: #020617;
+      --slate-800: #1e293b;
+      --slate-600: #475569;
       --slate-500: #64748b;
+      --slate-200: #e2e8f0;
       --slate-100: #f1f5f9;
       --white: #ffffff;
-      --red-600: #dc2626;
+      --red-700: #b91c1c;
       --red-50: #fef2f2;
     }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Outfit', sans-serif;
-      color: var(--slate-900);
+      color: var(--slate-950);
       line-height: 1.6;
       background: var(--slate-100);
       min-height: 100vh;
@@ -42,193 +38,116 @@
     .auth-container {
       background: var(--white);
       padding: 2.5rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      border: 1px solid var(--slate-200);
+      border-radius: 0.5rem;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      max-width: 430px;
       width: 100%;
-    }
-    h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--teal-900);
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-    label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--slate-700);
-      margin-bottom: 0.5rem;
-    }
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 0.375rem;
-      font-size: 1rem;
-      transition: border-color 0.2s;
-    }
-    input:focus {
-      outline: none;
-      border-color: var(--teal-500);
-      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
-    }
-    .btn {
-      width: 100%;
-      padding: 0.75rem;
-      background: var(--teal-600);
-      color: var(--white);
-      border: none;
-      border-radius: 0.375rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn:hover {
-      background: var(--teal-700);
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .error-message {
-      background: var(--red-50);
-      border: 1px solid var(--red-600);
-      color: var(--red-600);
-      padding: 0.75rem;
-      border-radius: 0.375rem;
-      margin-bottom: 1rem;
-      display: none;
-    }
-    .error-message.show {
-      display: block;
-    }
-    .link {
-      color: var(--teal-600);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .link:hover {
-      text-decoration: underline;
-    }
-    .text-center {
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 0.875rem;
-      color: var(--slate-500);
     }
     .back-link {
       display: inline-block;
       margin-bottom: 1rem;
-      color: var(--slate-700);
+      color: var(--slate-600);
       text-decoration: none;
       font-size: 0.875rem;
     }
-    .back-link:hover {
+    .back-link:hover { color: var(--teal-700); }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--teal-900);
+      margin-bottom: 0.75rem;
+    }
+    .copy {
+      color: var(--slate-600);
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 3rem;
+      padding: 0.75rem 1rem;
+      background: var(--teal-600);
+      color: var(--white);
+      border: 0;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--teal-700); }
+    .secondary-link {
+      display: block;
+      margin-top: 1rem;
+      text-align: center;
       color: var(--teal-700);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .secondary-link:hover { text-decoration: underline; }
+    .notice {
+      margin-top: 1.25rem;
+      padding: 0.75rem;
+      background: var(--red-50);
+      border: 1px solid rgba(185, 28, 28, 0.2);
+      border-radius: 0.375rem;
+      color: var(--red-700);
+      font-size: 0.875rem;
+      display: none;
+    }
+    .notice.show { display: block; }
+    .meta {
+      margin-top: 1.25rem;
+      color: var(--slate-500);
+      font-size: 0.8125rem;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="auth-container">
+  <main class="auth-container">
     <a href="index.html" class="back-link">← Back to Home</a>
-    <h1>Login</h1>
-    <div id="error-message" class="error-message"></div>
-    <form id="login-form">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="current-password">
-      </div>
-      <button type="submit" class="btn" id="submit-btn">Login</button>
-    </form>
-    <div class="text-center">
-      Don't have an account? <a href="register.html" class="link">Register</a>
-    </div>
-    <p class="text-center" style="margin-top:1rem;font-size:0.75rem;color:var(--slate-500);">
-      Test user: test@example.com — password in auth-microservice/.env (TEST_PASSWORD).
-    </p>
-  </div>
+    <h1>Sign in</h1>
+    <p class="copy">Shop Assistant uses Alfares Auth for credentials, sessions, and account protection. Continue there to access your dashboard.</p>
+    <button type="button" class="btn" id="continueBtn">Continue with Auth</button>
+    <a href="register.html" class="secondary-link">Create an account</a>
+    <div id="notice" class="notice" role="alert"></div>
+    <p class="meta">No password is collected by this page.</p>
+  </main>
 
   <script>
-    // Same-origin POST so backend proxies to auth-microservice (avoids CORS)
-    const loginPath = '/api/auth/login';
-    const loginUrl = new URL(loginPath, window.location.origin).href;
+    const AUTH_BASE = 'https://auth.alfares.cz';
+    const CLIENT_ID = 'shop-assistant';
+    const STATE_KEY = 'shop_assistant_auth_state';
 
-    function logLogin(msg, data) {
-      try {
-        console.log('[login] ' + msg, typeof data !== 'undefined' ? data : '');
-      } catch (_) {}
+    function buildAuthUrl(path) {
+      const state = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+      sessionStorage.setItem(STATE_KEY, state);
+      const returnUrl = new URL('dashboard.html', window.location.href).href;
+      const params = new URLSearchParams({ return_url: returnUrl, client_id: CLIENT_ID, state });
+      return AUTH_BASE + path + '?' + params.toString();
     }
 
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errorDiv = document.getElementById('error-message');
-      const submitBtn = document.getElementById('submit-btn');
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+    function showNotice(message) {
+      const notice = document.getElementById('notice');
+      notice.textContent = message;
+      notice.classList.add('show');
+    }
 
-      errorDiv.classList.remove('show');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Logging in...';
-
-      logLogin('FETCH_START', { url: loginUrl, method: 'POST', path: loginPath, origin: window.location.origin, email: email ? '(set)' : '(empty)' });
-
+    function continueWithAuth() {
       try {
-        const response = await fetch(loginUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-
-        const respUrl = response.url || '';
-        const respStatus = response.status;
-        const respStatusText = response.statusText || '';
-        logLogin('FETCH_RESPONSE', { status: respStatus, statusText: respStatusText, url: respUrl, ok: response.ok });
-
-        const text = await response.text();
-        const bodyPreview = text.length > 300 ? text.slice(0, 300) + '...' : text;
-        logLogin('FETCH_BODY', { length: text.length, preview: bodyPreview });
-
-        if (!response.ok) {
-          let msg = 'Login failed. Please check your credentials.';
-          if (text && text.includes('Cannot POST /api/')) {
-            msg = 'Server received wrong path (POST /api/). Regenerate nginx config: run deploy-smart.sh for shop-assistant on the server, then hard-refresh (Ctrl+Shift+R).';
-          } else {
-            try {
-              const j = JSON.parse(text);
-              if (j && j.message) msg = j.message;
-              if (response.status === 401 || (msg && (msg.toLowerCase().includes('invalid credentials') || msg === 'Login failed'))) {
-                msg += ' For test user (test@example.com), use the password from auth-microservice/.env (TEST_PASSWORD).';
-              }
-            } catch (_) {}
-          }
-          throw new Error(msg);
-        }
-
-        const data = JSON.parse(text);
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(data.user));
-
-        logLogin('LOGIN_SUCCESS', { hasToken: !!data.accessToken });
-        window.location.href = 'index.html';
+        window.location.href = buildAuthUrl('/login');
       } catch (error) {
-        logLogin('LOGIN_ERROR', { message: error.message });
-        errorDiv.textContent = error.message || 'Login failed. Please try again.';
-        errorDiv.classList.add('show');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Login';
+        showNotice('Could not start sign-in. Please open the customer dashboard and try again.');
       }
-    });
+    }
+
+    document.getElementById('continueBtn').addEventListener('click', continueWithAuth);
+    continueWithAuth();
   </script>
 </body>
 </html>

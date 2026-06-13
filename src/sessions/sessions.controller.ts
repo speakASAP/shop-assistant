@@ -1,10 +1,13 @@
-import { Controller, Post, Get, Param, Body, Query, Res } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { SessionsService } from './sessions.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { QueryDto } from './dto/query.dto';
 import { FeedbackDto } from './dto/feedback.dto';
 import { LoggingService } from '../logging/logging.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('sessions')
 export class SessionsController {
@@ -67,6 +70,8 @@ export class SessionsController {
   }
 
   @Get(':id/agent-communications')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('global:superadmin', 'app:shop-assistant:admin')
   async getAgentCommunications(@Param('id') id: string) {
     this.logging.debug('GET /api/sessions/:id/agent-communications', { sessionId: id, context: 'SessionsController' });
     return this.sessions.getAgentCommunications(id);
