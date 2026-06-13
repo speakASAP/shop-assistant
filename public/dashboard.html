@@ -326,6 +326,34 @@
       gap: 6px;
       flex-wrap: wrap;
     }
+    .mini-form {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+    .mini-form.two {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .mini-form .full {
+      grid-column: 1 / -1;
+    }
+    .mini-form textarea {
+      min-height: 68px;
+    }
+    .mini-form label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      display: grid;
+      gap: 4px;
+    }
+    .danger-text {
+      color: var(--danger);
+    }
     .status {
       grid-column: 1 / -1;
       border-radius: 8px;
@@ -413,6 +441,7 @@
         border-bottom: 0;
         padding: 5px 0;
       }
+      .mini-form.two { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -513,6 +542,24 @@
             </div>
           </div>
           <div class="panel-body">
+            <form id="savedForm" class="mini-form">
+              <input type="hidden" id="savedId">
+              <label>Name
+                <input id="savedName" type="text" placeholder="Weekly school supplies">
+              </label>
+              <label class="full">Search text
+                <textarea id="savedQuery" placeholder="Find school shoes size 35 under 80 EUR with delivery to Prague"></textarea>
+              </label>
+              <label>Profile
+                <select id="savedProfileSelect">
+                  <option value="">Default profile</option>
+                </select>
+              </label>
+              <div class="row-actions">
+                <button class="btn small primary" id="saveCriteriaBtn" type="submit">Save search</button>
+                <button class="btn small" id="cancelSavedEditBtn" type="button">Cancel</button>
+              </div>
+            </form>
             <div class="side-list" id="savedList"></div>
           </div>
         </div>
@@ -537,6 +584,19 @@
             </div>
           </div>
           <div class="panel-body">
+            <form id="profileForm" class="mini-form two">
+              <input type="hidden" id="profileId">
+              <label>Name
+                <input id="profileName" type="text" placeholder="Mom">
+              </label>
+              <label>Role
+                <input id="profileRole" type="text" placeholder="recipient">
+              </label>
+              <div class="row-actions full">
+                <button class="btn small primary" id="saveProfileBtn" type="submit">Save profile</button>
+                <button class="btn small" id="cancelProfileEditBtn" type="button">Cancel</button>
+              </div>
+            </form>
             <div class="side-list" id="profileList"></div>
           </div>
         </div>
@@ -566,6 +626,17 @@
       choiceList: document.getElementById('choiceList'),
       profileList: document.getElementById('profileList'),
       profileSelect: document.getElementById('profileSelect'),
+      savedProfileSelect: document.getElementById('savedProfileSelect'),
+      savedForm: document.getElementById('savedForm'),
+      savedId: document.getElementById('savedId'),
+      savedName: document.getElementById('savedName'),
+      savedQuery: document.getElementById('savedQuery'),
+      cancelSavedEditBtn: document.getElementById('cancelSavedEditBtn'),
+      profileForm: document.getElementById('profileForm'),
+      profileId: document.getElementById('profileId'),
+      profileName: document.getElementById('profileName'),
+      profileRole: document.getElementById('profileRole'),
+      cancelProfileEditBtn: document.getElementById('cancelProfileEditBtn'),
       searchForm: document.getElementById('searchForm'),
       searchText: document.getElementById('searchText'),
       adminLink: document.getElementById('adminLink'),
@@ -691,6 +762,28 @@
       return 'Session ' + session.id.slice(0, 8);
     }
 
+    function savedQueryText(item) {
+      const intents = Array.isArray(item.productIntents) ? item.productIntents : [];
+      if (intents.length) return String(intents[0] || '');
+      if (item.filters && typeof item.filters.queryText === 'string') return item.filters.queryText;
+      return '';
+    }
+
+    function resetSavedForm() {
+      els.savedId.value = '';
+      els.savedName.value = '';
+      els.savedQuery.value = '';
+      els.savedProfileSelect.value = '';
+      document.getElementById('saveCriteriaBtn').textContent = 'Save search';
+    }
+
+    function resetProfileForm() {
+      els.profileId.value = '';
+      els.profileName.value = '';
+      els.profileRole.value = '';
+      document.getElementById('saveProfileBtn').textContent = 'Save profile';
+    }
+
     function renderSessions(items) {
       if (!items.length) {
         els.sessionsTable.innerHTML = '<div class="empty">No authenticated request history yet. Start a new request above.</div>';
@@ -722,14 +815,34 @@
         return;
       }
       els.savedList.innerHTML = items.slice(0, 6).map((item) => {
-        const intents = Array.isArray(item.productIntents) ? item.productIntents.join(', ') : 'Reusable criteria';
+        const query = savedQueryText(item);
+        const intents = query || (Array.isArray(item.productIntents) ? item.productIntents.join(', ') : 'Reusable criteria');
         return '<div class="list-row">' +
           '<div class="row-top"><div><div class="row-title">' + escapeHtml(item.name) + '</div><div class="muted">' + escapeHtml(intents) + '</div></div></div>' +
-          '<div class="row-actions"><button class="btn small primary" data-run="' + escapeHtml(item.id) + '" type="button">Run</button><a class="btn small" href="test.html#saved">Edit</a></div>' +
+          '<div class="row-actions">' +
+            '<button class="btn small primary" data-run="' + escapeHtml(item.id) + '" type="button">Run</button>' +
+            '<button class="btn small" data-edit-saved="' + escapeHtml(item.id) + '" type="button">Edit</button>' +
+            '<button class="btn small danger-text" data-delete-saved="' + escapeHtml(item.id) + '" type="button">Delete</button>' +
+          '</div>' +
         '</div>';
       }).join('');
       els.savedList.querySelectorAll('[data-run]').forEach((button) => {
         button.addEventListener('click', () => runSaved(button.getAttribute('data-run')));
+      });
+      els.savedList.querySelectorAll('[data-edit-saved]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const item = items.find((candidate) => candidate.id === button.getAttribute('data-edit-saved'));
+          if (!item) return;
+          els.savedId.value = item.id;
+          els.savedName.value = item.name || '';
+          els.savedQuery.value = savedQueryText(item);
+          els.savedProfileSelect.value = item.profileId || '';
+          document.getElementById('saveCriteriaBtn').textContent = 'Update search';
+          els.savedName.focus();
+        });
+      });
+      els.savedList.querySelectorAll('[data-delete-saved]').forEach((button) => {
+        button.addEventListener('click', () => deleteSaved(button.getAttribute('data-delete-saved')));
       });
     }
 
@@ -749,16 +862,38 @@
     }
 
     function renderProfiles(items) {
-      els.profileSelect.innerHTML = '<option value="">Default profile</option>' + items.map((profile) => {
+      const options = '<option value="">Default profile</option>' + items.map((profile) => {
         return '<option value="' + escapeHtml(profile.id) + '">' + escapeHtml(profile.name || profile.id) + (profile.role ? ' (' + escapeHtml(profile.role) + ')' : '') + '</option>';
       }).join('');
+      els.profileSelect.innerHTML = options;
+      els.savedProfileSelect.innerHTML = options;
       if (!items.length) {
-        els.profileList.innerHTML = '<div class="empty">Create profiles in the advanced search page.</div>';
+        els.profileList.innerHTML = '<div class="empty">Create a profile above to reuse recipient preferences.</div>';
         return;
       }
       els.profileList.innerHTML = items.map((profile) => {
-        return '<div class="list-row"><div class="row-top"><div><div class="row-title">' + escapeHtml(profile.name) + '</div><div class="muted">' + escapeHtml(profile.role || 'Recipient') + '</div></div><span class="pill">Profile</span></div></div>';
+        return '<div class="list-row">' +
+          '<div class="row-top"><div><div class="row-title">' + escapeHtml(profile.name) + '</div><div class="muted">' + escapeHtml(profile.role || 'Recipient') + '</div></div><span class="pill">Profile</span></div>' +
+          '<div class="row-actions">' +
+            '<button class="btn small" data-edit-profile="' + escapeHtml(profile.id) + '" type="button">Edit</button>' +
+            '<button class="btn small danger-text" data-delete-profile="' + escapeHtml(profile.id) + '" type="button">Delete</button>' +
+          '</div>' +
+        '</div>';
       }).join('');
+      els.profileList.querySelectorAll('[data-edit-profile]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const profile = items.find((candidate) => candidate.id === button.getAttribute('data-edit-profile'));
+          if (!profile) return;
+          els.profileId.value = profile.id;
+          els.profileName.value = profile.name || '';
+          els.profileRole.value = profile.role || '';
+          document.getElementById('saveProfileBtn').textContent = 'Update profile';
+          els.profileName.focus();
+        });
+      });
+      els.profileList.querySelectorAll('[data-delete-profile]').forEach((button) => {
+        button.addEventListener('click', () => deleteProfile(button.getAttribute('data-delete-profile')));
+      });
     }
 
     async function loadDashboard() {
@@ -793,6 +928,85 @@
       }
     }
 
+    async function saveCriteria(event) {
+      event.preventDefault();
+      const name = els.savedName.value.trim();
+      const query = els.savedQuery.value.trim();
+      const profileId = els.savedProfileSelect.value || undefined;
+      if (!name || !query) {
+        setStatus('Saved search needs a name and search text.', 'error');
+        return;
+      }
+      const body = {
+        name,
+        productIntents: [query],
+        filters: { queryText: query },
+        profileId,
+      };
+      const id = els.savedId.value.trim();
+      try {
+        setStatus(id ? 'Updating saved search...' : 'Creating saved search...', 'info');
+        await api(id ? '/saved-criteria/' + encodeURIComponent(id) : '/saved-criteria', {
+          method: id ? 'PUT' : 'POST',
+          body: JSON.stringify(body),
+        });
+        resetSavedForm();
+        await loadDashboard();
+        setStatus(id ? 'Saved search updated.' : 'Saved search created.', 'ok');
+      } catch (error) {
+        setStatus(error.message || 'Could not save search.', 'error');
+      }
+    }
+
+    async function deleteSaved(id) {
+      if (!id || !confirm('Delete this saved search?')) return;
+      try {
+        setStatus('Deleting saved search...', 'info');
+        await api('/saved-criteria/' + encodeURIComponent(id), { method: 'DELETE' });
+        if (els.savedId.value === id) resetSavedForm();
+        await loadDashboard();
+        setStatus('Saved search deleted.', 'ok');
+      } catch (error) {
+        setStatus(error.message || 'Could not delete saved search.', 'error');
+      }
+    }
+
+    async function saveProfile(event) {
+      event.preventDefault();
+      const name = els.profileName.value.trim();
+      const role = els.profileRole.value.trim();
+      if (!name) {
+        setStatus('Profile name is required.', 'error');
+        return;
+      }
+      const id = els.profileId.value.trim();
+      try {
+        setStatus(id ? 'Updating profile...' : 'Creating profile...', 'info');
+        await api(id ? '/profiles/' + encodeURIComponent(id) : '/profiles', {
+          method: id ? 'PUT' : 'POST',
+          body: JSON.stringify({ name, role: role || undefined }),
+        });
+        resetProfileForm();
+        await loadDashboard();
+        setStatus(id ? 'Profile updated.' : 'Profile created.', 'ok');
+      } catch (error) {
+        setStatus(error.message || 'Could not save profile.', 'error');
+      }
+    }
+
+    async function deleteProfile(id) {
+      if (!id || !confirm('Delete this profile? Sessions keep their history, but future profile reuse will stop.')) return;
+      try {
+        setStatus('Deleting profile...', 'info');
+        await api('/profiles/' + encodeURIComponent(id), { method: 'DELETE' });
+        if (els.profileId.value === id) resetProfileForm();
+        await loadDashboard();
+        setStatus('Profile deleted.', 'ok');
+      } catch (error) {
+        setStatus(error.message || 'Could not delete profile.', 'error');
+      }
+    }
+
     async function createSearch(event) {
       event.preventDefault();
       const text = els.searchText.value.trim();
@@ -824,6 +1038,10 @@
       els.logoutBtn.addEventListener('click', () => { clearAuth(); window.location.href = '/'; });
       els.refreshBtn.addEventListener('click', () => loadDashboard().catch((error) => setStatus(error.message, 'error')));
       els.searchForm.addEventListener('submit', createSearch);
+      els.savedForm.addEventListener('submit', saveCriteria);
+      els.cancelSavedEditBtn.addEventListener('click', resetSavedForm);
+      els.profileForm.addEventListener('submit', saveProfile);
+      els.cancelProfileEditBtn.addEventListener('click', resetProfileForm);
     }
 
     async function init() {

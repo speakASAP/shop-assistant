@@ -14,6 +14,7 @@ import { AiModelsController } from './ai-models.controller';
 import { ExecutionModeService } from './execution-mode.service';
 import { SettingsController } from './settings.controller';
 import { OverviewController } from './overview.controller';
+import { OperationsController } from './operations.controller';
 import { AppSettingsService } from './app-settings.service';
 
 @Module({
@@ -23,7 +24,7 @@ import { AppSettingsService } from './app-settings.service';
     LoggingModule,
     PrismaModule,
   ],
-  controllers: [PromptsController, AiModelsController, SettingsController, OverviewController],
+  controllers: [PromptsController, AiModelsController, SettingsController, OverviewController, OperationsController],
   providers: [PromptsService, ExecutionModeService, AppSettingsService],
   exports: [PromptsService, ExecutionModeService, AppSettingsService],
 })
