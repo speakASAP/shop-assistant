@@ -1,7 +1,7 @@
 # Validation Report: SA-G5 Lead Forwarding Resilience
 
     id: VAL-SA-G5-LEAD-FORWARDING
-    status: deployment_attempt_blocked_runtime_pull
+    status: deployed_live_lead_smoke_passed
     owner: shop-assistant-owner
     created: 2026-06-13
     task: docs/intent-preservation/tasks/SA-G5-T1.md
@@ -38,3 +38,20 @@
 ## Deployment Result
 
 SA-G5 image is built and pushed, but production is not running the SA-G5 pod because the rollout was blocked before container startup by the node/runtime image pull/create path. Prisma migration `20260613_add_lead_forwarding_status` was not applied during this failed rollout.
+
+## Deployment Retry
+
+- 2026-06-13: Retried approved deployment after the stuck rollout artifact cleared.
+- 2026-06-13: Rollout completed successfully on pod `shop-assistant-5d8d7f76f7-zkj9j`.
+- 2026-06-13: Running pod image is `localhost:5000/shop-assistant@sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011`.
+- 2026-06-13: `https://shop-assistant.alfares.cz/health` returned `{"status":"ok"}`.
+- 2026-06-13: `npx prisma migrate status` inside the deployed pod reported 11 migrations and database schema up to date.
+- 2026-06-13: Deploy script bundled SA-G7 frontend/auth smoke still reported pre-existing copy/auth-surface failures, but health and rollout passed; SA-G5 validation was run separately.
+
+## Live SA-G5 Smoke
+
+- Run id: `sa-g5-live-smoke-20260613170041`.
+- Request id: `a2c3726c-235f-48a1-a8d4-35066e4d184d`.
+- Public response: `status=new`, `confirmationSent=true`, `leadForwardingStatus=sent`, `aiAnalysisStatus=failed`, downstream lead id present, AI submission id absent.
+- Database row: `leadForwardingStatus=sent`, no lead forwarding error, `leadForwardedAt=2026-06-13T17:00:44.000Z`, `aiAnalysisStatus=failed`, AI analysis error captured, `triageStatus=new`.
+- Result: lead capture and leads-microservice forwarding passed; AI analysis failure was non-blocking and persisted as designed.

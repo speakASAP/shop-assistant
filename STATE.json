@@ -10,11 +10,9 @@
     "open_task_ids": [
         "SA-G7-T1"
     ],
-    "last_milestone": "SA-G5-image-built-pushed-deployment-blocked-by-runtime-pull-rollback-stable",
-    "next_focus": "resolve alfares Kubernetes/container-runtime image pull/create blocker for shop-assistant rollout, then rerun ./scripts/deploy.sh, confirm prisma migration 20260613_add_lead_forwarding_status applies, and run live lead capture smoke",
-    "blockers": [
-        "SA-G5 production rollout blocked on alfares node/container-runtime image pull/create path: new pod stayed ContainerCreating/Pulling before app startup; rollout undo restored previous ready pod"
-    ],
+    "last_milestone": "SA-G5-deployed-live-lead-smoke-passed-forwarding-sent-ai-failed-nonblocking",
+    "next_focus": "continue with next non-blocked implementation goal; separately address deploy script SA-G7 frontend/auth smoke failures and AI analysis downstream failure when prioritized",
+    "blockers": [],
     "budget_units_used": 0,
     "metrics": {
         "custom": {
@@ -600,7 +598,7 @@
                 "changes": [
                     "added session-scoped shop_assistant_access_token key",
                     "dashboard Auth callback stores access token in sessionStorage only",
-                    "admin Auth callback and manual JWT flow store access token in sessionStorage only",
+                    "admin Auth callback stores access token in sessionStorage only; manual JWT flow was later removed by SA-G7 admin Auth-only gate",
                     "landing and diagnostic pages read session-scoped tokens for same-tab authenticated calls",
                     "legacy localStorage accessToken is migrated into sessionStorage and removed",
                     "legacy localStorage refreshToken is removed and no longer persisted by frontend pages"
@@ -671,6 +669,441 @@
                 "stable_pod": "shop-assistant-5b699c65f6-szhz2",
                 "production_health": "https://shop-assistant.alfares.cz/ returned HTTP 200 during failed rollout",
                 "migration_applied": false
+            },
+            "sa_g7_t1_dashboard_authorization_failure_lockdown": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "page": "public/dashboard.html",
+                "scope": [
+                    "401 clears auth and hides dashboard shell",
+                    "403 clears auth and hides dashboard shell",
+                    "authorization denial resets user label and logout visibility",
+                    "stale customer dashboard data is hidden after protected API denial"
+                ],
+                "validation": "npm run build passed; in-app browser mocked /api/me 403 lockout QA passed",
+                "screenshot": "/private/tmp/shop-assistant-dashboard-403-lockout-qa.png",
+                "live_validation_pending": "owner-approved deploy plus real customer and unauthorized-account dashboard smoke checks"
+            },
+            "sa_g7_t1_customer_admin_token_isolation": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "pages": [
+                    "public/index.html",
+                    "public/test.html",
+                    "public/admin.html"
+                ],
+                "scope": [
+                    "customer-facing pages no longer read shop_assistant_admin_token directly",
+                    "manual admin JWT paste no longer writes shop_assistant_access_token; manual paste UI was later removed by SA-G7 admin Auth-only gate",
+                    "diagnostic account hint points to customer dashboard Auth flow",
+                    "admin-only token does not authorize landing search in browser QA",
+                    "customer access token still authorizes landing search in browser QA"
+                ],
+                "validation": "npm run build passed; in-app browser token-isolation QA passed",
+                "screenshot": "/private/tmp/shop-assistant-token-isolation-qa.png",
+                "live_validation_pending": "superseded by SA-G7 admin Auth-only gate; deploy/post-deploy smoke now validates Auth-only admin access and absence of manual JWT UI",
+                "superseded_by": "sa_g7_t1_admin_auth_only_gate"
+            },
+            "sa_g7_t1_landing_stale_token_fallback": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "page": "public/index.html",
+                "scope": [
+                    "landing search clears stale customer auth on 401/403",
+                    "public session creation retries anonymously once",
+                    "public query submission uses anonymous headers after stale-token fallback",
+                    "dashboard/admin protected surfaces remain separate"
+                ],
+                "validation": "npm run build passed; in-app browser stale-token fallback QA passed",
+                "screenshot": "/private/tmp/shop-assistant-landing-stale-token-fallback-qa.png",
+                "live_validation_pending": "owner-approved deploy plus safe expired-token landing smoke if available"
+            },
+            "sa_g7_t1_admin_agent_flow_deep_link_gate": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "page": "public/admin.html",
+                "scope": [
+                    "admin sessionId flow deep links no longer auto-load before auth validation",
+                    "flow tab requires admin/Auth token",
+                    "flow fetch sends Authorization bearer header",
+                    "successful Auth callback with sessionId restores flow tab after fragment cleanup"
+                ],
+                "validation": "npm run build passed; in-app browser locked and authorized deep-link QA passed",
+                "screenshot": "/private/tmp/shop-assistant-admin-flow-gate-qa.png",
+                "live_validation_pending": "owner-approved deploy plus real admin deep-link smoke; backend route authorization review if required"
+            },
+            "sa_g7_t1_backend_agent_communications_admin_guard": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_route_guard_smoke_passed",
+                "files": [
+                    "src/sessions/sessions.controller.ts",
+                    "src/sessions/sessions.module.ts"
+                ],
+                "scope": [
+                    "GET /api/sessions/:id/agent-communications protected by JwtAuthGuard",
+                    "route protected by RolesGuard and admin roles",
+                    "missing token returns 401",
+                    "non-admin token returns 403",
+                    "admin token reaches service"
+                ],
+                "validation": "npm run build passed; temporary Nest route smoke returned missingStatus=401 nonAdminStatus=403 adminStatus=200 serviceCalls=[session-guard-1]",
+                "live_validation_pending": "owner-approved deploy plus real admin/non-admin route smoke"
+            },
+            "sa_g7_t1_legacy_debug_admin_handoff": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "files": [
+                    "public/debug.html",
+                    "public/admin.html"
+                ],
+                "scope": [
+                    "legacy public debug page no longer fetches messages or agent communications",
+                    "debug sessionId handoff routes to admin flow deep link",
+                    "Admin Flow copy says authorized admin account required",
+                    "browser QA confirmed no API calls from debug handoff"
+                ],
+                "validation": "npm run build passed; in-app browser debug handoff QA passed without API requests",
+                "live_validation_pending": "owner-approved deploy plus live debug-to-admin handoff smoke"
+            },
+            "sa_g7_t1_login_register_auth_handoff": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_static_auth_surface_scan_passed",
+                "pages": [
+                    "public/login.html",
+                    "public/register.html"
+                ],
+                "auth_handoff": "https://auth.alfares.cz/login and /register with client_id=shop-assistant, return_url=dashboard.html, and state",
+                "validation": "npm run build passed; rg scan found no local forms, no password inputs, no localStorage token writes, and no /api/auth login/register calls",
+                "live_validation_pending": "owner-approved deploy and real Auth callback smoke"
+            },
+            "sa_g7_t1_test_interface_boundary_cleanup": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "page": "public/test.html",
+                "validation": "npm run build passed; source scan confirmed old agent-debug wording removed and auth cleanup handler present; Browser QA with mocked 403 hid profile and saved-search controls while leaving customer sign-in hint visible",
+                "mock_server": "127.0.0.1:8162 temporary local server",
+                "live_validation_pending": "owner-approved deploy and deployed advanced test page smoke"
+            },
+            "sa_g7_t1_admin_token_guide_cleanup": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_static_scan_passed",
+                "page": "public/getting-admin-token.html",
+                "validation": "npm run build passed; source scan confirmed old accessToken/refreshToken examples, Copy Token/Show Token, DevTools extraction, curl login extraction, and paste-token instructions were removed",
+                "live_validation_pending": "owner-approved deploy and live route smoke"
+            },
+            "sa_g7_t1_admin_auth_only_gate": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_browser_qa_passed",
+                "page": "public/admin.html",
+                "validation": "npm run build passed; source scan confirmed manual JWT UI/code and paste/save JWT copy removed; Browser QA confirmed locked state has no token input, token query URLs are rejected and cleaned, and Auth callback unlocks through protected overview validation",
+                "security_boundary": "admin UI now uses Auth-hosted sign-in only; old shop_assistant_admin_token values are cleanup-only; backend JWT/RBAC checks unchanged",
+                "live_validation_pending": "owner-approved deploy plus real admin and non-admin Auth callback smokes"
+            },
+            "sa_g7_t1_live_smoke_script": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_no_secret_production_run_completed_with_expected_predeploy_failures",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "validation": "bash -n passed; npm run build passed; no-secret production run showed public route availability and unauthenticated /api/me,/api/me/dashboard,/api/admin/overview,/api/admin/settings protections pass, while new static copy and agent-communications guard remain absent from production until deploy",
+                "optional_inputs": [
+                    "CUSTOMER_TOKEN",
+                    "ADMIN_TOKEN",
+                    "NON_ADMIN_TOKEN",
+                    "AGENT_FLOW_SESSION_ID"
+                ],
+                "live_validation_pending": "owner-approved deploy, no-secret smoke rerun, customer/admin/non-admin token smoke rerun"
+            },
+            "sa_g7_t1_post_deploy_smoke_integration": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "scripts": [
+                    "scripts/post-deploy-check.sh",
+                    "scripts/sa-g7-live-smoke.sh"
+                ],
+                "validation": "bash -n passed for both scripts; npm run build passed; post-deploy-check now runs the SA-G7 smoke script as final readiness gate and documents optional customer/admin/non-admin token variables",
+                "live_validation_pending": "owner-approved deploy, post-deploy check without secrets, post-deploy check with safe Auth tokens"
+            },
+            "sa_g7_t1_deploy_script_post_deploy_gate": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "scripts": [
+                    "scripts/deploy.sh",
+                    "scripts/post-deploy-check.sh",
+                    "scripts/sa-g7-live-smoke.sh"
+                ],
+                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; deploy.sh now runs post-deploy-check.sh as a timed Post-deploy checks phase before deploy_timing_finish_success",
+                "live_validation_pending": "owner-approved deploy, observe Post-deploy checks phase, rerun with safe Auth tokens"
+            },
+            "sa_g7_t1_local_auth_proxy_disabled": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_source_scan_passed",
+                "files": [
+                    "src/auth/auth.module.ts",
+                    "src/auth/auth.controller.ts",
+                    "scripts/sa-g7-live-smoke.sh"
+                ],
+                "validation": "npm run build passed; AuthModule controllers list is empty; old AuthController proxy strings removed from src/auth; smoke script now expects POST /api/auth/login and /api/auth/register to return 404",
+                "security_boundary": "Shop Assistant no longer exposes same-origin credential proxy endpoints; Auth remains owner of credential collection, token refresh, and roles; JWT validation guards remain exported",
+                "live_validation_pending": "owner-approved deploy plus post-deploy smoke for disabled local auth proxy endpoints"
+            },
+            "sa_g7_t1_deploy_gate_failure_timing": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "script": "scripts/deploy.sh",
+                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; Post-deploy checks now uses deploy_timing_run_phase so failures close the timed phase before nonzero exit",
+                "live_validation_pending": "owner-approved deploy plus observation of Post-deploy checks timing behavior"
+            },
+            "sa_g7_t1_live_smoke_cache_busting": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_no_secret_production_run_completed_with_expected_predeploy_failures",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "validation": "bash -n passed; npm run build passed; no-secret production run printed HTML cache-bust key, public routes returned 200, and expected predeploy failures remained for old static content, agent-communications guard, and local auth proxy disabled checks",
+                "live_validation_pending": "owner-approved deploy plus cache-busted post-deploy smoke"
+            },
+            "sa_g7_t1_post_deploy_kubernetes_diagnostics": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "script": "scripts/post-deploy-check.sh",
+                "scope": [
+                    "best-effort kubectl namespace reachability check",
+                    "pod listing for app=shop-assistant",
+                    "deployment status output",
+                    "recent deployment logs before health and SA-G7 frontend/auth smoke"
+                ],
+                "validation": "bash -n passed for post-deploy, deploy, and SA-G7 smoke scripts; npm run build passed",
+                "live_validation_pending": "owner-approved deploy plus observation of Kubernetes diagnostics during Post-deploy checks"
+            },
+            "sa_g7_t1_admin_settings_audit_metadata": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_source_scan_passed",
+                "files": [
+                    "src/admin/app-settings.service.ts",
+                    "public/admin.html"
+                ],
+                "scope": [
+                    "protected admin settings response includes safe setting metadata",
+                    "metadata reports persisted/default source, description, appliesTo, updatedBy, and updatedAt",
+                    "Admin Settings tab renders audit metadata after load and save",
+                    "public landing settings endpoint remains copy-only"
+                ],
+                "validation": "npm run build passed; source scan confirmed Settings audit UI, renderSettingsMeta, getSettingsMeta, and updatedBy/updatedAt metadata paths",
+                "live_validation_pending": "owner-approved deploy plus live admin-token settings audit render and save/readback smoke"
+            },
+            "sa_g7_t1_live_smoke_admin_settings_metadata_gate": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "scope": [
+                    "ADMIN_TOKEN smoke validates /api/admin/settings meta shape",
+                    "safe settings metadata required for agentExecutionMode, maxSearchResults, and publicLanding",
+                    "curl calls bounded by SMOKE_CURL_MAX_TIME defaulting to 12 seconds",
+                    "token values are not printed"
+                ],
+                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed metadata gate and timeout paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
+                "live_validation_pending": "owner-approved deploy plus ADMIN_TOKEN smoke proving protected settings metadata in production"
+            },
+            "sa_g7_t1_live_smoke_customer_dashboard_contract_gate": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "scope": [
+                    "CUSTOMER_TOKEN smoke validates /api/me user.id",
+                    "CUSTOMER_TOKEN smoke validates /api/me/dashboard summary and recent arrays",
+                    "CUSTOMER_TOKEN smoke validates /api/me/sessions and /api/me/choices pagination contracts",
+                    "CUSTOMER_TOKEN smoke validates profiles and saved criteria list contracts",
+                    "token values are not printed"
+                ],
+                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed customer contract gate paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
+                "live_validation_pending": "owner-approved deploy plus CUSTOMER_TOKEN smoke proving customer dashboard/account contracts in production"
+            },
+            "sa_g7_t1_live_smoke_admin_rbac_breadth_gate": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "scope": [
+                    "ADMIN_TOKEN smoke checks prompts, ai-models, operations sessions, leads, profiles, and saved criteria",
+                    "ADMIN_TOKEN smoke validates ai-models and operations list response contracts",
+                    "NON_ADMIN_TOKEN smoke requires 403 across protected admin panel surfaces",
+                    "token values are not printed"
+                ],
+                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed admin RBAC breadth gate paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
+                "live_validation_pending": "owner-approved deploy plus ADMIN_TOKEN and NON_ADMIN_TOKEN smoke proving admin contracts and role denial in production"
+            },
+            "sa_g7_t1_live_smoke_public_landing_settings_contract": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_no_secret_production_endpoint_passed",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "scope": [
+                    "no-token smoke validates /api/public/settings/landing status 200",
+                    "publicLanding contract requires eight non-empty string copy fields",
+                    "public endpoint check validates runtime path used by editable commercial landing copy",
+                    "no admin metadata or secret values are expected from the public endpoint"
+                ],
+                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed public landing settings contract; no-secret production run passed public landing settings endpoint and retained expected predeploy static/API failures",
+                "live_validation_pending": "owner-approved deploy plus post-deploy landing HTML runtime copy smoke"
+            },
+            "sa_g7_t1_deploy_rollout_failure_diagnostics": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "script": "scripts/deploy.sh",
+                "scope": [
+                    "ERR trap prints rollout diagnostics before nonzero deploy exit",
+                    "diagnostics include deployment, ReplicaSets, pods, pod descriptions, pod logs, and recent events",
+                    "diagnostic path is best-effort and does not mutate rollback state",
+                    "improves evidence capture for ContainerCreating/Pulling rollout blocker"
+                ],
+                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed diagnostics trap and Kubernetes context output",
+                "live_validation_pending": "owner-approved deploy plus observation of diagnostics if rollout fails"
+            },
+            "sa_g7_t1_live_smoke_auth_handoff_invariants": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+                "script": "scripts/sa-g7-live-smoke.sh",
+                "scope": [
+                    "login/register static checks require Auth host, client_id, return_url, state storage, no password input, and no persistent token write",
+                    "dashboard static checks require Auth host, client_id, state mismatch handling, session token storage, and no persistent token write",
+                    "admin static checks require Auth host, client_id, admin state key, state mismatch handling, session token storage, and no persistent token write"
+                ],
+                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed Auth handoff invariant checks; no-secret production run documented expected predeploy static/auth gaps",
+                "live_validation_pending": "owner-approved deploy plus post-deploy no-secret smoke proving static Auth handoff invariants"
+            },
+            "sa_g7_t1_deploy_registry_preflight_diagnostics": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_read_only_live_diagnostics_passed",
+                "script": "scripts/deploy.sh",
+                "scope": [
+                    "deploy preflight checks registry /v2/ reachability",
+                    "deploy preflight checks shop-assistant:latest tag availability",
+                    "deploy preflight prints current running image digest",
+                    "read-only cluster inspection found deployment 1/1 ready and node Ready without pressure"
+                ],
+                "current_image_digest": "localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
+                "registry_tags": [
+                    "latest"
+                ],
+                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed registry preflight paths; live read-only registry and digest probes passed",
+                "live_validation_pending": "owner-approved deploy plus preflight output observation before rollout"
+            },
+            "sa_g7_t1_explicit_image_packaging_step": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "scripts": [
+                    "scripts/build-and-push-image.sh",
+                    "scripts/deploy.sh"
+                ],
+                "scope": [
+                    "new build-and-push script runs npm build, docker build, docker push, and registry tag check",
+                    "image target defaults to localhost:5000/shop-assistant:latest",
+                    "image labels include source, revision, and created timestamp",
+                    "deploy source/image phase prints git HEAD, dirty worktree status, and build script reminder"
+                ],
+                "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed packaging and source-state preflight markers",
+                "live_validation_pending": "owner-approved image build/push plus owner-approved deploy"
+            },
+            "sa_g7_t1_image_source_fingerprint": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_fingerprint_calculation_passed",
+                "files": [
+                    ".dockerignore",
+                    "scripts/build-and-push-image.sh"
+                ],
+                "source_fingerprint": "3449948fc0fb64f187f3e980fc4ea519dc8ec904025f460aaf2b24b04b582335",
+                "scope": [
+                    "Docker build context excludes node_modules, dist, .git, env files, logs, coverage, and reports",
+                    "build script computes source fingerprint over public, src, prisma, scripts, package/build config, and Dockerfile",
+                    "build script prints source fingerprint before Docker build",
+                    "build script adds cz.alfares.shop-assistant.source-fingerprint image label"
+                ],
+                "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; source fingerprint calculation produced non-empty hash; npm run build passed; source scan confirmed fingerprint label and .dockerignore entries",
+                "live_validation_pending": "owner-approved image build/push plus image label verification"
+            },
+            "sa_g7_t1_image_fingerprint_label_verification": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed",
+                "scripts": [
+                    "scripts/build-and-push-image.sh",
+                    "scripts/deploy.sh"
+                ],
+                "scope": [
+                    "build script inspects built image source-fingerprint label before push",
+                    "build script fails if image label does not match computed source fingerprint",
+                    "deploy preflight prints local image source-fingerprint label when available",
+                    "deploy can enforce EXPECTED_SOURCE_FINGERPRINT before manifests/rollout"
+                ],
+                "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed image label check and EXPECTED_SOURCE_FINGERPRINT guard",
+                "live_validation_pending": "owner-approved image build/push plus deploy with EXPECTED_SOURCE_FINGERPRINT when rolling out staged frontend changes"
+            },
+            "sa_g7_t1_rollout_runbook": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_reference_validation_passed",
+                "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+                "scope": [
+                    "source/build preflight",
+                    "owner-approved image build and push",
+                    "source fingerprint recording and EXPECTED_SOURCE_FINGERPRINT deploy",
+                    "post-deploy no-secret smoke",
+                    "customer/admin/non-admin token-backed smoke",
+                    "browser verification",
+                    "rollout failure diagnostics",
+                    "evidence checklist"
+                ],
+                "validation": "runbook exists; referenced scripts are executable; bash -n passed for build/deploy/post-deploy/smoke scripts; npm run build passed; source scan confirmed key rollout sections",
+                "live_validation_pending": "owner-approved runbook execution"
+            },
+            "sa_g7_t1_reusable_source_fingerprint_helper": {
+                "date": "2026-06-13",
+                "status": "implemented_build_passed_script_syntax_passed_fingerprint_calculation_passed",
+                "scripts": [
+                    "scripts/print-source-fingerprint.sh",
+                    "scripts/build-and-push-image.sh"
+                ],
+                "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+                "source_fingerprint": "8f8760fb016ba36a6245d3f5f7fe941dbb7deae9626475b3fdb11ea50b42bfa3",
+                "scope": [
+                    "standalone helper computes the source fingerprint over frontend, backend, Prisma, scripts, and build config inputs",
+                    "image build script uses the helper before labeling and verifying the Docker image",
+                    "rollout runbook documents precomputing the fingerprint before owner-approved build/deploy"
+                ],
+                "validation": "bash -n passed for fingerprint/build/deploy/post-deploy/smoke scripts; helper printed non-empty source fingerprint; npm run build passed; source scan confirmed helper references",
+                "live_validation_pending": "owner-approved image build/push and deploy with EXPECTED_SOURCE_FINGERPRINT"
+            },
+            "sa_g7_t1_read_only_rollout_preflight": {
+                "date": "2026-06-13",
+                "status": "implemented_preflight_passed_no_deploy",
+                "script": "scripts/sa-g7-rollout-preflight.sh",
+                "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+                "source_fingerprint": "51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6",
+                "scope": [
+                    "checks source state, script syntax, source fingerprint, and npm build",
+                    "checks Kubernetes namespace, node, deployment, pods, and current running image digest",
+                    "checks local registry reachability and shop-assistant:latest tag state",
+                    "prints local image source-fingerprint label state without building, pushing, applying manifests, or restarting rollout"
+                ],
+                "runtime_observation": {
+                    "node": "alfares Ready",
+                    "deployment": "shop-assistant 1/1 ready",
+                    "pod": "shop-assistant-5b699c65f6-szhz2 Running",
+                    "current_image_digest": "localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
+                    "registry_tags": [
+                        "latest"
+                    ],
+                    "local_image_label": "missing; build/push required before deploy"
+                },
+                "validation": "scripts/sa-g7-rollout-preflight.sh passed; npm run build passed; Kubernetes and registry read-only checks passed; no image build/push/deploy executed",
+                "live_validation_pending": "owner-approved image build/push and deploy with EXPECTED_SOURCE_FINGERPRINT=51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6"
+            },
+            "sa_g5_deployment_success": {
+                "date": "2026-06-13",
+                "status": "deployed_live_lead_smoke_passed",
+                "image_digest": "sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011",
+                "pod": "shop-assistant-5d8d7f76f7-zkj9j",
+                "migration_status": "11 migrations found; database schema is up to date",
+                "live_smoke_run_id": "sa-g5-live-smoke-20260613170041",
+                "live_smoke_request_id": "a2c3726c-235f-48a1-a8d4-35066e4d184d",
+                "lead_forwarding_status": "sent",
+                "ai_analysis_status": "failed",
+                "ai_failure_behavior": "non-blocking and persisted",
+                "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}",
+                "deploy_script_sa_g7_smoke": "reported existing frontend/auth smoke failures; not SA-G5 blocking"
             }
         }
     }
