@@ -8,6 +8,23 @@ export interface SafeAppSettings {
   agentExecutionMode: AgentExecutionMode;
   maxSearchResults: number;
   publicLanding: PublicLandingSettings;
+  meta: SafeAppSettingsMeta;
+}
+
+export interface SafeAppSettingsMeta {
+  agentExecutionMode: AppSettingMeta;
+  maxSearchResults: AppSettingMeta;
+  publicLanding: AppSettingMeta;
+}
+
+export interface AppSettingMeta {
+  key: string;
+  editable: boolean;
+  source: 'persisted' | 'default';
+  description: string;
+  appliesTo: string;
+  updatedBy: string | null;
+  updatedAt: string | null;
 }
 
 export interface PublicLandingSettings {
@@ -50,6 +67,26 @@ const PUBLIC_LANDING_LIMITS: Record<keyof PublicLandingSettings, number> = {
   leadSubmitLabel: 40,
   footerTagline: 160,
 };
+const SAFE_SETTING_META: Record<keyof SafeAppSettingsMeta, Pick<AppSettingMeta, 'key' | 'editable' | 'description' | 'appliesTo'>> = {
+  agentExecutionMode: {
+    key: 'agentExecutionMode',
+    editable: true,
+    description: 'Controls whether AI/search agent work runs synchronously or through the in-memory queue.',
+    appliesTo: 'Agent handoff execution path',
+  },
+  maxSearchResults: {
+    key: 'maxSearchResults',
+    editable: true,
+    description: 'Maximum number of search results requested per single product intent.',
+    appliesTo: 'New query and feedback search runs',
+  },
+  publicLanding: {
+    key: 'publicLanding',
+    editable: true,
+    description: 'Public non-secret marketing copy applied by the landing page.',
+    appliesTo: 'Landing page copy and lead CTA labels',
+  },
+};
 
 @Injectable()
 export class AppSettingsService {
@@ -60,12 +97,13 @@ export class AppSettingsService {
   ) {}
 
   async getSettings(): Promise<SafeAppSettings> {
-    const [agentMode, maxSearchResults, publicLanding] = await Promise.all([
+    const [agentMode, maxSearchResults, publicLanding, meta] = await Promise.all([
       this.getAgentExecutionMode(),
       this.getMaxSearchResults(),
       this.getPublicLandingSettings(),
+      this.getSettingsMeta(),
     ]);
-    return { agentExecutionMode: agentMode, maxSearchResults, publicLanding };
+    return { agentExecutionMode: agentMode, maxSearchResults, publicLanding, meta };
   }
 
   async updateSettings(payload: UpdateSettingsPayload, updatedBy?: string): Promise<SafeAppSettings> {
@@ -157,6 +195,33 @@ export class AppSettingsService {
     });
     this.logging.info('Admin setting applied: publicLanding', { updatedBy, context: 'AppSettingsService' });
     return next;
+  }
+
+  async getSettingsMeta(): Promise<SafeAppSettingsMeta> {
+    const keys = Object.values(SAFE_SETTING_META).map((item) => item.key);
+    const records = await this.prisma.appSetting.findMany({
+      where: { key: { in: keys } },
+      select: { key: true, description: true, updatedBy: true, updatedAt: true },
+    });
+    const byKey = new Map(records.map((record) => [record.key, record]));
+
+    const build = (id: keyof SafeAppSettingsMeta): AppSettingMeta => {
+      const definition = SAFE_SETTING_META[id];
+      const record = byKey.get(definition.key);
+      return {
+        ...definition,
+        source: record ? 'persisted' : 'default',
+        description: record?.description || definition.description,
+        updatedBy: record?.updatedBy || null,
+        updatedAt: record?.updatedAt ? record.updatedAt.toISOString() : null,
+      };
+    };
+
+    return {
+      agentExecutionMode: build('agentExecutionMode'),
+      maxSearchResults: build('maxSearchResults'),
+      publicLanding: build('publicLanding'),
+    };
   }
 
   private normalizePublicLanding(payload: Partial<PublicLandingSettings>, strict: boolean): PublicLandingSettings {

@@ -273,7 +273,7 @@ Scope implemented:
 - Validates admin access through `GET /api/admin/overview` before revealing the admin tabs and panels.
 - Keeps the admin shell hidden for missing tokens, expired/invalid tokens, or users without the `global:superadmin` / `app:shop-assistant:admin` role.
 - Added logout/clear behavior that removes stored admin/customer tokens and returns to the locked gate.
-- Kept manual JWT paste as an advanced fallback rather than the primary login path.
+- Historical note: this slice kept manual JWT paste as an advanced fallback rather than the primary login path. The later `Admin Auth-Only Gate` slice removed that fallback.
 - Updated admin setup copy so operators sign in through Auth instead of manually fetching a JWT first.
 
 Validation evidence:
@@ -1326,7 +1326,7 @@ Scope implemented:
 
 - Added session-scoped access token storage key `shop_assistant_access_token`.
 - Dashboard Auth callback stores access tokens in `sessionStorage`, not `localStorage`.
-- Admin Auth callback and manual-token flow store tokens in `sessionStorage`, not `localStorage`.
+- Admin Auth callback stores tokens in `sessionStorage`, not `localStorage`; the later `Admin Auth-Only Gate` slice removed the manual-token flow.
 - Landing page and diagnostic page read session-scoped tokens for same-tab authenticated requests.
 - Legacy `localStorage.accessToken` is migrated into session storage and then removed.
 - Legacy `localStorage.refreshToken` is removed; frontend pages no longer persist refresh tokens.
@@ -1413,3 +1413,1379 @@ Security and boundary evidence:
 Remaining validation:
 
 - Live Auth callback success check with real customer account after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Admin Auth-Failure Lockdown
+
+Scope implemented:
+
+- Added a shared `handleAdminAuthResponse()` helper for protected admin fetches.
+- `401` responses now clear session auth, lock the admin shell, and show the expired-auth sign-in message.
+- `403` responses now lock the admin shell and show the missing-admin-role message.
+- Overview, operations, prompts, models, account data, settings, prompt edit/delete/save, and admin data edit flows now use the same auth-failure path.
+- Added a race guard so a late successful overview validation cannot re-unlock the admin shell after another admin request has already cleared auth.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Source scan evidence:
+
+- Remaining raw `status === 401/403` checks in `public/admin.html` are limited to initial token validation and the shared auth-failure helper.
+- Protected admin feature fetches route `401/403` through `handleAdminAuthResponse()`.
+
+In-app browser admin auth-failure QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock servers served patched `admin.html` at `http://127.0.0.1:8144` and `http://127.0.0.1:8145`.
+- Verified a valid Auth callback followed by a protected prompts `401`:
+  - cleans URL back to `admin.html`
+  - renders `Authentication expired or missing. Please sign in again.`
+  - leaves `body` in `admin-locked`, not `admin-unlocked`
+- Verified an overview `403` during admin validation:
+  - cleans URL back to `admin.html`
+  - renders `Your account is signed in but does not have a Shop Assistant admin role.`
+  - leaves `body` in `admin-locked`, not `admin-unlocked`
+- Screenshots:
+  - `/private/tmp/shop-assistant-admin-401-lockout-qa.png`
+  - `/private/tmp/shop-assistant-admin-403-lockout-qa.png`
+
+Security and boundary evidence:
+
+- Expired or invalid admin tokens no longer leave the admin shell visible after protected admin calls fail.
+- Signed-in users without Shop Assistant admin roles are blocked from the admin surface consistently across admin tabs.
+- This slice does not change backend JWT validation, admin roles, or customer data ownership rules.
+
+Remaining validation:
+
+- Live real-admin and real-non-admin smoke checks after owner-approved deploy.
+- Live expired-token behavior check if a safe test token can be produced.
+
+## Implementation Slice 2026-06-13: Dashboard Authorization-Failure Lockdown
+
+Scope implemented:
+
+- Dashboard API helper now handles `403` as an authorization boundary.
+- Dashboard `401` and `403` responses clear local auth state and hide the dashboard shell.
+- `401` renders the expired-auth sign-in message.
+- `403` renders `Your account is signed in but is not authorized to use this dashboard.`
+- Action-level dashboard failures now lock the UI instead of leaving stale customer data visible behind an inline error.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+In-app browser dashboard authorization QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock server served patched `dashboard.html` at `http://127.0.0.1:8146`.
+- Seed page created the expected Auth `state` in `sessionStorage`, then redirected through the real dashboard hash callback.
+- Mocked `/api/me` returned `403` while `/api/me/dashboard` and `/api/profiles` returned harmless empty data.
+- Verified final page state:
+  - URL cleaned back to `dashboard.html`
+  - auth gate visible
+  - dashboard shell hidden
+  - logout hidden
+  - user label reset to `Not signed in`
+  - authorization message rendered
+- Screenshot: `/private/tmp/shop-assistant-dashboard-403-lockout-qa.png`.
+
+Security and boundary evidence:
+
+- Signed-in users without access to the Shop Assistant dashboard no longer keep a stale dashboard shell visible after protected API denial.
+- Expired and unauthorized dashboard sessions clear local frontend auth state.
+- This slice does not change backend JWT validation, customer ownership rules, or admin-role behavior.
+
+Remaining validation:
+
+- Live real-customer and unauthorized-account dashboard smoke checks after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Customer/Admin Token Isolation
+
+Scope implemented:
+
+- Landing-page customer search no longer reads `shop_assistant_admin_token` directly.
+- Diagnostic/test account helpers no longer read `shop_assistant_admin_token` directly.
+- Diagnostic/test page sign-in hint now points to the customer dashboard/Auth flow instead of telling users to paste a JWT in Admin.
+- Historical note: at the time of this slice, manual admin JWT paste in `admin.html` wrote only `shop_assistant_admin_token` and no longer wrote the generic customer `shop_assistant_access_token`.
+- Supersession note: the later `Admin Auth-Only Gate` slice removed the manual admin JWT paste UI entirely. Current validation should use the Auth-only deploy/post-deploy smoke path.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Source scan evidence:
+
+- `public/index.html` no longer contains `shop_assistant_admin_token`.
+- `public/test.html` no longer contains `shop_assistant_admin_token`.
+- Historical note: during this slice, `public/admin.html` still contained the admin token key for admin-only manual-token access. The later `Admin Auth-Only Gate` slice changed current behavior so `public/admin.html` keeps only cleanup references for old `shop_assistant_admin_token` values.
+
+In-app browser token-isolation QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock server served patched `index.html` and `test.html` at `http://127.0.0.1:8149`.
+- With only `sessionStorage.shop_assistant_admin_token=admin-only-token`, landing search sent no `Authorization` header to:
+  - `/api/sessions`
+  - `/api/sessions/qa-session/query`
+- With `sessionStorage.shop_assistant_access_token=customer-token`, landing search sent `Authorization: Bearer customer-token` to:
+  - `/api/sessions`
+  - `/api/sessions/qa-session/query`
+  - `/api/profiles`
+  - `/api/saved-criteria`
+- With only an admin token on `test.html`, the account hint rendered `Sign in through the customer dashboard to use profiles and saved searches.`, and profile/saved-search controls stayed hidden.
+- Screenshot: `/private/tmp/shop-assistant-token-isolation-qa.png`.
+
+Security and boundary evidence:
+
+- Customer-facing pages no longer directly consume the admin-only token key.
+- Historical note: manually pasted admin JWTs were scoped to the admin page in this slice; the later `Admin Auth-Only Gate` slice removed manual JWT paste as a supported path.
+- This slice does not change backend JWT validation, Auth role claims, or current-user ownership checks.
+
+Remaining validation:
+
+- Live real-customer customer-flow smoke checks after owner-approved deploy.
+- Manual admin-token smoke is superseded by the `Admin Auth-Only Gate` and deploy/post-deploy smoke checks, which validate Auth-only admin access and absence of manual JWT UI.
+
+## Implementation Slice 2026-06-13: Landing Stale-Token Anonymous Fallback
+
+Scope implemented:
+
+- Landing-page search now detects `401` or `403` responses when a customer access token is present.
+- On stale/forbidden customer auth, the landing page clears customer token storage and retries the same public request anonymously exactly once.
+- The fallback applies to public session creation and query submission from the commercial landing page.
+- Public buyer search remains usable even if a previous customer session left an expired token in the browser.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+In-app browser landing stale-token QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock server served patched `index.html` at `http://127.0.0.1:8150`.
+- Seed page set `sessionStorage.shop_assistant_access_token=stale-customer-token`.
+- Mocked `/api/sessions` returned `401` when `Authorization` was present and `200` without auth.
+- Verified request sequence:
+  - first `/api/sessions` request used `Authorization: Bearer stale-customer-token`
+  - retry `/api/sessions` request had no `Authorization` header
+  - `/api/sessions/qa-session/query` had no `Authorization` header
+  - browser reached `test.html?sessionId=qa-session`
+- Screenshot: `/private/tmp/shop-assistant-landing-stale-token-fallback-qa.png`.
+
+Security and boundary evidence:
+
+- Stale customer tokens are removed from frontend storage before anonymous retry.
+- The retry is limited to public landing search requests; dashboard/admin protected surfaces still lock on authorization failures.
+- This slice does not change backend JWT validation, customer dashboard ownership checks, or admin RBAC.
+
+Remaining validation:
+
+- Live landing stale-token smoke after owner-approved deploy if a safe expired customer token can be produced.
+
+## Implementation Slice 2026-06-13: Admin Agent-Flow Deep-Link Gate
+
+Scope implemented:
+
+- Admin `?sessionId=...#flow` deep links no longer auto-load agent communications before admin authorization.
+- Flow tab loading now requires a stored admin/Auth token.
+- Flow data fetches now send `Authorization: Bearer ...` and route `401/403` through the shared admin auth-failure lockout helper.
+- Successful Auth callbacks with `sessionId` now restore the Flow tab after the token fragment is cleaned, so authorized operators can still use the deep link.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+In-app browser admin flow-gate QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock servers served patched `admin.html` at `http://127.0.0.1:8152` and `http://127.0.0.1:8153`.
+- Unauthenticated `admin.html?sessionId=qa-session#flow`:
+  - stayed `admin-locked`
+  - showed `Sign in with an authorized admin account.`
+  - did not call `/api/admin/overview`
+  - did not call `/api/sessions/qa-session/agent-communications`
+- Authorized Auth-style callback with `sessionId=qa-session`:
+  - cleaned URL back to `admin.html?sessionId=qa-session`
+  - unlocked the admin shell after mocked `/api/admin/overview`
+  - loaded Flow tab content
+  - sent `Authorization: Bearer admin-token` to `/api/sessions/qa-session/agent-communications`
+- Screenshot: `/private/tmp/shop-assistant-admin-flow-gate-qa.png`.
+
+Security and boundary evidence:
+
+- Admin diagnostic flow links no longer bypass the admin UI gate.
+- Admin flow fetches are now consistent with the rest of the admin panel: visible only after Auth validation and sent with a bearer token.
+- This slice does not change backend endpoint authorization; it hardens frontend admin access behavior.
+
+Remaining validation:
+
+- Live admin deep-link smoke after owner-approved deploy with a real admin account.
+- Backend authorization review for `/api/sessions/:id/agent-communications` if this diagnostic route should become admin-only at API level too.
+
+## Implementation Slice 2026-06-13: Backend Agent-Communications Admin Guard
+
+Scope implemented:
+
+- `GET /api/sessions/:id/agent-communications` now uses `JwtAuthGuard`.
+- The route now uses `RolesGuard` with `global:superadmin` and `app:shop-assistant:admin`.
+- `SessionsModule` now imports `AuthModule` so route-level auth guards resolve correctly.
+- Public customer search/result/message routes remain unchanged; only the diagnostic agent-communications endpoint was moved behind admin RBAC.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Focused Nest route-guard smoke:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && node /tmp/sa-g7-agent-communications-guard-smoke.js'
+```
+
+Result:
+
+```json
+{
+  "missingStatus": 401,
+  "nonAdminStatus": 403,
+  "adminStatus": 200,
+  "serviceCalls": ["session-guard-1"]
+}
+```
+
+Security and boundary evidence:
+
+- Missing bearer token no longer reaches agent communications service logic.
+- Authenticated users without admin roles no longer reach agent communications service logic.
+- Admin role tokens can still access the endpoint used by the Admin Flow tab.
+- This closes the backend gap identified after frontend deep-link gating; frontend and API now enforce the same admin-only expectation.
+
+Remaining validation:
+
+- Live admin/non-admin smoke after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Legacy Debug Page Admin Handoff
+
+Scope implemented:
+
+- Replaced the legacy public `debug.html` split-pane session debugger with a compact Admin Flow handoff page.
+- `debug.html?sessionId=...` now pre-fills the session id and routes operators to `admin.html?sessionId=...#flow`.
+- The legacy page no longer fetches `/api/sessions/:id/messages`.
+- The legacy page no longer fetches `/api/sessions/:id/agent-communications`.
+- Updated Admin Flow copy to state that the view requires an authorized admin account.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+In-app browser debug handoff QA:
+
+- Browser plugin was available and used through the in-app browser workflow.
+- Temporary mock server served patched `debug.html` and `admin.html` at `http://127.0.0.1:8154`.
+- Verified `debug.html?sessionId=qa-session`:
+  - rendered `Admin debug moved`
+  - prefilled the session id
+  - made no `/api` requests
+- Verified Admin Flow target `admin.html?sessionId=qa-session#flow`:
+  - remained `admin-locked` without auth
+  - rendered `Sign in with an authorized admin account.`
+  - contained copy stating the view requires an authorized admin account
+
+Security and boundary evidence:
+
+- The old public debug page no longer exposes client or agent communication reads by session id.
+- Agent communication inspection now funnels through the role-protected Admin Flow UI and the admin-protected backend route.
+- This slice preserves deep-link usability while removing the public diagnostic data surface.
+
+Remaining validation:
+
+- Live debug-to-admin handoff smoke after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Login/Register Centralized Auth Handoff
+
+Scope implemented:
+
+- Replaced the local `public/login.html` password form with a centralized Alfares Auth handoff page.
+- Replaced the local `public/register.html` account/password form with a centralized Alfares Auth handoff page.
+- Both pages generate Auth URLs with `client_id=shop-assistant`, `return_url` pointing to `dashboard.html`, and a per-request state value stored in session storage.
+- Removed local credential submission to `/api/auth/login` and `/api/auth/register`.
+- Removed legacy `localStorage` writes for `accessToken`, `refreshToken`, and `user` from the login/register surfaces.
+- The customer dashboard remains the page that validates Auth callback state, stores the session-scoped customer token, and loads account-scoped data.
+
+Validation evidence:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static auth-surface scan:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && rg -n "<form|type=\"password\"|localStorage\.setItem|/api/auth|auth/register|auth/login|accessToken|refreshToken|return_url|client_id|STATE_KEY|AUTH_BASE" public/login.html public/register.html'
+```
+
+Result:
+
+- No local forms remain.
+- No password inputs remain.
+- No localStorage token writes remain.
+- No `/api/auth/login` or `/api/auth/register` calls remain.
+- Expected Auth handoff constants and URL parameters remain.
+
+Security and boundary evidence:
+
+- Shop Assistant static login/register pages no longer collect credentials.
+- Credential handling, account creation, and verification stay owned by the authentication microservice.
+- The handoff uses the same customer `STATE_KEY` and dashboard return target as the main customer dashboard Auth flow.
+
+Remaining validation:
+
+- Live Auth login/register callback smoke after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Advanced Test Interface Boundary Cleanup
+
+Scope implemented:
+
+- Updated `public/test.html` header copy so the page is framed as an advanced customer search/conversation interface, not a public agent-debug surface.
+- Updated the session handoff link to read `Open Admin Flow (admin only)`.
+- Added shared customer auth cleanup for account features in `public/test.html`.
+- Customer profile and saved-search operations now clear stale customer auth and hide account controls on `401` or `403`.
+- Anonymous advanced search/session behavior remains unchanged.
+- Admin-only agent diagnostics remain routed to `admin.html?sessionId=...#flow`.
+
+Validation evidence:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static source scan:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && rg -n "Test agent communication|debug agent interactions|Open Admin Flow|handleAccountAuthResponse|clearCustomerAuth|Account sign-in required|customer dashboard" public/test.html'
+```
+
+Result:
+
+- Old public-debug wording was not present.
+- `Open Admin Flow (admin only)` was present.
+- `clearCustomerAuth` and `handleAccountAuthResponse` were present and wired into profile/saved-search account operations.
+
+Browser QA:
+
+- Used the Browser plugin with a temporary local mock server at `127.0.0.1:8162`.
+- Mock server seeded a stale customer token and returned `403` for `GET /api/profiles`.
+- Verified DOM state after page load:
+  - account section visible as the signed-out hint
+  - profile controls hidden
+  - saved-search controls hidden
+  - header copy states agent diagnostics are available only in Admin Flow
+  - Admin Flow link text is `Open Admin Flow (admin only) →`
+
+Security and boundary evidence:
+
+- A stale or forbidden customer token no longer leaves protected customer account controls visible on the advanced test page.
+- The page no longer invites users to debug agent interactions outside the admin boundary.
+- This keeps the public/customer diagnostic path separate from admin-only agent communication inspection.
+
+Remaining validation:
+
+- Live deployed advanced test page smoke after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Legacy Admin Token Guide Auth Access Cleanup
+
+Scope implemented:
+
+- Replaced the public legacy `public/getting-admin-token.html` instructions for obtaining and pasting raw admin JWTs.
+- The compatibility route now documents the supported Auth-hosted admin sign-in flow.
+- The page documents required roles: `global:superadmin` and `app:shop-assistant:admin`.
+- Troubleshooting now points operators to Auth role assignment and fresh Auth sign-in instead of copying tokens from DevTools, API responses, helper scripts, or refresh flows.
+- Added explicit guidance not to copy access tokens from browser developer tools, logs, or API responses into documents or chats.
+
+Validation evidence:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static source scan:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && rg -n "accessToken|refreshToken|Copy Token|Show Token|Developer Tools|POST /auth/login|curl -X POST|paste|raw tokens|Sign in with Auth|Required Roles|Do not copy access tokens" public/getting-admin-token.html'
+```
+
+Result:
+
+- No old `accessToken` or `refreshToken` examples remain.
+- No instructions remain for Copy Token, Show Token, DevTools extraction, login curl extraction, or pasting tokens into the panel.
+- Expected Auth sign-in, required-role, and token-handling warning copy remains.
+
+Security and boundary evidence:
+
+- Public documentation no longer trains admins to handle raw credentials or token payloads for normal access.
+- The page now matches the current admin frontend: Auth owns sign-in, Shop Assistant validates roles server-side, and the frontend should not expose token handling as the primary workflow.
+
+Remaining validation:
+
+- Live route smoke for `/getting-admin-token.html` after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: Admin Auth-Only Gate
+
+Scope implemented:
+
+- Removed the manual admin JWT paste fallback from `public/admin.html`.
+- Removed the `tokenInput`, `saveTokenBtn`, `clearTokenBtn`, and `setToken` UI/code paths.
+- Admin access now uses the Auth-hosted sign-in callback and the session-scoped `shop_assistant_access_token`.
+- `shop_assistant_admin_token` is no longer used as an active token source; old values are cleared on page load and logout.
+- Updated locked-state and action-level copy so operators are directed to Auth sign-in rather than saving or pasting JWTs.
+- Preserved token URL rejection for `admin.html?token=...`.
+
+Validation evidence:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+Static source scan:
+
+```bash
+ssh alfares 'cd /home/ssf/Documents/Github/shop-assistant && rg -n "manual-token|tokenInput|saveTokenBtn|clearTokenBtn|setToken|shop_assistant_admin_token|Paste JWT|paste a valid admin JWT|paste the admin JWT|Save a valid admin JWT|Save a valid JWT|Token saved|Token found|JWT token|Use token|valid admin token|Sign in with Auth|Sign in through Auth|Token URLs are not accepted" public/admin.html'
+```
+
+Result:
+
+- Manual token UI/code identifiers were absent.
+- Paste/save JWT copy was absent.
+- Expected Auth sign-in copy remained.
+- Expected token URL rejection copy remained.
+- `shop_assistant_admin_token` remained only as cleanup calls.
+
+Browser QA:
+
+- Used the Browser plugin with a temporary local mock server at `127.0.0.1:8163`.
+- Locked state at `/admin.html`:
+  - body remained `admin-locked`
+  - `Sign in with Auth` rendered
+  - manual JWT text was absent
+  - `tokenInput` was absent
+- Token URL rejection at `/admin.html?token=secret-token`:
+  - URL was cleaned back to `/admin.html`
+  - status rendered `Token URLs are not accepted. Sign in through Auth.`
+  - `tokenInput` was absent
+- Auth callback success via seeded state and `#access_token=qa-admin-token`:
+  - URL fragment was cleaned
+  - body became `admin-unlocked`
+  - `tokenStatus` rendered `Authorized admin session active.`
+  - `tokenInput` remained absent
+
+Security and boundary evidence:
+
+- Operators no longer need to handle raw admin JWTs for normal or fallback admin access.
+- Admin access still depends on server-side `/api/admin/overview` validation, JWT validation, and admin role checks.
+- Bearer tokens are still rejected from URL query strings.
+
+Remaining validation:
+
+- Live real admin/non-admin Auth callback smoke after owner-approved deploy.
+
+## Implementation Slice 2026-06-13: SA-G7 Live Smoke Script
+
+Scope implemented:
+
+- Added `scripts/sa-g7-live-smoke.sh`.
+- The script targets `BASE_URL`, defaulting to `https://shop-assistant.alfares.cz`.
+- Public checks run without secrets:
+  - route availability for landing, health, dashboard, admin, login, register, test, debug, admin access guide, and legal pages
+  - expected Auth-only copy on admin/login/register/debug/test pages
+  - forbidden legacy token-copy/password-form/debug copy checks
+  - unauthenticated `401` checks for `/api/me`, `/api/me/dashboard`, `/api/admin/overview`, `/api/admin/settings`, and `/api/sessions/:id/agent-communications`
+- Optional token checks run only when the operator supplies environment variables:
+  - `CUSTOMER_TOKEN` for `/api/me`, dashboard, profiles, and saved criteria
+  - `ADMIN_TOKEN` for admin overview/settings and optional Agent Flow API
+  - `NON_ADMIN_TOKEN` for admin `403` checks
+  - `AGENT_FLOW_SESSION_ID` for Agent Flow route checks
+- The script does not print token values.
+- Search and lead submission are intentionally not part of the default script path to avoid creating live customer/lead data during routine readiness checks.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass.
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed current production state:
+
+- Public route availability mostly passed:
+  - `/`, `/health`, `/dashboard.html`, `/admin.html`, `/login.html`, `/register.html`, `/test.html`, `/debug.html`, `/getting-admin-token.html`, `/privacy.html`, `/cookies.html`, and `/terms.html` returned `200`.
+- Unauthenticated protections passed for:
+  - `GET /api/me` -> `401`
+  - `GET /api/me/dashboard` -> `401`
+  - `GET /api/admin/overview` -> `401`
+  - `GET /api/admin/settings` -> `401`
+- Expected failures before deploy:
+  - production static pages still serve pre-SA-G7 content for admin/login/register/debug/test/admin-access-guide copy checks
+  - `GET /api/sessions/smoke/agent-communications` returned `404`, showing the protected route change is not live yet
+- Optional customer/admin/non-admin token checks were skipped because no tokens were supplied.
+
+Security and boundary evidence:
+
+- The script gives a repeatable post-deploy proof path for the frontend/auth objective without recording or printing secrets.
+- The failed production content checks are a deployment-readiness signal, not an implementation failure in the remote worktree; owner-approved deployment remains required before the live checks can pass.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Rerun `scripts/sa-g7-live-smoke.sh` after deploy.
+- Rerun with safe `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` values to prove customer dashboard access, admin access, and non-admin rejection.
+
+## Implementation Slice 2026-06-13: Post-Deploy SA-G7 Smoke Integration
+
+Scope implemented:
+
+- Updated `scripts/post-deploy-check.sh` to run `scripts/sa-g7-live-smoke.sh` as the final frontend/auth readiness gate.
+- Preserved the existing Docker/log/health check output as best-effort diagnostics.
+- Documented optional environment variables in the post-deploy script header:
+  - `CUSTOMER_TOKEN`
+  - `ADMIN_TOKEN`
+  - `NON_ADMIN_TOKEN`
+  - `AGENT_FLOW_SESSION_ID`
+- The post-deploy script now exits nonzero when the SA-G7 smoke script finds failures, making stale frontend assets or broken auth boundaries visible immediately after rollout.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build'
+```
+
+Result: pass.
+
+Deployment note:
+
+- The full post-deploy script was not rerun against production in this slice because the previous no-secret SA-G7 smoke already proved production is still serving pre-SA-G7 frontend assets before owner-approved deployment.
+- After owner-approved deploy, `./scripts/post-deploy-check.sh` is now the single operator command for health plus SA-G7 frontend/auth readiness.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Run `./scripts/post-deploy-check.sh` after deploy.
+- Rerun with safe customer/admin/non-admin Auth tokens for complete live role validation.
+
+## Implementation Slice 2026-06-13: Deploy Script Post-Deploy Gate
+
+Scope implemented:
+
+- Updated `scripts/deploy.sh` to run `scripts/post-deploy-check.sh` after rollout completion and pod status output.
+- The new phase is tracked by the existing deploy timing wrapper as `Post-deploy checks`.
+- Because `post-deploy-check.sh` now runs `scripts/sa-g7-live-smoke.sh`, a deploy cannot finish with `deploy_timing_finish_success` unless the frontend/auth smoke passes.
+- Existing deployment preflight, manifest apply, rollout restart, rollout wait, and pod status phases remain unchanged.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build'
+```
+
+Result: pass.
+
+Deployment note:
+
+- `scripts/deploy.sh` was not executed in this slice. Production deployment still requires explicit owner approval.
+- The deploy script now enforces the same post-deploy SA-G7 checks that were previously available as a separate operator command.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Observe deploy phase `Post-deploy checks`.
+- Rerun with safe customer/admin/non-admin Auth tokens for complete live role validation.
+
+## Implementation Slice 2026-06-13: Local Auth Proxy Surface Disabled
+
+Scope implemented:
+
+- Updated `src/auth/auth.module.ts` so it no longer registers a Shop Assistant login/register controller.
+- Neutralized `src/auth/auth.controller.ts`; it now documents that credential collection, account creation, token refresh, and role assignment are owned by the authentication service.
+- `AuthService`, `JwtAuthGuard`, and `RolesGuard` remain exported for protected customer/admin API validation.
+- Updated `scripts/sa-g7-live-smoke.sh` to require:
+  - `POST /api/auth/login` -> `404`
+  - `POST /api/auth/register` -> `404`
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && rg -n "AuthController|Proxies register|Proxying register|LOGIN_PROXY|/api/auth/login|/api/auth/register|auth/login|auth/register|passwordLength|controllers:" src/auth scripts/sa-g7-live-smoke.sh docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md | head -n 220'
+```
+
+Result:
+
+- `src/auth/auth.module.ts` has `controllers: []`.
+- Old proxy implementation strings were absent from `src/auth`.
+- Only expected references to `/api/auth/login` and `/api/auth/register` are smoke expectations and historical validation notes.
+
+Security and boundary evidence:
+
+- Shop Assistant no longer exposes same-origin login/register proxy endpoints.
+- The browser-facing credential flow is Auth-hosted only.
+- JWT validation and role checks for protected APIs remain owned by the authentication microservice through `AuthService`.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy smoke proving `/api/auth/login` and `/api/auth/register` return `404` in production.
+
+## Implementation Slice 2026-06-13: Deploy Gate Failure Timing
+
+Scope implemented:
+
+- Refactored `scripts/deploy.sh` so the `Post-deploy checks` phase uses the shared `deploy_timing_run_phase` helper.
+- A failed `scripts/post-deploy-check.sh` now still closes the timed phase before the deploy script exits nonzero.
+- The deployment timing summary will therefore include the post-deploy smoke duration even when the frontend/auth gate fails.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build'
+```
+
+Result: pass.
+
+Deployment note:
+
+- `scripts/deploy.sh` was not executed in this slice. Production deployment still requires explicit owner approval.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Observe both successful and failing `Post-deploy checks` timing behavior during real rollout or a safe staging rehearsal.
+
+## Implementation Slice 2026-06-13: Live Smoke Cache-Busted HTML Checks
+
+Scope implemented:
+
+- Updated `scripts/sa-g7-live-smoke.sh` so HTML body checks use:
+  - `Cache-Control: no-cache`
+  - `Pragma: no-cache`
+  - per-run `sa_g7_smoke=<timestamp>` cache-busting query parameter
+- The cache-bust key is printed in the smoke output.
+- API status checks remain unchanged and do not print token values.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && npm run build'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed:
+
+- Smoke output included `HTML cache-bust key: <timestamp>`.
+- Public route availability checks returned `200`.
+- Expected predeploy failures remained for old static frontend content.
+- Expected predeploy failures remained for:
+  - `GET /api/sessions/smoke/agent-communications`, which returned `404` until the guarded route is deployed
+  - `POST /api/auth/login`, which returned `400` until the disabled local auth proxy is deployed
+  - `POST /api/auth/register`, which returned `400` until the disabled local auth proxy is deployed
+
+Security and boundary evidence:
+
+- The deploy smoke is less likely to falsely fail because of cached HTML after rollout.
+- The script still fails if production serves old password/token/admin-debug surfaces after deploy.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy smoke proving cache-busted HTML checks pass against the newly deployed frontend.
+
+## Implementation Slice 2026-06-13: Post-Deploy Kubernetes Diagnostics
+
+Scope implemented:
+
+- Updated `scripts/post-deploy-check.sh` to print Kubernetes runtime diagnostics for the Shop Assistant workload before health checks and frontend/auth smoke.
+- Added configurable defaults:
+  - `SERVICE_NAME=shop-assistant`
+  - `NAMESPACE=statex-apps`
+- Diagnostics now include:
+  - matching pods with `kubectl get pods -l app=$SERVICE_NAME -o wide`
+  - deployment state with `kubectl get deployment $SERVICE_NAME -o wide`
+  - recent deployment logs with `kubectl logs deployment/$SERVICE_NAME --tail=80 --all-containers=true`
+- Kubernetes diagnostics are best-effort and do not mask the final SA-G7 frontend/auth smoke gate.
+- Existing Docker diagnostics remain in place for legacy/runtime context.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/post-deploy-check.sh && bash -n scripts/deploy.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build'
+```
+
+Result: pass.
+
+Deployment note:
+
+- `scripts/deploy.sh` was not executed in this slice. Production deployment still requires explicit owner approval.
+- The new diagnostics are intended to surface pod creation, image pull, rollout, and runtime log context in the same post-deploy output that runs the cache-busted SA-G7 smoke.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Observe Kubernetes diagnostics during the `Post-deploy checks` phase.
+- Post-deploy smoke proving cache-busted frontend/auth checks pass against the newly deployed frontend.
+
+## Implementation Slice 2026-06-13: Admin Settings Audit Metadata
+
+Scope implemented:
+
+- Extended protected `GET /api/admin/settings` and `PUT /api/admin/settings` responses with `meta` for safe editable settings:
+  - `agentExecutionMode`
+  - `maxSearchResults`
+  - `publicLanding`
+- Metadata includes:
+  - setting key
+  - editable flag
+  - persisted/default source
+  - description
+  - runtime area the setting applies to
+  - `updatedBy`
+  - `updatedAt`
+- Updated `public/admin.html` Safe service settings tab with a Settings audit table that renders metadata after settings load and after settings save.
+- Public landing settings endpoint remains unchanged and does not expose audit metadata.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && npm run build'
+```
+
+Result: pass.
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && rg -n "Settings audit|settingsMetaBody|renderSettingsMeta|meta: SafeAppSettingsMeta|getSettingsMeta|updatedBy|updatedAt" public/admin.html src/admin/app-settings.service.ts'
+```
+
+Result: pass. Source verification confirmed:
+
+- backend settings response includes safe setting metadata;
+- admin page contains Settings audit markup;
+- admin page renders metadata after load and save.
+
+Security and boundary evidence:
+
+- No secret, provider key, JWT secret, environment value, or deployment setting was added to the editable settings list.
+- Metadata is returned only through the admin-protected settings endpoint.
+- The public settings endpoint still returns only public landing copy.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Live admin-token smoke proving the Settings audit table renders persisted/default state from production.
+- Live save/readback smoke proving `updatedBy` and `updatedAt` update after an authorized settings change.
+
+## Implementation Slice 2026-06-13: Live Smoke Admin Settings Metadata Gate
+
+Scope implemented:
+
+- Updated `scripts/sa-g7-live-smoke.sh` so optional `ADMIN_TOKEN` checks now validate the JSON shape of `GET /api/admin/settings`.
+- The admin-token smoke now requires `meta` entries for:
+  - `agentExecutionMode`
+  - `maxSearchResults`
+  - `publicLanding`
+- Each metadata entry must include:
+  - matching key
+  - `editable=true`
+  - source of `persisted` or `default`
+  - non-empty description
+  - non-empty applies-to text
+  - nullable/string `updatedBy`
+  - nullable/string `updatedAt`
+- Added `SMOKE_CURL_MAX_TIME`, defaulting to `12`, and applied it to all smoke `curl` requests so live checks cannot hang indefinitely.
+- Token values remain unprinted.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/deploy.sh && npm run build && rg -n "SMOKE_CURL_MAX_TIME|expect_admin_settings_metadata|safe settings metadata|Per-request timeout" scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed:
+
+- Public route availability checks returned `200`.
+- Optional `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` checks were skipped without printing tokens.
+- The new admin settings metadata check was not run without `ADMIN_TOKEN`, as intended.
+- Expected predeploy failures remained for old static frontend/auth content and not-yet-deployed API changes.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy no-secret smoke.
+- Live `ADMIN_TOKEN` smoke proving protected settings metadata in production.
+- Live admin settings save/readback smoke proving `updatedBy` and `updatedAt` update after an authorized settings change.
+
+## Implementation Slice 2026-06-13: Live Smoke Customer Dashboard Contract Gate
+
+Scope implemented:
+
+- Updated `scripts/sa-g7-live-smoke.sh` so optional `CUSTOMER_TOKEN` checks validate customer dashboard/account API response contracts, not just HTTP `200` status.
+- Added customer-token status checks for:
+  - `GET /api/me/sessions?page=1&limit=5`
+  - `GET /api/me/choices?page=1&limit=5`
+- Added customer response-shape validation for:
+  - `GET /api/me`: requires `user.id`
+  - `GET /api/me/dashboard`: requires numeric summary fields and array-backed `recentSessions` / `recentChoices`
+  - `GET /api/me/sessions?page=1&limit=5`: requires `items[]` plus pagination
+  - `GET /api/me/choices?page=1&limit=5`: requires `items[]` plus pagination
+  - `GET /api/profiles`: requires `items[]`
+  - `GET /api/saved-criteria?page=1&limit=5`: requires `items[]` plus pagination
+- Token values remain unprinted.
+- The checks are skipped unless `CUSTOMER_TOKEN` is provided.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/deploy.sh && npm run build && rg -n "expect_customer_dashboard_contract|Customer dashboard/account APIs|/api/me/choices|DASHBOARD_BODY|assertPagination" scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed:
+
+- Public route availability checks returned `200`.
+- `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` optional checks were skipped without printing tokens.
+- Expected predeploy failures remained for old static frontend/auth content and not-yet-deployed API changes.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy no-secret smoke.
+- Live `CUSTOMER_TOKEN` smoke proving customer dashboard/account API contracts in production.
+- Live dashboard browser smoke with a real customer Auth callback.
+
+## Implementation Slice 2026-06-13: Live Smoke Admin RBAC Breadth Gate
+
+Scope implemented:
+
+- Expanded `scripts/sa-g7-live-smoke.sh` optional `ADMIN_TOKEN` checks beyond overview/settings.
+- Admin-token smoke now checks `200` access for:
+  - `GET /api/admin/prompts`
+  - `GET /api/admin/ai-models?limit=5`
+  - `GET /api/admin/operations/sessions?page=1&limit=5`
+  - `GET /api/admin/operations/leads?page=1&limit=5`
+  - `GET /api/admin/operations/profiles?page=1&limit=5`
+  - `GET /api/admin/operations/saved-criteria?page=1&limit=5`
+- Admin-token smoke validates response contracts for:
+  - AI models: object-backed `models`, object-backed `providers`, and `modelList[]`
+  - operations list endpoints: `items[]` and pagination with integer `page`, `limit`, and `total`
+- Expanded optional `NON_ADMIN_TOKEN` checks to require `403` for the same protected admin surfaces.
+- Token values remain unprinted.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/deploy.sh && npm run build && rg -n "expect_admin_list_contract|expect_admin_models_contract|/api/admin/operations/sessions|/api/admin/operations/saved-criteria|/api/admin/prompts non-admin|/api/admin/ai-models admin" scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed:
+
+- Public route availability checks returned `200`.
+- `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` optional checks were skipped without printing tokens.
+- Expected predeploy failures remained for old static frontend/auth content and not-yet-deployed API changes.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy no-secret smoke.
+- Live `ADMIN_TOKEN` smoke proving admin operations/prompts/models contracts in production.
+- Live `NON_ADMIN_TOKEN` smoke proving role-denied admin panel surfaces return `403`.
+
+## Implementation Slice 2026-06-13: Live Smoke Public Landing Settings Contract
+
+Scope implemented:
+
+- Updated `scripts/sa-g7-live-smoke.sh` with a no-token contract check for `GET /api/public/settings/landing`.
+- The smoke now requires the public endpoint to return `publicLanding` with non-empty string fields:
+  - `headline`
+  - `subheadline`
+  - `primaryCtaLabel`
+  - `secondaryCtaLabel`
+  - `contactHeadline`
+  - `contactSubheadline`
+  - `leadSubmitLabel`
+  - `footerTagline`
+- This verifies the runtime path used by the landing page to apply admin-editable commercial copy.
+- No admin metadata or secret values are expected from the public endpoint.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/deploy.sh && npm run build && rg -n "expect_public_landing_settings_contract|/api/public/settings/landing|publicLanding|footerTagline" scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed:
+
+- `GET /api/public/settings/landing` returned `200`.
+- Public landing settings contract passed in production.
+- Optional `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` checks were skipped without printing tokens.
+- Expected predeploy failures remained for old static frontend/auth content and not-yet-deployed API changes.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy no-secret smoke proving the newly deployed landing HTML consumes this endpoint.
+- Live admin save/readback smoke proving public landing copy changes are reflected by this endpoint and landing page runtime copy.
+
+## Implementation Slice 2026-06-13: Deploy Rollout Failure Diagnostics
+
+Scope implemented:
+
+- Updated `scripts/deploy.sh` with an `ERR` trap that prints rollout diagnostics before the script exits nonzero.
+- Diagnostics include:
+  - deployment summary and full deployment describe
+  - matching ReplicaSets
+  - matching pods
+  - pod descriptions
+  - pod logs with all containers, tail 80
+  - recent namespace events
+- The diagnostic path is best-effort and does not perform rollback or deployment mutation by itself.
+- This specifically improves evidence capture for the existing pod `ContainerCreating` / image pull-create blocker.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build && rg -n "print_rollout_diagnostics|on_deploy_error|trap|recent namespace events|describe pod" scripts/deploy.sh'
+```
+
+Result: pass.
+
+Deployment note:
+
+- `scripts/deploy.sh` was not executed in this slice.
+- Production deployment still requires explicit owner approval.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- If rollout fails, verify diagnostic output captures the failing pod state, events, and image pull/create context before exit.
+- If rollout succeeds, run post-deploy no-secret and token-backed SA-G7 smokes.
+
+## Implementation Slice 2026-06-13: Live Smoke Auth Handoff Static Invariants
+
+Scope implemented:
+
+- Expanded `scripts/sa-g7-live-smoke.sh` public static checks for Auth handoff invariants.
+- Login and register page checks now require:
+  - Auth host `https://auth.alfares.cz`
+  - `client_id=shop-assistant` source presence
+  - `return_url` source presence
+  - state saved to `sessionStorage`
+  - no password input
+  - no persistent `localStorage.setItem('accessToken'...)` write
+- Dashboard page checks now require:
+  - Auth host `https://auth.alfares.cz`
+  - `client_id=shop-assistant` source presence
+  - callback state mismatch handling
+  - session-scoped token storage
+  - no persistent access-token write
+- Admin page checks now require:
+  - Auth host `https://auth.alfares.cz`
+  - `client_id=shop-assistant` source presence
+  - admin-specific state key
+  - callback state mismatch handling
+  - session-scoped token storage
+  - no persistent access-token write
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/sa-g7-live-smoke.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/deploy.sh && npm run build && rg -n "login page Auth base|register page Auth base|dashboard page state validation|admin page admin state key|persistent token write|session token storage" scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass.
+
+No-secret production run:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Observed:
+
+- Public route availability checks returned `200`.
+- Public landing settings endpoint still returned `200` and passed contract.
+- Optional `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` checks were skipped without printing tokens.
+- Expected predeploy failures increased because current production still serves older login/register/admin/dashboard/static auth surfaces that do not satisfy the new Auth handoff invariants.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Post-deploy no-secret smoke proving newly deployed login/register/dashboard/admin pages satisfy Auth handoff invariants.
+- Token-backed customer/admin/non-admin smokes after Auth callback.
+
+## Implementation Slice 2026-06-13: Deploy Registry Preflight Diagnostics
+
+Scope implemented:
+
+- Inspected current Kubernetes rollout state without changing it:
+  - deployment is `1/1` ready;
+  - current image is `localhost:5000/shop-assistant:latest`;
+  - one ready pod is running;
+  - historical zero-replica ReplicaSets remain from prior rollouts.
+- Confirmed node conditions are healthy:
+  - no memory pressure;
+  - no disk pressure;
+  - no PID pressure;
+  - node is Ready.
+- Confirmed local registry reachability and `shop-assistant:latest` tag availability.
+- Updated `scripts/deploy.sh` preflight to verify before rollout:
+  - registry `/v2/` responds;
+  - `shop-assistant:latest` exists at `localhost:5000`;
+  - current running image digest is printed for traceability.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build && rg -n "REGISTRY_URL|IMAGE_REPOSITORY|IMAGE_TAG|checking local registry|tags/list|Current running image digest" scripts/deploy.sh'
+```
+
+Result: pass.
+
+Read-only live diagnostics:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && curl -fsS --max-time 8 http://localhost:5000/v2/ >/dev/null && curl -fsS --max-time 8 http://localhost:5000/v2/shop-assistant/tags/list && kubectl get pod -n statex-apps -l app=shop-assistant -o jsonpath="{range .items[*]}{.metadata.name}{\" \"}{range .status.containerStatuses[*]}{.imageID}{\"\n\"}{end}{end}"'
+```
+
+Observed:
+
+- Registry `/v2/` probe passed.
+- Tags endpoint returned `{"name":"shop-assistant","tags":["latest"]}`.
+- Current ready pod image digest: `localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8`.
+
+Deployment note:
+
+- `scripts/deploy.sh` was not executed in this slice.
+
+Remaining validation:
+
+- Owner-approved deploy.
+- Verify deploy preflight prints registry/tag/digest evidence before rollout.
+- If rollout fails again, combine the registry preflight output with the existing rollout failure diagnostics.
+
+## Implementation Slice 2026-06-13: Explicit Image Packaging Step
+
+Scope implemented:
+
+- Added `scripts/build-and-push-image.sh` as an explicit operator step before deployment.
+- The script:
+  - prints target image `localhost:5000/shop-assistant:latest` by default;
+  - prints Git HEAD;
+  - shows dirty worktree files if present;
+  - runs `npm run build`;
+  - builds the Docker image from the current filesystem state;
+  - labels the image with source/revision/created metadata;
+  - pushes to the local registry;
+  - verifies the pushed repository tag list.
+- Updated `scripts/deploy.sh` with a `Source/image state` phase that:
+  - prints Git HEAD;
+  - prints dirty worktree status;
+  - reminds operators to run `scripts/build-and-push-image.sh` before deployment when local changes should be rolled out.
+- Deployment still does not auto-build or auto-push images.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/build-and-push-image.sh && bash -n scripts/build-and-push-image.sh && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build && rg -n "build-and-push-image|Source/image state|preflight_source_state|Docker build|Docker push|Working tree has uncommitted changes|localhost:5000" scripts/deploy.sh scripts/build-and-push-image.sh'
+```
+
+Result: pass.
+
+Execution note:
+
+- `scripts/build-and-push-image.sh` was not executed in this slice because it builds and pushes an image.
+- `scripts/deploy.sh` was not executed in this slice.
+
+Remaining validation:
+
+- Owner-approved image build/push.
+- Owner-approved deployment.
+- Confirm pushed image digest changes before rollout when frontend changes are intended to deploy.
+
+## Implementation Slice 2026-06-13: Image Source Fingerprint And Docker Context
+
+Scope implemented:
+
+- Added `.dockerignore` to keep local-only/heavy/sensitive files out of Docker build context:
+  - `node_modules`
+  - `dist`
+  - `.git`
+  - `.env*`
+  - logs, coverage, reports, and OS metadata
+- Updated `scripts/build-and-push-image.sh` to compute a source fingerprint over:
+  - `public`
+  - `src`
+  - `prisma`
+  - `scripts`
+  - package files
+  - Dockerfile
+  - Nest/TypeScript config
+- The source fingerprint is printed before build and applied as Docker label:
+  - `cz.alfares.shop-assistant.source-fingerprint=<hash>`
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/build-and-push-image.sh && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && fingerprint=$({ find public src prisma scripts -type f -not -path "*/node_modules/*" -print 2>/dev/null; find . -maxdepth 1 -type f \( -name "package*.json" -o -name "Dockerfile" -o -name "nest-cli.json" -o -name "tsconfig*.json" \) -print 2>/dev/null; } | sort | xargs sha256sum | sha256sum | cut -d " " -f 1) && test -n "$fingerprint" && echo "source fingerprint: $fingerprint" && npm run build && rg -n "Source fingerprint|source-fingerprint|sha256sum|node_modules|dist|\\.env" scripts/build-and-push-image.sh .dockerignore'
+```
+
+Result: pass.
+
+Observed source fingerprint during validation:
+
+- `3449948fc0fb64f187f3e980fc4ea519dc8ec904025f460aaf2b24b04b582335`
+
+Execution note:
+
+- Docker image build/push was not executed in this slice.
+- Deployment was not executed in this slice.
+
+Remaining validation:
+
+- Owner-approved `scripts/build-and-push-image.sh`.
+- Verify pushed image label contains the expected source fingerprint.
+- Owner-approved deployment and post-deploy smoke.
+
+## Implementation Slice 2026-06-13: Image Fingerprint Label Verification
+
+Scope implemented:
+
+- Updated `scripts/build-and-push-image.sh` to inspect the built local image after `docker build`.
+- The build script now fails before push if the image label:
+  - `cz.alfares.shop-assistant.source-fingerprint`
+  does not match the computed source fingerprint.
+- Updated `scripts/deploy.sh` to read the local image label before rollout.
+- Deploy preflight now prints the registry image source fingerprint label when available.
+- Deploy can optionally enforce a known source fingerprint:
+  - `EXPECTED_SOURCE_FINGERPRINT=<hash> ./scripts/deploy.sh`
+- If `EXPECTED_SOURCE_FINGERPRINT` is set and the local image label is missing or different, deploy exits before applying manifests/restarting rollout.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && bash -n scripts/build-and-push-image.sh && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build && rg -n "Image label check|IMAGE_FINGERPRINT|EXPECTED_SOURCE_FINGERPRINT|Registry image source fingerprint label|source-fingerprint|docker image inspect" scripts/build-and-push-image.sh scripts/deploy.sh'
+```
+
+Result: pass.
+
+Read-only observation:
+
+- Current pre-existing local image had no labels when inspected before this change.
+- The new build script will add and verify labels for the next owner-approved image build.
+
+Execution note:
+
+- Docker image build/push was not executed in this slice.
+- Deployment was not executed in this slice.
+
+Remaining validation:
+
+- Owner-approved `scripts/build-and-push-image.sh`.
+- Verify the newly built image label equals the printed source fingerprint.
+- Owner-approved deploy with `EXPECTED_SOURCE_FINGERPRINT=<printed hash>` when rolling out the staged frontend changes.
+
+## Implementation Slice 2026-06-13: SA-G7 Rollout Runbook
+
+Scope implemented:
+
+- Added `docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md`.
+- The runbook documents:
+  - source/build preflight;
+  - owner-approved image build and push;
+  - source fingerprint recording;
+  - deploy with `EXPECTED_SOURCE_FINGERPRINT`;
+  - post-deploy no-secret smoke;
+  - customer/admin/non-admin token-backed smoke;
+  - browser verification for landing, customer dashboard, and admin panel;
+  - rollout failure diagnostics;
+  - evidence to append to validation and state artifacts.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && test -f docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md && test -x scripts/build-and-push-image.sh && test -x scripts/deploy.sh && test -x scripts/post-deploy-check.sh && test -x scripts/sa-g7-live-smoke.sh && bash -n scripts/build-and-push-image.sh && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && npm run build && rg -n "Source fingerprint|EXPECTED_SOURCE_FINGERPRINT|Token-Backed Smoke|Browser Verification|Failure Diagnostics|Evidence To Record" docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md'
+```
+
+Result: pass.
+
+Execution note:
+
+- Image build/push was not executed.
+- Deployment was not executed.
+
+Remaining validation:
+
+- Execute runbook after explicit owner approval.
+- Record the rollout evidence in this validation report, `TASKS.md`, and `STATE.json`.
+
+## Implementation Slice 2026-06-13: Reusable Source Fingerprint Helper
+
+Scope implemented:
+
+- Added `scripts/print-source-fingerprint.sh`.
+- Updated `scripts/build-and-push-image.sh` to reuse the helper instead of duplicating the source fingerprint pipeline.
+- Updated `docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md` so operators can precompute the expected fingerprint before an owner-approved image build/deploy.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/print-source-fingerprint.sh scripts/build-and-push-image.sh && bash -n scripts/print-source-fingerprint.sh && bash -n scripts/build-and-push-image.sh && bash -n scripts/deploy.sh && bash -n scripts/post-deploy-check.sh && bash -n scripts/sa-g7-live-smoke.sh && fingerprint="$(./scripts/print-source-fingerprint.sh)" && test -n "$fingerprint" && echo "source fingerprint: $fingerprint" && npm run build && rg -n "print-source-fingerprint|Source fingerprint|EXPECTED_SOURCE_FINGERPRINT" scripts/build-and-push-image.sh scripts/print-source-fingerprint.sh docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md'
+```
+
+Result: pass.
+
+Observed source fingerprint:
+
+```text
+8f8760fb016ba36a6245d3f5f7fe941dbb7deae9626475b3fdb11ea50b42bfa3
+```
+
+Execution note:
+
+- Docker image build/push was not executed in this slice.
+- Deployment was not executed in this slice.
+
+Remaining validation:
+
+- Owner-approved image build/push using `scripts/build-and-push-image.sh`.
+- Owner-approved deploy with `EXPECTED_SOURCE_FINGERPRINT=8f8760fb016ba36a6245d3f5f7fe941dbb7deae9626475b3fdb11ea50b42bfa3`.
+- Post-deploy no-secret smoke, token-backed customer/admin/non-admin smoke, and browser verification.
+
+## Implementation Slice 2026-06-13: Read-Only Rollout Preflight
+
+Scope implemented:
+
+- Added `scripts/sa-g7-rollout-preflight.sh`.
+- Updated `docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md` to use the preflight script before owner-approved build/push/deploy.
+- The preflight checks source state, script syntax, source fingerprint, application build, Kubernetes namespace/node/deployment/pod readiness, current running image digest, local registry reachability, registry tag state, and local image source-fingerprint label.
+- The preflight does not run Docker build, Docker push, `kubectl apply`, or rollout restart.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-rollout-preflight.sh && ./scripts/sa-g7-rollout-preflight.sh'
+```
+
+Result: pass.
+
+Observed source fingerprint:
+
+```text
+51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6
+```
+
+Observed runtime state:
+
+- `npm run build` passed.
+- Kubernetes node `alfares` was `Ready`.
+- Deployment `shop-assistant` was `1/1` ready.
+- Current pod: `shop-assistant-5b699c65f6-szhz2` running.
+- Current running image digest: `localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8`.
+- Local registry returned `{"name":"shop-assistant","tags":["latest"]}`.
+- Current local image has no `cz.alfares.shop-assistant.source-fingerprint` label, so a build/push is required before deploying this staged source.
+
+Execution note:
+
+- Docker image build/push was not executed.
+- Deployment was not executed.
+
+Remaining validation:
+
+- Owner-approved image build/push using `scripts/build-and-push-image.sh`.
+- Owner-approved deploy with `EXPECTED_SOURCE_FINGERPRINT=51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6`.
+- Post-deploy no-secret smoke, token-backed customer/admin/non-admin smoke, and browser verification.

@@ -1084,11 +1084,8 @@
 
     (function() {
       var ACCESS_TOKEN_KEY = 'shop_assistant_access_token';
-      var TOKEN_KEY = 'shop_assistant_admin_token';
       var apiBase = window.location.origin + '/api';
       function getToken() {
-        var stored = (sessionStorage.getItem(TOKEN_KEY) || '').trim();
-        if (stored) return stored;
         var sessionToken = (sessionStorage.getItem(ACCESS_TOKEN_KEY) || '').trim();
         if (sessionToken) return sessionToken;
         var legacyToken = (localStorage.getItem('accessToken') || '').trim();
@@ -1100,11 +1097,33 @@
         }
         return '';
       }
-      function authHeaders() {
+      function clearCustomerAuth() {
+        sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+      function authHeaders(includeAuth) {
         var h = { 'Content-Type': 'application/json' };
-        var token = getToken();
+        var token = includeAuth === false ? '' : getToken();
         if (token) h.Authorization = 'Bearer ' + token;
         return h;
+      }
+      function landingFetchJson(path, options, retryAnonymous) {
+        options = options || {};
+        var hadToken = !!getToken();
+        return fetch(apiBase + path, Object.assign({}, options, { headers: authHeaders(true) }))
+          .then(function(r) {
+            if ((r.status === 401 || r.status === 403) && hadToken && retryAnonymous) {
+              clearCustomerAuth();
+              mainStatus.textContent = 'Session expired. Continuing anonymously...';
+              return fetch(apiBase + path, Object.assign({}, options, { headers: authHeaders(false) }));
+            }
+            return r;
+          })
+          .then(function(r) {
+            if (!r.ok) return r.text().then(function(t) { throw new Error(t || 'Request failed'); });
+            return r.json();
+          });
       }
       var mainForm = document.getElementById('main-request-form');
       var mainBtn = document.getElementById('main-request-btn');
@@ -1123,26 +1142,17 @@
         mainStatus.textContent = 'Creating session...';
         mainStatus.className = 'status loading';
 
-        fetch(apiBase + '/sessions', {
+        landingFetchJson('/sessions', {
           method: 'POST',
-          headers: authHeaders(),
           body: JSON.stringify({})
-        })
-          .then(function(r) {
-            if (!r.ok) throw new Error('Failed to create session');
-            return r.json();
-          })
+        }, true)
           .then(function(data) {
             var sessionId = data.sessionId;
             mainStatus.textContent = 'Searching offers...';
-            return fetch(apiBase + '/sessions/' + encodeURIComponent(sessionId) + '/query', {
+            return landingFetchJson('/sessions/' + encodeURIComponent(sessionId) + '/query', {
               method: 'POST',
-              headers: authHeaders(),
               body: JSON.stringify({ text: text })
-            }).then(function(r) {
-              if (!r.ok) return r.text().then(function(t) { throw new Error(t || 'Search failed'); });
-              return r.json().then(function() { return sessionId; });
-            });
+            }, true).then(function() { return sessionId; });
           })
           .then(function(sessionId) {
             var url = 'test.html?sessionId=' + encodeURIComponent(sessionId);
