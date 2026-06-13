@@ -11,6 +11,7 @@ import { LeadsModule } from './leads/leads.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { ProfilesModule } from './profiles/profiles.module';
+import { MeModule } from './me/me.module';
 import { LoggingExceptionFilter } from './common/logging-exception.filter';
 import { LoggingInterceptor } from './common/logging.interceptor';
 import { LoggingService } from './logging/logging.service';
@@ -30,6 +31,7 @@ import { LoggingService } from './logging/logging.service';
     LegalModule,
     LeadsModule,
     ProfilesModule,
+    MeModule,
   ],
   controllers: [HealthController],
   providers: [

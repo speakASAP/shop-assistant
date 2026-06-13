@@ -2,6 +2,7 @@
 
 ## Backlog
 
+- [ ] SA-G7-T1 Commercial frontend, authenticated client dashboard, and role-protected admin control panel (priority: 1)
 - [ ] Analyze top 20 failed searches and improve response quality (priority: 2)
 - [ ] Generate UX improvement report based on session data (priority: 3)
 
@@ -14,3 +15,8 @@
 - [x] 2026-06-12 SA-G4-T1 UX improvement report generated from aggregate session metrics and static workflow inspection; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-12.md
 - [x] 2026-06-12 SA-G4-T1 synthetic usage fixture generated and aggregate UX metrics rerun; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-12-synthetic-rerun.md
 - [x] 2026-06-12 SA-G4-T1 production aggregate metrics compared with synthetic baseline; production persisted UX funnel remains zero; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-12-production-comparison.md
+- [x] 2026-06-13 SA-G4-T1 production session write path verified with one namespaced synthetic health-check session; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-13-write-path-check.md
+- [x] 2026-06-13 SA-G7-T1 frontend goal saved with task, execution plan, context package, coding prompt, and validation draft; implementation pending scoped coding gate
+- [x] 2026-06-13 SA-G7 backend foundation implemented for authenticated current-user dashboard APIs and profile ownership checks; build passed; frontend/dashboard/admin UI work remains open
+- [x] 2026-06-13 SA-G7 customer dashboard static frontend added and linked from landing page; build and static desktop/mobile visual QA passed for unauthenticated gate; live authenticated QA remains pending
+- [x] 2026-06-13 SA-G7 admin overview and persisted safe settings implemented; Prisma generate/build passed; migration applied inside running pod; temporary DB-connected runtime verified unauthenticated protection and static assets; live authenticated user/admin-token checks pending

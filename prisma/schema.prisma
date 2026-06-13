@@ -174,3 +174,16 @@ model SavedSearchCriteria {
   @@index([userId])
   @@index([profileId])
 }
+
+
+/// Safe non-secret application settings editable by admins.
+model AppSetting {
+  key         String   @id @db.VarChar(128)
+  value       Json
+  description String?  @db.Text
+  updatedBy   String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([updatedAt])
+}

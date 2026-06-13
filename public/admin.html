@@ -163,11 +163,32 @@
   </div>
 
   <div class="tabs">
+    <button type="button" data-tab="overview">Admin Overview</button>
     <button type="button" data-tab="prompts" class="active">Prompts (CRUD)</button>
     <button type="button" data-tab="models">AI Models</button>
     <button type="button" data-tab="profiles">Profiles</button>
     <button type="button" data-tab="mode">Execution mode</button>
     <button type="button" data-tab="flow">Agent communication flow</button>
+  </div>
+
+  <div id="panel-overview" class="panel">
+    <h2>Admin overview</h2>
+    <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">Operational summary for sessions, searches, leads, prompts, and safe runtime settings. Protected by the same admin roles as prompt and settings APIs.</p>
+    <div id="overviewStatus" class="status" style="display: none;"></div>
+    <button type="button" class="btn btn-primary" id="loadOverviewBtn">Refresh overview</button>
+    <div id="overviewSummary" class="form-grid" style="margin-top: 1rem;"></div>
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Current safe settings</h3>
+    <div id="overviewSettings" style="font-size: 0.875rem; color: #334155;"></div>
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Recent sessions</h3>
+    <table>
+      <thead><tr><th>Session</th><th>User-bound</th><th>Profile</th><th>Updated</th></tr></thead>
+      <tbody id="overviewSessionsBody"></tbody>
+    </table>
+    <h3 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Recent lead requests</h3>
+    <table>
+      <thead><tr><th>Lead</th><th>Source</th><th>CRM</th><th>AI analysis</th><th>Created</th></tr></thead>
+      <tbody id="overviewLeadsBody"></tbody>
+    </table>
   </div>
 
   <div id="panel-prompts" class="panel active">
@@ -277,21 +298,27 @@
   </div>
 
   <div id="panel-mode" class="panel">
-    <h2>Agent execution mode (Option A / B)</h2>
+    <h2>Safe service settings</h2>
     <p style="margin-bottom: 0.75rem; font-size: 0.875rem; color: #64748b;">
-      Choose how agents execute tasks internally: <strong>sync</strong> (direct calls, Option B) or <strong>queue</strong> (in-memory queue with limited concurrency, Option A).
+      Edit non-secret settings that are applied by this service. Secrets, provider keys, JWT secrets, and environment-owned deployment values are intentionally not editable here.
     </p>
     <div id="modeStatus" class="status" style="display: none;"></div>
-    <div class="form-grid" style="max-width: 320px;">
+    <div class="form-grid" style="max-width: 560px;">
       <div>
         <label>Execution mode</label>
         <select id="executionModeSelect">
           <option value="sync">sync (synchronous handoffs)</option>
           <option value="queue">queue (in-memory queue)</option>
         </select>
+        <small class="hint">Persisted in AppSetting and applied to agent handoffs.</small>
       </div>
       <div>
-        <button type="button" class="btn btn-primary" id="saveModeBtn">Save mode</button>
+        <label>Max search results per intent</label>
+        <input type="number" id="maxSearchResultsInput" min="5" max="30" step="1" />
+        <small class="hint">Integer 5-30. Applied to new query and feedback searches.</small>
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary" id="saveModeBtn">Save settings</button>
       </div>
     </div>
   </div>
@@ -440,6 +467,57 @@
       return h;
     }
 
+    function showOverviewStatus(msg, type) {
+      const el = document.getElementById('overviewStatus');
+      el.textContent = msg;
+      el.className = 'status ' + (type || 'info');
+      el.style.display = 'block';
+    }
+
+    function formatDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '—';
+      return date.toLocaleString();
+    }
+
+    async function loadAdminOverview() {
+      if (!getToken()) {
+        showOverviewStatus('Save a valid admin JWT token to load overview.', 'error');
+        return;
+      }
+      try {
+        const r = await fetch(API_BASE + '/admin/overview', { headers: authHeaders() });
+        if (r.status === 401) { showOverviewStatus('Invalid or missing JWT. Save a valid token.', 'error'); return; }
+        if (r.status === 403) { showOverviewStatus('Token valid but missing admin role. Assign global:superadmin or app:shop-assistant:admin.', 'error'); return; }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
+        const data = await r.json();
+        const s = data.summary || {};
+        const summaryItems = [
+          ['Sessions', s.sessions], ['Authenticated sessions', s.authenticatedSessions], ['Search runs', s.searchRuns],
+          ['Search results', s.searchResults], ['Selected products', s.choices], ['Lead requests', s.leadRequests],
+          ['Profiles', s.profiles], ['Saved searches', s.savedCriteria], ['Active prompts', s.activePrompts], ['Agent comms 24h', s.agentCommunicationsLast24h],
+        ];
+        document.getElementById('overviewSummary').innerHTML = summaryItems.map(function(item) {
+          return '<div style="border:1px solid #dbe3ea;border-radius:0.5rem;padding:0.85rem;background:#f8fafc;"><strong style="display:block;font-size:1.4rem;color:#0f172a;">' + escapeHtml(item[1] == null ? '0' : String(item[1])) + '</strong><span style="font-size:0.8rem;color:#64748b;">' + escapeHtml(item[0]) + '</span></div>';
+        }).join('');
+        const settings = data.settings || {};
+        document.getElementById('overviewSettings').innerHTML =
+          '<p><strong>Execution mode:</strong> ' + escapeHtml(settings.agentExecutionMode || 'sync') + '</p>' +
+          '<p><strong>Max search results per intent:</strong> ' + escapeHtml(settings.maxSearchResults == null ? '20' : String(settings.maxSearchResults)) + '</p>' +
+          '<p><strong>Generated:</strong> ' + escapeHtml(formatDate(data.generatedAt)) + '</p>';
+        document.getElementById('overviewSessionsBody').innerHTML = (data.recentSessions || []).map(function(session) {
+          return '<tr><td>' + escapeHtml(session.id) + '</td><td>' + (session.userId ? 'Yes' : 'No') + '</td><td>' + escapeHtml(session.profileId || '—') + '</td><td>' + escapeHtml(formatDate(session.updatedAt)) + '</td></tr>';
+        }).join('') || '<tr><td colspan="4">No sessions.</td></tr>';
+        document.getElementById('overviewLeadsBody').innerHTML = (data.recentLeads || []).map(function(lead) {
+          return '<tr><td>' + escapeHtml(lead.id) + '</td><td>' + escapeHtml(lead.sourceLabel || lead.sourceService || '—') + '</td><td>' + escapeHtml(lead.leadId || 'Pending') + '</td><td>' + escapeHtml(lead.aiSubmissionId || 'Pending') + '</td><td>' + escapeHtml(formatDate(lead.createdAt)) + '</td></tr>';
+        }).join('') || '<tr><td colspan="5">No lead requests.</td></tr>';
+        showOverviewStatus('Overview loaded.', 'success');
+      } catch (e) {
+        showOverviewStatus('Error: ' + e.message, 'error');
+      }
+    }
+
     // Tabs
     document.querySelectorAll('.tabs button').forEach(function(btn) {
       btn.onclick = function() {
@@ -447,6 +525,7 @@
         document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
         btn.classList.add('active');
         document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'overview') loadAdminOverview();
         if (btn.dataset.tab === 'models') loadModels();
         if (btn.dataset.tab === 'profiles') loadProfilesList();
         if (btn.dataset.tab === 'mode') loadExecutionMode();
@@ -504,6 +583,8 @@
         showPromptsStatus('Error: ' + e.message, 'error');
       }
     }
+
+    document.getElementById('loadOverviewBtn').onclick = loadAdminOverview;
 
     document.getElementById('loadPromptsBtn').onclick = loadPrompts;
     document.getElementById('filterAgentType').onchange = loadPrompts;
@@ -741,35 +822,47 @@
 
     async function loadExecutionMode() {
       try {
-        const r = await fetch(API_BASE + '/admin/settings/agent-execution-mode', { headers: authHeaders() });
+        const r = await fetch(API_BASE + '/admin/settings', { headers: authHeaders() });
         if (r.status === 401) {
           showModeStatus('Invalid or missing JWT. Save a valid token.', 'error');
           return;
         }
-        if (!r.ok) throw new Error(r.statusText);
+        if (r.status === 403) {
+          showModeStatus('Token valid but missing admin role.', 'error');
+          return;
+        }
+        if (!r.ok) throw new Error(await r.text() || r.statusText);
         const data = await r.json();
         const sel = document.getElementById('executionModeSelect');
-        sel.value = data.mode === 'queue' ? 'queue' : 'sync';
-        showModeStatus('Current mode: ' + sel.value, 'success');
+        const maxInput = document.getElementById('maxSearchResultsInput');
+        sel.value = data.agentExecutionMode === 'queue' ? 'queue' : 'sync';
+        maxInput.value = data.maxSearchResults || 20;
+        showModeStatus('Current settings loaded.', 'success');
       } catch (e) {
         showModeStatus('Error: ' + e.message, 'error');
       }
     }
 
     document.getElementById('saveModeBtn').onclick = async function() {
-      const mode = document.getElementById('executionModeSelect').value;
+      const agentExecutionMode = document.getElementById('executionModeSelect').value;
+      const maxSearchResults = Number(document.getElementById('maxSearchResultsInput').value);
       try {
-        const r = await fetch(API_BASE + '/admin/settings/agent-execution-mode', {
+        const r = await fetch(API_BASE + '/admin/settings', {
           method: 'PUT',
           headers: authHeaders(),
-          body: JSON.stringify({ mode }),
+          body: JSON.stringify({ agentExecutionMode, maxSearchResults }),
         });
         if (r.status === 401) {
           showModeStatus('Invalid or missing JWT.', 'error');
           return;
         }
+        if (r.status === 403) {
+          showModeStatus('Token valid but missing admin role.', 'error');
+          return;
+        }
         if (!r.ok) throw new Error(await r.text() || r.statusText);
-        showModeStatus('Mode saved: ' + mode, 'success');
+        const data = await r.json();
+        showModeStatus('Settings saved: mode=' + data.agentExecutionMode + ', maxSearchResults=' + data.maxSearchResults, 'success');
       } catch (e) {
         showModeStatus('Error: ' + e.message, 'error');
       }

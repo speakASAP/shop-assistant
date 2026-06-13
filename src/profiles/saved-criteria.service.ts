@@ -11,6 +11,18 @@ export class SavedCriteriaService {
     private readonly sessions: SessionsService,
   ) {}
 
+  private async assertProfileBelongsToUser(userId: string, profileId?: string | null): Promise<void> {
+    if (!profileId?.trim()) return;
+    const profile = await this.prisma.accountProfile.findFirst({
+      where: { id: profileId.trim(), userId },
+      select: { id: true },
+    });
+    if (!profile) {
+      this.logging.warn('Saved criteria profile ownership check failed', { userId, profileId, context: 'SavedCriteriaService' });
+      throw new NotFoundException('Profile not found');
+    }
+  }
+
   async listCriteria(userId: string) {
     this.logging.debug('List saved criteria request', { userId, context: 'SavedCriteriaService' });
     const items = await this.prisma.savedSearchCriteria.findMany({
@@ -43,6 +55,7 @@ export class SavedCriteriaService {
     },
   ) {
     this.logging.debug('Create saved criteria request', { userId, hasProfile: !!payload.profileId, context: 'SavedCriteriaService' });
+    await this.assertProfileBelongsToUser(userId, payload.profileId);
     const item = await this.prisma.savedSearchCriteria.create({
       data: {
         userId,
@@ -76,6 +89,7 @@ export class SavedCriteriaService {
       this.logging.warn('Saved criteria not found for update', { userId, id, context: 'SavedCriteriaService' });
       throw new NotFoundException('Saved criteria not found');
     }
+    await this.assertProfileBelongsToUser(userId, payload.profileId);
     const item = await this.prisma.savedSearchCriteria.update({
       where: { id },
       data: {
@@ -129,6 +143,7 @@ export class SavedCriteriaService {
       this.logging.warn('Saved criteria not found for run', { userId, id, context: 'SavedCriteriaService' });
       throw new NotFoundException('Saved criteria not found');
     }
+    await this.assertProfileBelongsToUser(userId, criteria.profileId);
 
     // Extract priorities as string[] if possible
     let priorities: string[] | undefined;

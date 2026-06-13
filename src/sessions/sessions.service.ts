@@ -5,6 +5,7 @@ import { AiService } from './ai.service';
 import { SearchService } from './search.service';
 import { ExecutionModeService } from '../admin/execution-mode.service';
 import { AgentQueueService } from './agent-queue.service';
+import { AppSettingsService } from '../admin/app-settings.service';
 import { PRIORITY_KEYS } from './dto/create-session.dto';
 
 /** Normalize priorities to allowed keys only (10.1). */
@@ -24,6 +25,7 @@ export class SessionsService {
     private readonly search: SearchService,
     private readonly executionMode: ExecutionModeService,
     private readonly agentQueue: AgentQueueService,
+    private readonly appSettings: AppSettingsService,
   ) {}
 
   async createSession(userId?: string, priorities?: string[], profileId?: string) {
@@ -109,11 +111,11 @@ export class SessionsService {
       queryText = `${queryText.trim()} ${locationResult.augmentedQuery.trim()}`.trim();
       this.logging.debug('Query augmented with delivery region', { augmentedQuery: locationResult.augmentedQuery, context: 'SessionsService' });
     }
-    const searchLimit = 20;
+    const searchLimit = await this.appSettings.getMaxSearchResults();
     const mode = this.executionMode.getMode();
     // 10.2: Multi-product — split into N intents; if multiple, run parallel searches and group results
     const intents = await this.ai.splitIntoSearchIntents(userText, queryText, sessionId);
-    const limitPerIntent = intents.length > 1 ? Math.max(5, Math.floor(20 / intents.length)) : searchLimit;
+    const limitPerIntent = intents.length > 1 ? Math.max(5, Math.floor(searchLimit / intents.length)) : searchLimit;
 
     if (intents.length > 1) {
       const searchLimitPerIntent = Math.min(limitPerIntent, 30);
@@ -372,7 +374,7 @@ export class SessionsService {
       queryText = `${queryText.trim()} ${locationResult.augmentedQuery.trim()}`.trim();
       this.logging.debug('Refined query augmented with delivery region', { augmentedQuery: locationResult.augmentedQuery, context: 'SessionsService' });
     }
-    const searchLimit = 20;
+    const searchLimit = await this.appSettings.getMaxSearchResults();
     // 4.4: User reply in chat → Communication agent assigns task to Search agent; cycle continues
     await this.logAgentCommunication(
       sessionId,

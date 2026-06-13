@@ -232,3 +232,43 @@ Deviations:
 
 Recommendation:
 Next verify the production/staging write path by generating isolated staging API traffic or an explicitly namespaced health-check session, then rerun the production aggregate script. If staging writes rows but production remains zero, inspect routing and database environment alignment.
+
+## SA-G4-T1 Production Session Write-Path Check - 2026-06-13
+
+Gate:
+Date: 2026-06-13
+Goal: SA-G4 Agent admin and observability
+Task: Verify production/staging session write path because production aggregate UX funnel remained zero
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: existing unrelated remote changes present; this check added reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-13-write-path.json, reports/ux/sa-g4-t1-write-path-vs-synthetic-comparison-2026-06-13.json, and docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-13-write-path-check.md
+Remote status: edited directly on alfares
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Invariants checked: privacy-safe synthetic health-check session, no raw query/voice/lead/profile content, no fake merchant result insertion, admin JWT boundary preservation, no deployment
+Sensitive-data classification: one explicitly namespaced synthetic session created through public API; aggregate-only production metrics exported
+Contract/schema impact: no API, Prisma schema, public UI, admin auth, legal, deployment, or external-service contract changed
+Privacy/legal impact: health-check used userId synthetic-write-path-check-2026-06-13 and priorities only; no query text, audio, feedback, choices, leads, profile names, merchant URLs, JWTs, secrets, or agent communication content submitted
+Replay/determinism impact: session-create request is state-changing and intentionally leaves one synthetic health-check session as operational evidence; aggregate query is deterministic for the resulting database state
+External service boundary impact: public Shop Assistant API and database persistence path verified; no AI/search provider, auth, logging, leads, or deployment boundary changed
+Validation commands:
+- curl -sS -i -X POST https://shop-assistant.alfares.cz/api/sessions -H "Content-Type: application/json" -d '{"userId":"synthetic-write-path-check-2026-06-13","priorities":["price","quality"]}'
+- kubectl exec -n statex-apps shop-assistant-569dc45879-tsjjh -- sh -lc "cd /app && NODE_PATH=/app/node_modules node /tmp/aggregate-ux-production-metrics.js" > reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-13-write-path.json
+- node scripts/compare-ux-metrics.js --production reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-13-write-path.json --output reports/ux/sa-g4-t1-write-path-vs-synthetic-comparison-2026-06-13.json
+Result: pass with bounded scope. Public POST /api/sessions returned HTTP 201, and aggregate production metrics changed to 1 session, 1 user-bound session, and 1 priority-scoped session. Query/search/result/choice/message telemetry remains zero because no query was submitted.
+
+Passed criteria:
+- Production session-create write path is confirmed.
+- Metrics database and public API persistence path align for Session records.
+- No production raw traffic was exported.
+- No fake merchant results were inserted.
+- No deployment was run.
+
+Failed criteria:
+- None.
+
+Deviations:
+- This check used controlled production session creation rather than staging because the owner approved proceeding with the write-path comparison and the check does not submit sensitive content or external search traffic.
+
+Recommendation:
+Next verify end-to-end query/search persistence in staging or with a controlled synthetic production query that is explicitly excluded from behavioral UX interpretation.

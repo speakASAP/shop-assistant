@@ -37,6 +37,7 @@ This matrix preserves the chain from original Shop Assistant intent to executabl
 | Admins must manage prompts/models and inspect agent communication safely. | JWT-protected admin operations, observable agent flow, no prompt secrets | SA-G4 Agent admin and observability | active | `README.md`, `src/admin/`, `public/admin.html`, `TASKS.md` UX report backlog |
 | Contact and voice lead requests must be stored and forwarded to leads and AI services. | Local lead evidence, CRM forwarding, AI analysis forwarding, privacy handling | SA-G5 Lead capture integrations | implemented foundation | `README.md`, `prisma/schema.prisma`, `src/leads/`, `public/index.html` |
 | Production service must remain deployable and observable. | Kubernetes health, environment-only secrets, owner-approved deploy | SA-G6 Operations and deployment | active | `SYSTEM.md`, `k8s/`, `scripts/deploy.sh`, `src/health/` |
+| Public, authenticated client, and admin frontend must convert customers, protect account data, and expose editable safe settings. | Auth-owned identity/RBAC, client data ownership, legal transparency, no frontend secrets | SA-G7 Commercial frontend and dashboards | planned | `docs/intent-preservation/tasks/SA-G7-T1.md`, `docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md` |
 
 ## Goal To Task Traceability
 
@@ -45,6 +46,7 @@ This matrix preserves the chain from original Shop Assistant intent to executabl
 | SA-G1 | SA-G1-T1 Search Quality From Failed Searches | `docs/intent-preservation/tasks/SA-G1-T1.md` | `docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md` | `docs/intent-preservation/context-packages/CP-SA-BACKLOG.md` | `docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md` | `docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md` |
 | SA-G4 | SA-G4-T1 UX Improvement Report From Session Data | `docs/intent-preservation/tasks/SA-G4-T1.md` | `docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md` | `docs/intent-preservation/context-packages/CP-SA-BACKLOG.md` | `docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md` | `docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md` |
 | Documentation standard | SA-DOCS-T1 Install Intent Preservation System | `docs/intent-preservation/tasks/SA-DOCS-T1.md` | documentation-only change in this session | this folder and source docs | owner request from 2026-06-12 | `docs/intent-preservation/validation-reports/VAL-SA-IPS-INSTALL.md` |
+| SA-G7 | SA-G7-T1 Commercial Frontend, Authenticated Client Dashboard, And Admin Control Panel | `docs/intent-preservation/tasks/SA-G7-T1.md` | `docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md` | `docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md` | `docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md` | `docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md` |
 | Future owner-approved goal | future task | create before coding | create before coding | create before coding | create before coding | create before completion |
 
 ## Protected Boundaries
@@ -53,6 +55,7 @@ This matrix preserves the chain from original Shop Assistant intent to executabl
 - Future goals must not fabricate search result URLs or merchant availability.
 - Future goals must not move ASR, LLM provider secrets, search provider secrets, auth ownership, database ownership, or central logging ownership into this service unless an owner-approved integration contract says so.
 - Future goals must not weaken JWT protection for admin prompt/model/profile operations.
+- Future goals must not expose authenticated client dashboard data without deriving ownership from Auth-validated user identity.
 - Future goals must not remove legal transparency notices or cookie/privacy/terms pages.
 - Future goals must not deploy to production without owner approval in the active session.
 
