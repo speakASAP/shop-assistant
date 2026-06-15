@@ -76,7 +76,7 @@ Configure one provider (e.g. Serper) via `.env`:
 - **Admin (JWT required):** `GET/POST /api/admin/prompts`, `GET/PUT/DELETE /api/admin/prompts/:id` – CRUD for AI agent prompts (search, comparison, location, communication, presentation). Each prompt can set **model** (ai-microservice model id) and **role** (e.g. default, premium). `GET /api/admin/ai-models` – list available AI models for the dropdown. All LLM requests use prompts and models from the admin panel. See `docs/API.md`.
 - `GET /health` – Health check.
 - `GET /test.html` – Test interface with prefilled request. Creates session, submits query, shows results and a single chat with the assistant. Link "View agent flow in Admin" opens the admin panel to inspect internal agent communication for that session.
-- `GET /admin.html` – Admin UI (JWT required for Prompts and AI Models): CRUD for agent prompts, list AI models from ai-microservice, **view agent communication flow** by session ID (internal AI workflows; use `?sessionId=…#flow` to open flow tab with session prefilled). Store JWT in the page (Save token) or pass `?token=…` in URL.
+- `GET /admin.html` – Admin UI (Auth-hosted sign-in and admin role required): CRUD for agent prompts, list AI models from ai-microservice, and view agent communication flow by session ID. Use `?sessionId=…#flow` only to prefill the admin flow after authorization; token query parameters and manual JWT paste are rejected.
 - `GET /debug.html` – Internal debug view (client messages + agent-to-agent communication). Not linked from the public UX; use admin panel "Agent communication flow" to test workflows.
 
 ## Documentation

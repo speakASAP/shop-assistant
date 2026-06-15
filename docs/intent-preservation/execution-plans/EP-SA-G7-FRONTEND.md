@@ -190,6 +190,21 @@ Browser validation is required for meaningful frontend changes: desktop and mobi
 7. Commit and push from the remote repo when useful.
 8. Deploy only after explicit owner approval in the active session.
 
+
+## Parallel Execution
+
+SA-G7 is broad enough for multiple agents only when shared contracts are frozen first. The original thread remains integration owner for TASKS.md, STATE.json, traceability, and final validation evidence.
+
+| Workstream | Status | Owner Role | Objective | Scope | Allowed Files | Forbidden Files | Dependencies | Validation Evidence | Handoff Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Auth and RBAC verification | ready now | Security QA agent | Verify Auth-hosted handoff, session token storage, dashboard/admin lockout, admin/non-admin behavior. | Read-only browser/source smoke and optional token-file smoke. | Validation scripts and VAL-SA-G7-FRONTEND.md append if evidence is produced. | Secrets, raw tokens in docs/logs, public legal text changes. | Safe token files or skipped authenticated checks with explicit reason. | Strict smoke result, browser verifier result, no persistent token writes scan. | Return pass/fail matrix by route and role. |
+| Customer dashboard improvements | dependency-gated | Frontend agent | Improve customer dashboard workflows after API contracts are stable. | public/dashboard.html and account-scoped API consumers. | public/dashboard.html and focused tests. | Admin page, Prisma schema, deploy scripts unless separately gated. | Current-user API contract and auth guard evidence. | Build, desktop/mobile browser QA, 401/403 handling checks. | Include screenshots or browser evidence and API calls touched. |
+| Admin operations improvements | dependency-gated | Admin UX/API agent | Improve protected admin operations without weakening RBAC. | public/admin.html, src/admin, admin validation scripts. | Admin files named by a selected slice. | Customer dashboard, public legal pages, secrets. | Admin RBAC contract and selected operations objective. | Build, admin token pass, non-admin 403, unauthenticated 401. | Hand off endpoint contract changes before UI merge. |
+| Landing and legal surface | ready now for audit, dependency-gated for edits | Public UX/compliance agent | Preserve commercial landing conversion while maintaining legal transparency. | public/index.html, legal links, cookie consent, AI disclosure. | Public pages and validation report when selected. | Auth internals, admin APIs, secrets. | Legal/privacy review if substance changes. | Browser QA, legal route checks, no secret exposure scan. | Separate audit findings from proposed fixes. |
+| Rollout validation | final integration | Operations agent | Confirm packaged source, fingerprint, smoke gates, and rollback readiness. | Scripts, rollout runbook, preflight, smoke. | scripts, rollout runbook, validation append. | Production deploy without owner approval. | Source changes merged and owner approval for deploy. | Preflight, no-secret smoke, optional token smoke, deployment evidence if approved. | Runs last after implementation merge. |
+
+Shared contracts: Auth owns identity/JWT/RBAC; ai-microservice owns ASR/LLM/search orchestration; database-server owns persistence; public legal routes stay reachable; no secrets or raw production personal data in docs/logs. Merge order: auth/contracts, independent UI/admin slices, source audit, rollout validation, state update.
+
 ## Rollback Plan
 
 Revert the selected implementation slice only. Preserve validation notes by appending a rollback entry. Do not revert unrelated dirty worktree changes.

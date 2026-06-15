@@ -136,6 +136,20 @@ npm run build
 
 For documentation/reporting tasks, add a file existence check and sensitive-data scan before completion.
 
+
+## Parallel Execution
+
+Use this split whenever backlog work is larger than one focused edit. The integration owner stays in the original thread and is the only role allowed to update shared state files after validating worker output.
+
+| Workstream | Status | Owner Role | Objective | Scope | Allowed Files | Forbidden Files | Dependencies | Validation Evidence | Handoff Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SA-G1 quality worker | dependency-gated | Search quality agent | Improve a named failed-search category without exposing raw production queries. | Session/search prompt and result-handling code selected by the pre-coding gate. | SA-G1 task files and focused validation scripts. | Secrets, legal pages, unrelated services, deployment files without approval. | Selected failed-search category and privacy-safe evidence. | Build, synthetic zero-result/refinement smoke, real-URL shape check. | Report changed files, failure category, data-safety method, and residual risks. |
+| SA-G4 UX evidence worker | ready now for report-only work | UX analytics agent | Refresh privacy-safe UX findings from session metrics and static workflow inspection. | Aggregate metrics, public/test/admin/profile/saved-criteria UX review. | Reports and validation report append. | Raw production queries, contact details, JWTs, source edits unless gated. | None for report-only work. | File existence check, sensitive-data scan, repeatable query/window description. | Hand off prioritized recommendations and evidence type only. |
+| SA-G2 compliance worker | ready now | Privacy/legal agent | Audit legal transparency, cookie behavior, AI disclosure, and secret surface. | Public/legal pages, docs contracts, runtime config exposure, admin/test diagnostics. | SA-G2 docs and validation report. | Runtime source fixes, deployment, secrets. | SA-G2-T1 packet and pre-coding gate. | Sensitive-data scan, legal route reachability check, source grep findings. | Feed findings to integration owner for any fix task. |
+| Integration and state | final integration | Orchestrator | Merge worker evidence into IPS chain and choose the next coding slice. | Traceability, validation summaries, TASKS.md, STATE.json. | IPS docs, TASKS.md, STATE.json. | Worker-owned source files during active implementation. | Worker handoffs complete or explicitly blocked. | Vision -> Goal Impact -> System -> Feature -> Task -> Execution Plan -> Coding Prompt -> Code -> Validation consistency check. | Integration owner resolves conflicts and records next command. |
+
+Shared contracts: BUSINESS.md, README.md, SYSTEM.md, IPS README, TRACEABILITY_MATRIX.md, and PRE_CODING_GATE.md. Merge order: discovery/report-only workers first, implementation workers second, integration/state update last.
+
 ## Rollback Plan
 
 Revert only the selected task changes. Preserve validation evidence by appending a rollback note rather than deleting history. Do not revert unrelated owner or agent changes.

@@ -5,9 +5,13 @@ BASE_URL="${BASE_URL:-https://shop-assistant.alfares.cz}"
 BASE_URL="${BASE_URL%/}"
 
 CUSTOMER_TOKEN="${CUSTOMER_TOKEN:-}"
+CUSTOMER_TOKEN_FILE="${CUSTOMER_TOKEN_FILE:-}"
 ADMIN_TOKEN="${ADMIN_TOKEN:-}"
+ADMIN_TOKEN_FILE="${ADMIN_TOKEN_FILE:-}"
 NON_ADMIN_TOKEN="${NON_ADMIN_TOKEN:-}"
+NON_ADMIN_TOKEN_FILE="${NON_ADMIN_TOKEN_FILE:-}"
 AGENT_FLOW_SESSION_ID="${AGENT_FLOW_SESSION_ID:-}"
+REQUIRE_TOKEN_SMOKE="${REQUIRE_TOKEN_SMOKE:-0}"
 SMOKE_CACHE_BUST="${SMOKE_CACHE_BUST:-$(date +%s)}"
 SMOKE_CURL_MAX_TIME="${SMOKE_CURL_MAX_TIME:-12}"
 
@@ -27,6 +31,35 @@ skip() {
   skipped=$((skipped + 1))
   log "SKIP $*"
 }
+
+load_token_file() {
+  local label="$1"
+  local file="$2"
+  if [ -z "$file" ]; then
+    return 0
+  fi
+  if [ ! -r "$file" ]; then
+    fail "${label}_FILE is not readable"
+    return 0
+  fi
+  local value
+  value="$(tr -d '\r\n' < "$file")"
+  if [ -z "$value" ]; then
+    fail "${label}_FILE is empty"
+    return 0
+  fi
+  printf -v "$label" '%s' "$value"
+}
+
+if [ -z "$CUSTOMER_TOKEN" ] && [ -n "$CUSTOMER_TOKEN_FILE" ]; then
+  load_token_file CUSTOMER_TOKEN "$CUSTOMER_TOKEN_FILE"
+fi
+if [ -z "$ADMIN_TOKEN" ] && [ -n "$ADMIN_TOKEN_FILE" ]; then
+  load_token_file ADMIN_TOKEN "$ADMIN_TOKEN_FILE"
+fi
+if [ -z "$NON_ADMIN_TOKEN" ] && [ -n "$NON_ADMIN_TOKEN_FILE" ]; then
+  load_token_file NON_ADMIN_TOKEN "$NON_ADMIN_TOKEN_FILE"
+fi
 
 http_status() {
   local method="$1"
@@ -319,6 +352,10 @@ log "Target: ${BASE_URL}"
 log "HTML cache-bust key: ${SMOKE_CACHE_BUST}"
 log "Per-request timeout: ${SMOKE_CURL_MAX_TIME}s"
 log "Token values are never printed by this script."
+log "Tokens may be supplied through CUSTOMER_TOKEN_FILE, ADMIN_TOKEN_FILE, and NON_ADMIN_TOKEN_FILE to avoid shell history exposure."
+if [ "$REQUIRE_TOKEN_SMOKE" = "1" ]; then
+  log "Strict token smoke mode: CUSTOMER_TOKEN, ADMIN_TOKEN, and NON_ADMIN_TOKEN are required."
+fi
 log ""
 
 log "== Public route availability =="
@@ -402,7 +439,11 @@ if [ -n "$CUSTOMER_TOKEN" ]; then
   expect_status "GET /api/saved-criteria customer" GET '/api/saved-criteria?page=1&limit=5' 200 "$CUSTOMER_TOKEN"
   expect_customer_dashboard_contract "Customer dashboard/account APIs" "$CUSTOMER_TOKEN"
 else
-  skip "CUSTOMER_TOKEN not set; customer dashboard/account API checks not run"
+  if [ "$REQUIRE_TOKEN_SMOKE" = "1" ]; then
+    fail "CUSTOMER_TOKEN not set; strict customer dashboard/account API checks not run"
+  else
+    skip "CUSTOMER_TOKEN not set; customer dashboard/account API checks not run"
+  fi
 fi
 
 log ""
@@ -428,7 +469,11 @@ if [ -n "$ADMIN_TOKEN" ]; then
     skip "AGENT_FLOW_SESSION_ID not set; admin Agent Flow API check not run"
   fi
 else
-  skip "ADMIN_TOKEN not set; admin API checks not run"
+  if [ "$REQUIRE_TOKEN_SMOKE" = "1" ]; then
+    fail "ADMIN_TOKEN not set; strict admin API checks not run"
+  else
+    skip "ADMIN_TOKEN not set; admin API checks not run"
+  fi
 fi
 
 log ""
@@ -448,7 +493,11 @@ if [ -n "$NON_ADMIN_TOKEN" ]; then
     skip "AGENT_FLOW_SESSION_ID not set; non-admin Agent Flow API check not run"
   fi
 else
-  skip "NON_ADMIN_TOKEN not set; non-admin forbidden checks not run"
+  if [ "$REQUIRE_TOKEN_SMOKE" = "1" ]; then
+    fail "NON_ADMIN_TOKEN not set; strict non-admin forbidden checks not run"
+  else
+    skip "NON_ADMIN_TOKEN not set; non-admin forbidden checks not run"
+  fi
 fi
 
 log ""

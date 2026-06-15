@@ -1,1152 +1,1481 @@
 {
-    "v": 1,
-    "project": "shop-assistant",
-    "stage": "active",
-    "health": "ok",
-    "cycle": 0,
-    "last_cycle_at": "2026-06-12T00:00:00Z",
-    "tasks_active": 1,
-    "tasks_failed_last_cycle": 0,
-    "open_task_ids": [
-        "SA-G7-T1"
-    ],
-    "last_milestone": "SA-G4-query-persistence-validation-harness",
-    "next_focus": "select the next non-blocked implementation goal; optional live customer/admin/non-admin token checks remain skipped until safe tokens are supplied",
-    "blockers": [],
-    "budget_units_used": 0,
-    "metrics": {
-        "custom": {
-            "sa_g4_t1_synthetic_rerun": {
-                "date": "2026-06-12",
-                "source": "reports/ux/sa-g4-t1-synthetic-usage-2026-06-12.json",
-                "metrics": "reports/ux/sa-g4-t1-aggregate-metrics-2026-06-12.json",
-                "sessions": 12,
-                "search_runs": 14,
-                "search_results": 28,
-                "zero_result_search_runs": 4,
-                "choices": 5,
-                "profile_scoped_sessions": 4,
-                "saved_criteria": 3,
-                "agent_errors": 3
-            },
-            "sa_g4_t1_production_comparison": {
-                "date": "2026-06-12",
-                "production_metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-12.json",
-                "comparison": "reports/ux/sa-g4-t1-production-vs-synthetic-comparison-2026-06-12.json",
-                "production_sessions": 0,
-                "production_search_runs": 0,
-                "production_search_results": 0,
-                "production_choices": 0,
-                "production_messages": 0,
-                "production_first_session_at": null,
-                "production_last_session_at": null
-            },
-            "sa_g4_t1_write_path_check": {
-                "date": "2026-06-13",
-                "request": "POST https://shop-assistant.alfares.cz/api/sessions",
-                "synthetic_user_id": "synthetic-write-path-check-2026-06-13",
-                "production_metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-13-write-path.json",
-                "comparison": "reports/ux/sa-g4-t1-write-path-vs-synthetic-comparison-2026-06-13.json",
-                "production_sessions": 1,
-                "production_user_bound_sessions": 1,
-                "production_priority_scoped_sessions": 1,
-                "production_messages": 0,
-                "production_search_runs": 0,
-                "production_search_results": 0,
-                "production_first_session_at": "2026-06-13T03:48:23.996Z",
-                "production_last_session_at": "2026-06-13T03:48:23.996Z"
-            },
-            "sa_g7_t1_frontend_goal": {
-                "date": "2026-06-13",
-                "status": "planned",
-                "task": "docs/intent-preservation/tasks/SA-G7-T1.md",
-                "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md",
-                "context_package": "docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md",
-                "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md",
-                "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md",
-                "first_implementation_slice": "SA-G7-B auth shell and SA-G7-C current-user dashboard APIs"
-            },
-            "sa_g7_t1_current_user_api_foundation": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed",
-                "new_module": "src/me",
-                "endpoints": [
-                    "GET /api/me",
-                    "GET /api/me/dashboard",
-                    "GET /api/me/sessions",
-                    "POST /api/me/sessions",
-                    "GET /api/me/sessions/:id",
-                    "POST /api/me/sessions/:id/query",
-                    "POST /api/me/sessions/:id/feedback"
-                ],
-                "validation": "npm run build passed",
-                "runtime_smoke_limitation": "raw SSH start:prod could not reach db-server-postgres:5432; route mapping observed before Prisma startup failure"
-            },
-            "sa_g7_t1_dashboard_static_frontend": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_visual_qa_passed",
-                "page": "public/dashboard.html",
-                "landing_links": "public/index.html",
-                "validation": "npm run build passed; static Playwright screenshots passed for unauthenticated desktop/mobile gate",
-                "desktop_screenshot": "/private/tmp/shop-assistant-dashboard-desktop-final.png",
-                "mobile_screenshot": "/private/tmp/shop-assistant-dashboard-mobile-final.png",
-                "concept": "/Users/Sergej.Stasok/.codex/generated_images/019ebf8a-12cf-76d0-a4ff-b0e77b729ec8/ig_09e48a0f5812b98e016a2cf4f7f27c8191a963a48d697b9381.png",
-                "live_validation_pending": "database-connected runtime and test token required"
-            },
-            "sa_g7_t1_admin_overview_settings": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_migration_applied_unauthenticated_live_smoke_passed",
-                "migration": "prisma/migrations/20260613_add_app_settings/migration.sql",
-                "settings": [
-                    "agentExecutionMode",
-                    "maxSearchResults"
-                ],
-                "overview_endpoint": "GET /api/admin/overview",
-                "settings_endpoints": [
-                    "GET /api/admin/settings",
-                    "PUT /api/admin/settings",
-                    "GET /api/admin/settings/agent-execution-mode",
-                    "PUT /api/admin/settings/agent-execution-mode"
-                ],
-                "validation": "npm run prisma:generate && npm run build passed; static mocked Playwright admin UI QA passed; migration applied inside running pod; temporary DB-connected runtime returned 401 for unauthenticated /api/me, /api/me/dashboard, /api/admin/settings, and /api/admin/overview; /dashboard.html, /admin.html, and /health returned 200",
-                "screenshot": "/private/tmp/shop-assistant-admin-settings-final.png",
-                "migration_status": "20260613_add_app_settings applied via npx prisma migrate deploy inside running pod",
-                "live_validation_pending": "valid customer token and valid admin token required"
-            },
-            "sa_g7_t1_commercial_landing_page": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_visual_qa_passed",
-                "page": "public/index.html",
-                "concept": "/Users/Sergej.Stasok/.codex/generated_images/019ebf8a-12cf-76d0-a4ff-b0e77b729ec8/ig_091e46bc69d1ea65016a2cfce725fc8191ad2b4c3fc1d36651.png",
-                "desktop_screenshot": "/private/tmp/shop-assistant-landing-desktop-clean.png",
-                "mobile_screenshot": "/private/tmp/shop-assistant-landing-mobile-clean.png",
-                "validation": "npm run build passed; Playwright desktop/mobile screenshots passed with no console errors and no horizontal overflow; cookie consent and dynamic contact-row interactions passed",
-                "live_validation_pending": "owner-approved deploy, live anonymous search check, live lead submission check, valid customer token, and valid admin token required"
-            },
-            "sa_g7_t1_admin_auth_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_auth_qa_passed",
-                "page": "public/admin.html",
-                "auth_handoff": "https://auth.alfares.cz/login with client_id=shop-assistant, return_url, and state",
-                "validation_api": "GET /api/admin/overview",
-                "locked_screenshot": "/private/tmp/shop-assistant-admin-locked-final.png",
-                "authorized_screenshot": "/private/tmp/shop-assistant-admin-authorized-final.png",
-                "validation": "npm run build passed; Playwright locked/no-token state hid admin shell with no console errors; mocked 403 state stayed locked; mocked authorized state revealed admin shell and loaded prompts with no console errors or failing requests; sign-in button generated Auth-hosted login URL with state",
-                "live_validation_pending": "real admin account, real non-admin account, owner-approved deploy, and production Auth callback check required"
-            },
-            "sa_g7_t1_admin_operations_drilldown": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_operations_qa_passed",
-                "api_endpoints": [
-                    "GET /api/admin/operations/sessions",
-                    "GET /api/admin/operations/sessions/:id",
-                    "GET /api/admin/operations/leads",
-                    "GET /api/admin/operations/leads/:id"
-                ],
-                "page": "public/admin.html",
-                "controller": "src/admin/operations.controller.ts",
-                "list_screenshot": "/private/tmp/shop-assistant-admin-operations-list.png",
-                "detail_screenshot": "/private/tmp/shop-assistant-admin-operations-detail.png",
-                "validation": "npm run build passed; Playwright mocked authorized admin state loaded Operations tab, rendered session and lead rows, opened session detail with latest query, opened lead detail with CRM id, and reported no console errors, failed requests, or horizontal overflow",
-                "live_validation_pending": "real admin token, real non-admin token, owner-approved deploy, and production operations smoke check required"
-            },
-            "sa_g7_t1_customer_dashboard_editing": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_customer_crud_qa_passed",
-                "page": "public/dashboard.html",
-                "apis": [
-                    "POST /api/profiles",
-                    "PUT /api/profiles/:id",
-                    "DELETE /api/profiles/:id",
-                    "POST /api/saved-criteria",
-                    "PUT /api/saved-criteria/:id",
-                    "DELETE /api/saved-criteria/:id"
-                ],
-                "screenshot": "/private/tmp/shop-assistant-dashboard-editable-final-clean.png",
-                "validation": "npm run build passed; Playwright mocked authenticated customer dashboard created, updated, and deleted a profile and saved search, refreshed lists/dropdowns, reset forms, and reported no console errors, failed requests, or horizontal overflow",
-                "live_validation_pending": "real customer account, Auth callback, owner-approved deploy, and production dashboard CRUD smoke check required"
-            },
-            "sa_g7_t1_customer_dashboard_session_detail": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_detail_qa_passed",
-                "page": "public/dashboard.html",
-                "api": "GET /api/me/sessions/:id",
-                "screenshot": "/private/tmp/shop-assistant-dashboard-session-detail.png",
-                "validation": "npm run build passed; Playwright mocked authenticated customer clicked Details, called /api/me/sessions/session-detail-1, rendered Messages, Searches, Latest results, and Selected products, and reported no console errors, failed requests, or horizontal overflow",
-                "live_validation_pending": "real customer account, Auth callback, owner-approved deploy, and production dashboard session-detail smoke check required"
-            },
-            "sa_g7_t1_live_landing_validation": {
-                "date": "2026-06-13",
-                "status": "anonymous_search_passed_lead_capture_passed_after_deploy",
-                "production_url": "https://shop-assistant.alfares.cz",
-                "run_id": "sa-g7-live-20260613073316",
-                "health_and_legal_routes": "HEAD /, /privacy.html, /cookies.html, /terms.html, and /health all returned 200",
-                "anonymous_search": {
-                    "session_id": "8c106fe2-6d1e-440a-8e71-cec64cfaea1e",
-                    "session_create_status": 201,
-                    "query_status": 201,
-                    "result_count": 10,
-                    "http_url_count": 10
-                },
-                "lead_capture_before_fix": {
-                    "status": 500,
-                    "local_request_id": "6d1de78a-a822-466b-8635-ee799986c328",
-                    "local_save_completed": true,
-                    "lead_id_present": false,
-                    "ai_submission_id_present": false,
-                    "root_cause": "LEADS_SERVICE_URL missing in pod; fallback used leads-microservice:3371 while Kubernetes service exposes 4400"
-                },
-                "fix_prepared": {
-                    "files": [
-                        "src/leads/leads.service.ts",
-                        "k8s/configmap.yaml"
-                    ],
-                    "configured_url": "http://leads-microservice.statex-apps.svc.cluster.local:4400",
-                    "fallback_url": "http://leads-microservice:4400",
-                    "validation": "npm run build passed; direct in-cluster downstream probe to leads-microservice:4400 returned 201"
-                },
-                "live_validation_pending": "valid customer/admin/non-admin accounts for dashboard CRUD, admin operations, and forbidden admin checks",
-                "deployment": {
-                    "date": "2026-06-13",
-                    "approved_by_owner_in_active_session": true,
-                    "command": "./scripts/deploy.sh",
-                    "result": "success",
-                    "new_pod": "shop-assistant-9d8fd6548-gvrdq",
-                    "duration_seconds": 21.88
-                },
-                "lead_capture_after_deploy": {
-                    "run_id": "sa-g7-lead-retest-20260613073916",
-                    "health_status": 200,
-                    "status": 201,
-                    "request_id": "057ef3f2-9315-4756-b121-98af6e0c9af7",
-                    "lead_id": "8228d598-b29f-452d-86c5-8284cb04916e",
-                    "ai_submission_id_present": false,
-                    "result": "pass for local persistence and downstream leads-microservice forwarding"
-                }
-            },
-            "sa_g1_t1_zero_result_followup": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_deploy_pending",
-                "production_analysis": {
-                    "method": "sha256 hashed normalized query fingerprints only; no raw query text exported",
-                    "zero_result_runs_sampled": 4,
-                    "unique_fingerprints": 4,
-                    "top_fingerprints": [
-                        "71758aeee575",
-                        "33bd9b8ec8c5",
-                        "4233e845abd4",
-                        "0540222beba1"
-                    ],
-                    "query_length_range": "36-140"
-                },
-                "implementation": "src/sessions/sessions.service.ts deterministic no-results refinement guidance for single-intent and all-empty multi-intent searches",
-                "validation": "npm run build passed; sensitive-data scan found no new secret values",
-                "live_validation_pending": "owner-approved deploy and live zero-result behavior smoke check"
-            },
-            "sa_g7_t1_public_landing_settings": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
-                "settings_key": "publicLanding",
-                "public_endpoint": "GET /api/public/settings/landing",
-                "protected_write_endpoint": "PUT /api/admin/settings",
-                "fields": [
-                    "headline",
-                    "subheadline",
-                    "primaryCtaLabel",
-                    "secondaryCtaLabel",
-                    "contactHeadline",
-                    "contactSubheadline",
-                    "leadSubmitLabel",
-                    "footerTagline"
-                ],
-                "files": [
-                    "src/admin/app-settings.service.ts",
-                    "src/admin/settings.controller.ts",
-                    "src/admin/public-settings.controller.ts",
-                    "src/admin/admin.module.ts",
-                    "public/admin.html",
-                    "public/index.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-landing-settings-qa.png",
-                    "/private/tmp/shop-assistant-admin-landing-settings-qa.png"
-                ],
-                "validation": "npm run build passed; Playwright mocked public landing settings applied to landing copy; mocked authorized admin settings form loaded landing settings and saved a payload containing publicLanding; no console errors or horizontal overflow",
-                "security_boundary": "public endpoint exposes only non-secret marketing copy; writes remain JWT/RBAC protected by admin roles",
-                "live_validation_pending": "owner-approved deploy, production public endpoint smoke, and real admin-token settings save smoke"
-            },
-            "sa_g7_t1_admin_session_operations_editing": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
-                "api_endpoint": "PUT /api/admin/operations/sessions/:id",
-                "editable_fields": [
-                    "priorityOrder",
-                    "profileId"
-                ],
-                "files": [
-                    "src/admin/operations.controller.ts",
-                    "public/admin.html"
-                ],
-                "screenshot": "/private/tmp/shop-assistant-admin-session-edit-qa.png",
-                "validation": "npm run build passed; Playwright mocked authorized admin opened Operations session detail, edited priorityOrder to location/price/quality and profileId to profile-2, verified PUT payload and refreshed detail, with no console errors, failed requests, or horizontal overflow",
-                "security_boundary": "admin JWT/RBAC protected; priorityOrder allowlist enforced; profileId must belong to the session user; anonymous sessions can only clear profileId; original messages/search results/choices/leads are not edited",
-                "live_validation_pending": "owner-approved deploy, real admin-token session edit smoke, and real non-admin forbidden check"
-            },
-            "sa_g7_t1_customer_dashboard_product_selection": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
-                "api_endpoint": "POST /api/me/sessions/:id/choice/:productId",
-                "files": [
-                    "src/me/me.controller.ts",
-                    "src/me/me.service.ts",
-                    "public/dashboard.html"
-                ],
-                "screenshot": "/private/tmp/shop-assistant-dashboard-select-product-qa.png",
-                "validation": "npm run build passed; Playwright mocked authenticated customer opened dashboard request detail, clicked Select on result-1, verified one POST to /api/me/sessions/session-choice-1/choice/result-1, refreshed selected-products list, and reported no console errors, failed requests, or horizontal overflow",
-                "security_boundary": "current-user endpoint enforces session ownership before saving a product choice; product-in-session validation remains in SessionsService.chooseProduct; no admin endpoint or public choice route is required for dashboard selection",
-                "live_validation_pending": "owner-approved deploy and real customer-token dashboard product-selection smoke"
-            },
-            "sa_g7_t1_customer_dashboard_refinement": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
-                "api_endpoint": "POST /api/me/sessions/:id/feedback",
-                "files": [
-                    "public/dashboard.html"
-                ],
-                "screenshot": "/private/tmp/shop-assistant-dashboard-refine-qa.png",
-                "validation": "npm run build passed; Playwright mocked authenticated customer opened dashboard request detail, submitted feedback message Need waterproof and under 90 EUR, verified POST payload to /api/me/sessions/session-refine-1/feedback, refreshed detail with Waterproof commuter backpack, and reported no console errors, failed requests, or horizontal overflow",
-                "security_boundary": "uses existing JWT-protected current-user feedback endpoint; session ownership remains enforced by MeService.submitFeedback; no public session feedback or admin endpoint is used",
-                "live_validation_pending": "owner-approved deploy and real customer-token dashboard request-refinement smoke"
-            },
-            "sa_g7_t1_customer_dashboard_priority_controls": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
-                "api_endpoints": [
-                    "POST /api/me/sessions",
-                    "POST /api/me/sessions/:id/query",
-                    "POST /api/saved-criteria",
-                    "PUT /api/saved-criteria/:id"
-                ],
-                "files": [
-                    "public/dashboard.html"
-                ],
-                "screenshot": "/private/tmp/shop-assistant-dashboard-priorities-qa.png",
-                "validation": "npm run build passed; Playwright mocked authenticated customer selected priority order quality/price/location for a new request and location/price/quality for a saved search, verified payloads and saved-search edit population, and reported no console errors, failed requests, or horizontal overflow in the final QA run",
-                "security_boundary": "uses existing authenticated current-user and saved-criteria endpoints; profile ownership remains enforced by backend services; priority values use existing supported keys price, quality, location",
-                "live_validation_pending": "owner-approved deploy and real customer-token dashboard priority-control smoke"
-            },
-            "sa_g7_t1_admin_operations_filters": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
-                "api_endpoints": [
-                    "GET /api/admin/operations/sessions?q=...",
-                    "GET /api/admin/operations/leads?q=..."
-                ],
-                "files": [
-                    "src/admin/operations.controller.ts",
-                    "public/admin.html"
-                ],
-                "screenshot": "/private/tmp/shop-assistant-admin-operations-filters-qa.png",
-                "validation": "npm run build passed; Playwright mocked authorized admin submitted session q=red skirt and lead q=crm-42, verified q params and filtered rows, with no console errors, failed requests, or horizontal overflow",
-                "security_boundary": "admin JWT/RBAC protected; pagination and limit bounds preserved; query string normalized and capped at 120 characters",
-                "live_validation_pending": "owner-approved deploy and real admin-token operations filter smoke"
-            },
-            "sa_g3_t1_saved_criteria_traceability": {
-                "date": "2026-06-13",
-                "status": "rebuilt_image_deployed_live_customer_token_smoke_passed",
-                "migration": "prisma/migrations/20260613_add_session_saved_criteria_trace/migration.sql",
-                "source_files": [
-                    "prisma/schema.prisma",
-                    "src/sessions/sessions.service.ts",
-                    "src/profiles/saved-criteria.service.ts",
-                    "src/me/me.service.ts"
-                ],
-                "validation": "npm run prisma:generate passed; npm run build passed; focused sensitive-data scan no matches",
-                "live_validation_pending": "valid customer token for saved-criteria run traceability smoke",
-                "deployment": {
-                    "date": "2026-06-13",
-                    "approved_by_owner_in_active_session": true,
-                    "command": "./scripts/deploy.sh",
-                    "result": "success",
-                    "new_pod": "shop-assistant-74fccf57d-ff7lv",
-                    "duration_seconds": 23.08
-                },
-                "post_deploy_validation": {
-                    "prisma_migrate_status": "Database schema is up to date; 10 migrations found",
-                    "health_status": 200,
-                    "unauthenticated_me_status": 401,
-                    "unauthenticated_saved_criteria_status": 401,
-                    "live_customer_token_smoke": "passed"
-                },
-                "image": {
-                    "built_and_pushed": true,
-                    "repository": "localhost:5000/shop-assistant:latest",
-                    "digest": "sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
-                    "pod": "shop-assistant-5b699c65f6-szhz2"
-                },
-                "live_customer_token_smoke": {
-                    "run_id": "sa-g3-token-smoke-20260613094543",
-                    "auth_register_status": 201,
-                    "shop_me_status": 200,
-                    "profile_create_status": 201,
-                    "saved_criteria_create_status": 201,
-                    "saved_criteria_run_status": 201,
-                    "session_detail_status": 200,
-                    "session_id": "1f704307-1137-44ab-be19-4da077ba1f98",
-                    "profile_id": "053502cc-2306-4703-9bfe-65822eecb2d4",
-                    "saved_criteria_id": "d675dbf3-79ee-4066-ba21-8da3bc8c5c14",
-                    "used_saved_criteria_id_matches": true,
-                    "used_saved_criteria_relation_matches": true,
-                    "result_count": 10,
-                    "token_printed": false,
-                    "password_printed": false
-                }
-            },
-            "sa_g7_t1_admin_lead_triage": {
-                "date": "2026-06-13",
-                "status": "implemented_generate_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "migration": "prisma/migrations/20260613_add_lead_triage/migration.sql",
-                "api_endpoint": "PUT /api/admin/operations/leads/:id",
-                "editable_fields": [
-                    "triageStatus",
-                    "assignedTo",
-                    "adminNotes"
-                ],
-                "files": [
-                    "prisma/schema.prisma",
-                    "src/admin/operations.controller.ts",
-                    "public/admin.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-admin-lead-triage-qa.png",
-                    "/private/tmp/shop-assistant-admin-lead-triage-mobile-fixed-qa.png"
-                ],
-                "validation": "npm run prisma:generate passed; npm run build passed; in-app browser mocked authorized admin opened Operations lead detail, saved triageStatus=qualified, assignedTo=sales-admin@example.invalid, and adminNotes, verified refreshed detail/list state, no console errors, and no mobile page-level overflow at 390px after layout fix",
-                "security_boundary": "admin JWT/RBAC protected; only operational lead triage metadata is editable; submitted lead message/contact/metadata and external CRM/AI ids remain read-only; status allowlist and text length bounds enforced",
-                "live_validation_pending": "owner-approved migration/deploy, real admin-token lead triage smoke, and real non-admin forbidden check"
-            },
-            "sa_g7_t1_customer_history_filters": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "api_endpoint": "GET /api/me/sessions?q=...&profileId=...&status=...",
-                "filters": [
-                    "q",
-                    "profileId",
-                    "status:selected|searched|started"
-                ],
-                "files": [
-                    "src/me/me.controller.ts",
-                    "src/me/me.service.ts",
-                    "public/dashboard.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-dashboard-history-filters-qa.png",
-                    "/private/tmp/shop-assistant-dashboard-history-filters-mobile-viewport-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser authenticated dashboard fixture rendered filter controls, applied profileId=profile-kids and status=selected, verified only the matching selected backpack session rendered, no console errors, no page-level overflow; q=desk path validated through local API fixture because Browser text-fill/type failed due unavailable virtual clipboard",
-                "security_boundary": "current-user endpoint preserves base userId ownership scope before applying filters; q normalized and capped at 120 characters; dashboard history continues to use only /api/me routes",
-                "live_validation_pending": "owner-approved deploy, real customer-token history filter smoke, and two-account ownership negative test"
-            },
-            "sa_g7_t1_customer_history_pagination": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "api_endpoint": "GET /api/me/sessions?page=...&limit=12",
-                "files": [
-                    "public/dashboard.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-dashboard-history-paging-qa.png",
-                    "/private/tmp/shop-assistant-dashboard-history-paging-mobile-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser authenticated dashboard fixture loaded page 1 showing 12 of 14, clicked Load more history, verified page 2 appended History request 14 while preserving page 1 rows, final pager showed 14 of 14, mock API recorded page=1 and page=2 requests, no console errors, no page-level overflow on desktop/default or 390px mobile viewport",
-                "security_boundary": "uses existing JWT-protected current-user /api/me/sessions endpoint; no public or admin route added; load-more preserves account-scoped filters and server pagination bounds",
-                "live_validation_pending": "owner-approved deploy and real customer-token history pagination smoke"
-            },
-            "sa_g7_t1_customer_selected_products_pagination": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "api_endpoint": "GET /api/me/choices?page=...&limit=6",
-                "files": [
-                    "src/me/me.controller.ts",
-                    "src/me/me.service.ts",
-                    "public/dashboard.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-dashboard-selected-products-paging-qa.png",
-                    "/private/tmp/shop-assistant-dashboard-selected-products-paging-mobile-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser authenticated dashboard fixture loaded selected products page 1 showing 6 of 9, clicked Load more selected, verified page 2 appended Selected product 9 while preserving page 1 rows, final pager showed 9 of 9, mock API recorded page=1 and page=2 requests, no console errors, no page-level overflow on desktop/default or 390px mobile viewport",
-                "security_boundary": "new endpoint is JWT protected and scopes choices through session.userId; dashboard continues to use current-user /api/me routes only; no public/admin selected-products list added for customer history",
-                "live_validation_pending": "owner-approved deploy, real customer-token selected-products pagination smoke, and two-account ownership negative test"
-            },
-            "sa_g7_t1_customer_saved_search_pagination": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "api_endpoint": "GET /api/saved-criteria?page=...&limit=6",
-                "files": [
-                    "src/profiles/saved-criteria.controller.ts",
-                    "src/profiles/saved-criteria.service.ts",
-                    "public/dashboard.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-dashboard-saved-searches-paging-qa.png",
-                    "/private/tmp/shop-assistant-dashboard-saved-searches-paging-mobile-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser authenticated dashboard fixture loaded saved searches page 1 showing 6 of 10, clicked Load more saved, verified page 2 appended Saved search 10 while preserving page 1 rows, final pager showed 10 of 10, mock API recorded page=1 and page=2 requests, no console errors, no page-level overflow on desktop/default or 390px mobile viewport",
-                "security_boundary": "existing JWT-protected saved-criteria endpoint remains scoped by userId; pagination bounded to maximum limit 50; no public/admin saved-search list added for customer dashboard",
-                "live_validation_pending": "owner-approved deploy, real customer-token saved-search pagination smoke, and two-account ownership negative test"
-            },
-            "sa_g7_t1_admin_operational_health_overview": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "api_endpoint": "GET /api/admin/overview",
-                "files": [
-                    "src/admin/overview.controller.ts",
-                    "public/admin.html"
-                ],
-                "health_metrics": [
-                    "leadTriage",
-                    "openLeadRequests",
-                    "searchRunsLast24h",
-                    "zeroResultSearchRunsLast24h",
-                    "agentErrorsLast24h"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-admin-health-qa.png",
-                    "/private/tmp/shop-assistant-admin-health-mobile-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser authorized admin fixture rendered Operational health cards for open leads, new leads, zero-result searches, agent errors, and 24h search runs; no console errors; no page-level horizontal overflow on desktop/default or 390px mobile viewport",
-                "security_boundary": "existing admin overview endpoint remains JWT/RBAC protected by global:superadmin and app:shop-assistant:admin roles; health metrics are read-only aggregates and no public route or auth bypass was added",
-                "live_validation_pending": "owner-approved deploy, real admin-token overview health smoke, and real non-admin forbidden check"
-            },
-            "sa_g7_t1_admin_account_data_profiles_saved_searches": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "api_endpoints": [
-                    "GET /api/admin/operations/profiles",
-                    "PUT /api/admin/operations/profiles/:id",
-                    "GET /api/admin/operations/saved-criteria",
-                    "PUT /api/admin/operations/saved-criteria/:id"
-                ],
-                "files": [
-                    "src/admin/operations.controller.ts",
-                    "public/admin.html"
-                ],
-                "screenshots": [
-                    "/private/tmp/shop-assistant-admin-account-data-qa.png",
-                    "/private/tmp/shop-assistant-admin-account-data-mobile-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser authorized admin fixture rendered cross-user Account Data profiles and saved searches, clicked profile and saved-search save flows, mock server recorded PUT requests for profile and saved-search updates, no console errors, and no page-level horizontal overflow on desktop/default or 390px mobile viewport",
-                "security_boundary": "new account-data routes are admin JWT/RBAC protected; customer-owned current-user endpoints remain unchanged; saved-search profile reassignment verifies profile.userId matches savedCriteria.userId; no public account-data route was added",
-                "live_validation_pending": "owner-approved deploy, real admin-token account-data smoke, and real non-admin forbidden check"
-            },
-            "sa_g7_t1_token_url_hardening": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "files": [
-                    "public/index.html",
-                    "public/admin.html",
-                    "public/test.html"
-                ],
-                "changes": [
-                    "landing page no longer imports token query parameters",
-                    "landing page search redirect no longer forwards tokens to test.html",
-                    "diagnostic test page no longer imports token query parameters",
-                    "diagnostic saved-search run redirect no longer forwards tokens",
-                    "admin page strips and rejects token query URLs",
-                    "Auth hash-fragment callback cleanup remains supported"
-                ],
-                "source_scan": "no &token=, ?token=, or encodeURIComponent(token) forwarding patterns remain in public/; only remaining p.get('token') is the admin rejection branch",
-                "screenshots": [
-                    "/private/tmp/shop-assistant-token-hardening-admin-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser verified admin ?token=secret-token is stripped and rejected, Auth-style #access_token/#refresh_token callback is cleaned to admin.html and reaches authorized admin state against mocked protected overview endpoint, with no console errors",
-                "security_boundary": "bearer tokens are no longer accepted from public query strings on landing, admin, or diagnostic frontend pages; session deep links remain tokenless; manual admin token paste remains available only through the advanced form",
-                "live_validation_pending": "owner-approved deploy, real Auth callback cleanup smoke, and server/proxy access-log check that frontend flows no longer emit token query strings"
-            },
-            "sa_g7_t1_auth_callback_state_hardening": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "files": [
-                    "public/dashboard.html",
-                    "public/admin.html",
-                    "public/test.html"
-                ],
-                "changes": [
-                    "dashboard Auth callback requires stored state and returned state to exist and match",
-                    "admin Auth callback requires stored state and returned state to exist and match",
-                    "rejected callback fragments clear local auth state and clean the address bar",
-                    "diagnostic test page no longer contains dead token query branch"
-                ],
-                "source_scan": "no loose expectedState && returnedState state-check pattern remains in public/; no token query import/forwarding patterns remain in public/",
-                "screenshots": [
-                    "/private/tmp/shop-assistant-auth-state-hardening-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser verified dashboard and admin reject missing-state #access_token fragments, clean URL fragments, stay locked, and show state mismatch messaging with no console errors",
-                "security_boundary": "frontend Auth callback tokens are no longer accepted unless they correspond to the state created by the same Auth handoff; backend JWT/RBAC guards and ownership checks are unchanged",
-                "live_validation_pending": "owner-approved deploy, live Auth callback success smoke, and live mismatched-state rejection smoke if safe test-account flow is available"
-            },
-            "sa_g7_t1_session_scoped_token_storage": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "files": [
-                    "public/index.html",
-                    "public/dashboard.html",
-                    "public/admin.html",
-                    "public/test.html"
-                ],
-                "changes": [
-                    "added session-scoped shop_assistant_access_token key",
-                    "dashboard Auth callback stores access token in sessionStorage only",
-                    "admin Auth callback stores access token in sessionStorage only; manual JWT flow was later removed by SA-G7 admin Auth-only gate",
-                    "landing and diagnostic pages read session-scoped tokens for same-tab authenticated calls",
-                    "legacy localStorage accessToken is migrated into sessionStorage and removed",
-                    "legacy localStorage refreshToken is removed and no longer persisted by frontend pages"
-                ],
-                "source_scan": "no localStorage.setItem('accessToken'), localStorage.setItem('refreshToken'), or localStorage.getItem('refreshToken') patterns remain in public/; localStorage.getItem('accessToken') remains only in legacy migration-and-delete paths",
-                "screenshots": [
-                    "/private/tmp/shop-assistant-session-token-storage-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard/admin hash callbacks, verified URL fragments cleaned, dashboard signed in, admin authorized, no console errors; mock API recorded Bearer dashboard-session-token and Bearer admin-session-token on protected calls",
-                "security_boundary": "Shop Assistant frontend no longer writes bearer or refresh tokens to persistent browser storage; backend JWT/RBAC guards and current-user ownership checks are unchanged",
-                "live_validation_pending": "owner-approved deploy and real Auth callback success smoke to confirm Auth fragment flow remains compatible with same-tab session storage"
-            },
-            "sa_g7_t1_persistent_user_identity_storage_cleanup": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
-                "files": [
-                    "public/dashboard.html"
-                ],
-                "changes": [
-                    "removed dashboard localStorage.setItem('user', ...) write",
-                    "dashboard renders user label directly from protected /api/me response",
-                    "legacy localStorage.user cleanup remains on logout/session expiry"
-                ],
-                "source_scan": "no localStorage.setItem('user') or localStorage.getItem('user') patterns remain in public/",
-                "screenshots": [
-                    "/private/tmp/shop-assistant-dashboard-user-storage-qa.png"
-                ],
-                "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard hash callback, verified URL fragment cleaned and signed-in dashboard rendered with no console errors",
-                "security_boundary": "Shop Assistant frontend no longer writes authenticated user identity/email to persistent browser storage; dashboard state continues to come from current-user APIs",
-                "live_validation_pending": "owner-approved deploy and real customer Auth callback success smoke"
-            },
-            "sa_g5_lead_forwarding_resilience": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_pending_deploy",
-                "task": "docs/intent-preservation/tasks/SA-G5-T1.md",
-                "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G5-LEAD-FORWARDING.md",
-                "context_package": "docs/intent-preservation/context-packages/CP-SA-G5-LEAD-FORWARDING.md",
-                "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G5-LEAD-FORWARDING.md",
-                "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G5-LEAD-FORWARDING.md",
-                "migration": "prisma/migrations/20260613_add_lead_forwarding_status/migration.sql",
-                "validation": "npm run prisma:generate passed; npm run build passed; npx prisma validate passed; static secret scan found no embedded secret values",
-                "deployment_pending": "owner approval required before production deploy and migration apply"
-            },
-            "sa_g7_t1_admin_auth_failure_lockdown": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "page": "public/admin.html",
-                "scope": [
-                    "401 clears session auth and locks admin shell",
-                    "403 locks admin shell with missing-role message",
-                    "protected admin fetches share auth-failure handling",
-                    "late overview validation cannot re-unlock after auth is cleared"
-                ],
-                "validation": "npm run build passed; in-app browser mocked 401 and 403 lockout QA passed",
-                "screenshots": [
-                    "/private/tmp/shop-assistant-admin-401-lockout-qa.png",
-                    "/private/tmp/shop-assistant-admin-403-lockout-qa.png"
-                ],
-                "live_validation_pending": "owner-approved deploy plus real admin/non-admin Auth smoke checks"
-            },
-            "sa_g5_deployment_attempt": {
-                "date": "2026-06-13",
-                "status": "blocked_runtime_pull_rollback_stable",
-                "image_digest": "sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011",
-                "build_fix_commit": "9dafe1c",
-                "deployment_script": "./scripts/deploy.sh",
-                "failed_pod": "shop-assistant-65988f784d-c226c",
-                "stable_pod": "shop-assistant-5b699c65f6-szhz2",
-                "production_health": "https://shop-assistant.alfares.cz/ returned HTTP 200 during failed rollout",
-                "migration_applied": false
-            },
-            "sa_g7_t1_dashboard_authorization_failure_lockdown": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "page": "public/dashboard.html",
-                "scope": [
-                    "401 clears auth and hides dashboard shell",
-                    "403 clears auth and hides dashboard shell",
-                    "authorization denial resets user label and logout visibility",
-                    "stale customer dashboard data is hidden after protected API denial"
-                ],
-                "validation": "npm run build passed; in-app browser mocked /api/me 403 lockout QA passed",
-                "screenshot": "/private/tmp/shop-assistant-dashboard-403-lockout-qa.png",
-                "live_validation_pending": "owner-approved deploy plus real customer and unauthorized-account dashboard smoke checks"
-            },
-            "sa_g7_t1_customer_admin_token_isolation": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "pages": [
-                    "public/index.html",
-                    "public/test.html",
-                    "public/admin.html"
-                ],
-                "scope": [
-                    "customer-facing pages no longer read shop_assistant_admin_token directly",
-                    "manual admin JWT paste no longer writes shop_assistant_access_token; manual paste UI was later removed by SA-G7 admin Auth-only gate",
-                    "diagnostic account hint points to customer dashboard Auth flow",
-                    "admin-only token does not authorize landing search in browser QA",
-                    "customer access token still authorizes landing search in browser QA"
-                ],
-                "validation": "npm run build passed; in-app browser token-isolation QA passed",
-                "screenshot": "/private/tmp/shop-assistant-token-isolation-qa.png",
-                "live_validation_pending": "superseded by SA-G7 admin Auth-only gate; deploy/post-deploy smoke now validates Auth-only admin access and absence of manual JWT UI",
-                "superseded_by": "sa_g7_t1_admin_auth_only_gate"
-            },
-            "sa_g7_t1_landing_stale_token_fallback": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "page": "public/index.html",
-                "scope": [
-                    "landing search clears stale customer auth on 401/403",
-                    "public session creation retries anonymously once",
-                    "public query submission uses anonymous headers after stale-token fallback",
-                    "dashboard/admin protected surfaces remain separate"
-                ],
-                "validation": "npm run build passed; in-app browser stale-token fallback QA passed",
-                "screenshot": "/private/tmp/shop-assistant-landing-stale-token-fallback-qa.png",
-                "live_validation_pending": "owner-approved deploy plus safe expired-token landing smoke if available"
-            },
-            "sa_g7_t1_admin_agent_flow_deep_link_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "page": "public/admin.html",
-                "scope": [
-                    "admin sessionId flow deep links no longer auto-load before auth validation",
-                    "flow tab requires admin/Auth token",
-                    "flow fetch sends Authorization bearer header",
-                    "successful Auth callback with sessionId restores flow tab after fragment cleanup"
-                ],
-                "validation": "npm run build passed; in-app browser locked and authorized deep-link QA passed",
-                "screenshot": "/private/tmp/shop-assistant-admin-flow-gate-qa.png",
-                "live_validation_pending": "owner-approved deploy plus real admin deep-link smoke; backend route authorization review if required"
-            },
-            "sa_g7_t1_backend_agent_communications_admin_guard": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_route_guard_smoke_passed",
-                "files": [
-                    "src/sessions/sessions.controller.ts",
-                    "src/sessions/sessions.module.ts"
-                ],
-                "scope": [
-                    "GET /api/sessions/:id/agent-communications protected by JwtAuthGuard",
-                    "route protected by RolesGuard and admin roles",
-                    "missing token returns 401",
-                    "non-admin token returns 403",
-                    "admin token reaches service"
-                ],
-                "validation": "npm run build passed; temporary Nest route smoke returned missingStatus=401 nonAdminStatus=403 adminStatus=200 serviceCalls=[session-guard-1]",
-                "live_validation_pending": "owner-approved deploy plus real admin/non-admin route smoke"
-            },
-            "sa_g7_t1_legacy_debug_admin_handoff": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "files": [
-                    "public/debug.html",
-                    "public/admin.html"
-                ],
-                "scope": [
-                    "legacy public debug page no longer fetches messages or agent communications",
-                    "debug sessionId handoff routes to admin flow deep link",
-                    "Admin Flow copy says authorized admin account required",
-                    "browser QA confirmed no API calls from debug handoff"
-                ],
-                "validation": "npm run build passed; in-app browser debug handoff QA passed without API requests",
-                "live_validation_pending": "owner-approved deploy plus live debug-to-admin handoff smoke"
-            },
-            "sa_g7_t1_login_register_auth_handoff": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_auth_surface_scan_passed",
-                "pages": [
-                    "public/login.html",
-                    "public/register.html"
-                ],
-                "auth_handoff": "https://auth.alfares.cz/login and /register with client_id=shop-assistant, return_url=dashboard.html, and state",
-                "validation": "npm run build passed; rg scan found no local forms, no password inputs, no localStorage token writes, and no /api/auth login/register calls",
-                "live_validation_pending": "owner-approved deploy and real Auth callback smoke"
-            },
-            "sa_g7_t1_test_interface_boundary_cleanup": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "page": "public/test.html",
-                "validation": "npm run build passed; source scan confirmed old agent-debug wording removed and auth cleanup handler present; Browser QA with mocked 403 hid profile and saved-search controls while leaving customer sign-in hint visible",
-                "mock_server": "127.0.0.1:8162 temporary local server",
-                "live_validation_pending": "owner-approved deploy and deployed advanced test page smoke"
-            },
-            "sa_g7_t1_admin_token_guide_cleanup": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_static_scan_passed",
-                "page": "public/getting-admin-token.html",
-                "validation": "npm run build passed; source scan confirmed old accessToken/refreshToken examples, Copy Token/Show Token, DevTools extraction, curl login extraction, and paste-token instructions were removed",
-                "live_validation_pending": "owner-approved deploy and live route smoke"
-            },
-            "sa_g7_t1_admin_auth_only_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_browser_qa_passed",
-                "page": "public/admin.html",
-                "validation": "npm run build passed; source scan confirmed manual JWT UI/code and paste/save JWT copy removed; Browser QA confirmed locked state has no token input, token query URLs are rejected and cleaned, and Auth callback unlocks through protected overview validation",
-                "security_boundary": "admin UI now uses Auth-hosted sign-in only; old shop_assistant_admin_token values are cleanup-only; backend JWT/RBAC checks unchanged",
-                "live_validation_pending": "owner-approved deploy plus real admin and non-admin Auth callback smokes"
-            },
-            "sa_g7_t1_live_smoke_script": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_no_secret_production_run_completed_with_expected_predeploy_failures",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "validation": "bash -n passed; npm run build passed; no-secret production run showed public route availability and unauthenticated /api/me,/api/me/dashboard,/api/admin/overview,/api/admin/settings protections pass, while new static copy and agent-communications guard remain absent from production until deploy",
-                "optional_inputs": [
-                    "CUSTOMER_TOKEN",
-                    "ADMIN_TOKEN",
-                    "NON_ADMIN_TOKEN",
-                    "AGENT_FLOW_SESSION_ID"
-                ],
-                "live_validation_pending": "owner-approved deploy, no-secret smoke rerun, customer/admin/non-admin token smoke rerun"
-            },
-            "sa_g7_t1_post_deploy_smoke_integration": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "scripts": [
-                    "scripts/post-deploy-check.sh",
-                    "scripts/sa-g7-live-smoke.sh"
-                ],
-                "validation": "bash -n passed for both scripts; npm run build passed; post-deploy-check now runs the SA-G7 smoke script as final readiness gate and documents optional customer/admin/non-admin token variables",
-                "live_validation_pending": "owner-approved deploy, post-deploy check without secrets, post-deploy check with safe Auth tokens"
-            },
-            "sa_g7_t1_deploy_script_post_deploy_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "scripts": [
-                    "scripts/deploy.sh",
-                    "scripts/post-deploy-check.sh",
-                    "scripts/sa-g7-live-smoke.sh"
-                ],
-                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; deploy.sh now runs post-deploy-check.sh as a timed Post-deploy checks phase before deploy_timing_finish_success",
-                "live_validation_pending": "owner-approved deploy, observe Post-deploy checks phase, rerun with safe Auth tokens"
-            },
-            "sa_g7_t1_local_auth_proxy_disabled": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_source_scan_passed",
-                "files": [
-                    "src/auth/auth.module.ts",
-                    "src/auth/auth.controller.ts",
-                    "scripts/sa-g7-live-smoke.sh"
-                ],
-                "validation": "npm run build passed; AuthModule controllers list is empty; old AuthController proxy strings removed from src/auth; smoke script now expects POST /api/auth/login and /api/auth/register to return 404",
-                "security_boundary": "Shop Assistant no longer exposes same-origin credential proxy endpoints; Auth remains owner of credential collection, token refresh, and roles; JWT validation guards remain exported",
-                "live_validation_pending": "owner-approved deploy plus post-deploy smoke for disabled local auth proxy endpoints"
-            },
-            "sa_g7_t1_deploy_gate_failure_timing": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "script": "scripts/deploy.sh",
-                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; Post-deploy checks now uses deploy_timing_run_phase so failures close the timed phase before nonzero exit",
-                "live_validation_pending": "owner-approved deploy plus observation of Post-deploy checks timing behavior"
-            },
-            "sa_g7_t1_live_smoke_cache_busting": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_no_secret_production_run_completed_with_expected_predeploy_failures",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "validation": "bash -n passed; npm run build passed; no-secret production run printed HTML cache-bust key, public routes returned 200, and expected predeploy failures remained for old static content, agent-communications guard, and local auth proxy disabled checks",
-                "live_validation_pending": "owner-approved deploy plus cache-busted post-deploy smoke"
-            },
-            "sa_g7_t1_post_deploy_kubernetes_diagnostics": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "script": "scripts/post-deploy-check.sh",
-                "scope": [
-                    "best-effort kubectl namespace reachability check",
-                    "pod listing for app=shop-assistant",
-                    "deployment status output",
-                    "recent deployment logs before health and SA-G7 frontend/auth smoke"
-                ],
-                "validation": "bash -n passed for post-deploy, deploy, and SA-G7 smoke scripts; npm run build passed",
-                "live_validation_pending": "owner-approved deploy plus observation of Kubernetes diagnostics during Post-deploy checks"
-            },
-            "sa_g7_t1_admin_settings_audit_metadata": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_source_scan_passed",
-                "files": [
-                    "src/admin/app-settings.service.ts",
-                    "public/admin.html"
-                ],
-                "scope": [
-                    "protected admin settings response includes safe setting metadata",
-                    "metadata reports persisted/default source, description, appliesTo, updatedBy, and updatedAt",
-                    "Admin Settings tab renders audit metadata after load and save",
-                    "public landing settings endpoint remains copy-only"
-                ],
-                "validation": "npm run build passed; source scan confirmed Settings audit UI, renderSettingsMeta, getSettingsMeta, and updatedBy/updatedAt metadata paths",
-                "live_validation_pending": "owner-approved deploy plus live admin-token settings audit render and save/readback smoke"
-            },
-            "sa_g7_t1_live_smoke_admin_settings_metadata_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "scope": [
-                    "ADMIN_TOKEN smoke validates /api/admin/settings meta shape",
-                    "safe settings metadata required for agentExecutionMode, maxSearchResults, and publicLanding",
-                    "curl calls bounded by SMOKE_CURL_MAX_TIME defaulting to 12 seconds",
-                    "token values are not printed"
-                ],
-                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed metadata gate and timeout paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
-                "live_validation_pending": "owner-approved deploy plus ADMIN_TOKEN smoke proving protected settings metadata in production"
-            },
-            "sa_g7_t1_live_smoke_customer_dashboard_contract_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "scope": [
-                    "CUSTOMER_TOKEN smoke validates /api/me user.id",
-                    "CUSTOMER_TOKEN smoke validates /api/me/dashboard summary and recent arrays",
-                    "CUSTOMER_TOKEN smoke validates /api/me/sessions and /api/me/choices pagination contracts",
-                    "CUSTOMER_TOKEN smoke validates profiles and saved criteria list contracts",
-                    "token values are not printed"
-                ],
-                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed customer contract gate paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
-                "live_validation_pending": "owner-approved deploy plus CUSTOMER_TOKEN smoke proving customer dashboard/account contracts in production"
-            },
-            "sa_g7_t1_live_smoke_admin_rbac_breadth_gate": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "scope": [
-                    "ADMIN_TOKEN smoke checks prompts, ai-models, operations sessions, leads, profiles, and saved criteria",
-                    "ADMIN_TOKEN smoke validates ai-models and operations list response contracts",
-                    "NON_ADMIN_TOKEN smoke requires 403 across protected admin panel surfaces",
-                    "token values are not printed"
-                ],
-                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed admin RBAC breadth gate paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
-                "live_validation_pending": "owner-approved deploy plus ADMIN_TOKEN and NON_ADMIN_TOKEN smoke proving admin contracts and role denial in production"
-            },
-            "sa_g7_t1_live_smoke_public_landing_settings_contract": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_no_secret_production_endpoint_passed",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "scope": [
-                    "no-token smoke validates /api/public/settings/landing status 200",
-                    "publicLanding contract requires eight non-empty string copy fields",
-                    "public endpoint check validates runtime path used by editable commercial landing copy",
-                    "no admin metadata or secret values are expected from the public endpoint"
-                ],
-                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed public landing settings contract; no-secret production run passed public landing settings endpoint and retained expected predeploy static/API failures",
-                "live_validation_pending": "owner-approved deploy plus post-deploy landing HTML runtime copy smoke"
-            },
-            "sa_g7_t1_deploy_rollout_failure_diagnostics": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "script": "scripts/deploy.sh",
-                "scope": [
-                    "ERR trap prints rollout diagnostics before nonzero deploy exit",
-                    "diagnostics include deployment, ReplicaSets, pods, pod descriptions, pod logs, and recent events",
-                    "diagnostic path is best-effort and does not mutate rollback state",
-                    "improves evidence capture for ContainerCreating/Pulling rollout blocker"
-                ],
-                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed diagnostics trap and Kubernetes context output",
-                "live_validation_pending": "owner-approved deploy plus observation of diagnostics if rollout fails"
-            },
-            "sa_g7_t1_live_smoke_auth_handoff_invariants": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
-                "script": "scripts/sa-g7-live-smoke.sh",
-                "scope": [
-                    "login/register static checks require Auth host, client_id, return_url, state storage, no password input, and no persistent token write",
-                    "dashboard static checks require Auth host, client_id, state mismatch handling, session token storage, and no persistent token write",
-                    "admin static checks require Auth host, client_id, admin state key, state mismatch handling, session token storage, and no persistent token write"
-                ],
-                "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed Auth handoff invariant checks; no-secret production run documented expected predeploy static/auth gaps",
-                "live_validation_pending": "owner-approved deploy plus post-deploy no-secret smoke proving static Auth handoff invariants"
-            },
-            "sa_g7_t1_deploy_registry_preflight_diagnostics": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_read_only_live_diagnostics_passed",
-                "script": "scripts/deploy.sh",
-                "scope": [
-                    "deploy preflight checks registry /v2/ reachability",
-                    "deploy preflight checks shop-assistant:latest tag availability",
-                    "deploy preflight prints current running image digest",
-                    "read-only cluster inspection found deployment 1/1 ready and node Ready without pressure"
-                ],
-                "current_image_digest": "localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
-                "registry_tags": [
-                    "latest"
-                ],
-                "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed registry preflight paths; live read-only registry and digest probes passed",
-                "live_validation_pending": "owner-approved deploy plus preflight output observation before rollout"
-            },
-            "sa_g7_t1_explicit_image_packaging_step": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "scripts": [
-                    "scripts/build-and-push-image.sh",
-                    "scripts/deploy.sh"
-                ],
-                "scope": [
-                    "new build-and-push script runs npm build, docker build, docker push, and registry tag check",
-                    "image target defaults to localhost:5000/shop-assistant:latest",
-                    "image labels include source, revision, and created timestamp",
-                    "deploy source/image phase prints git HEAD, dirty worktree status, and build script reminder"
-                ],
-                "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed packaging and source-state preflight markers",
-                "live_validation_pending": "owner-approved image build/push plus owner-approved deploy"
-            },
-            "sa_g7_t1_image_source_fingerprint": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_fingerprint_calculation_passed",
-                "files": [
-                    ".dockerignore",
-                    "scripts/build-and-push-image.sh"
-                ],
-                "source_fingerprint": "3449948fc0fb64f187f3e980fc4ea519dc8ec904025f460aaf2b24b04b582335",
-                "scope": [
-                    "Docker build context excludes node_modules, dist, .git, env files, logs, coverage, and reports",
-                    "build script computes source fingerprint over public, src, prisma, scripts, package/build config, and Dockerfile",
-                    "build script prints source fingerprint before Docker build",
-                    "build script adds cz.alfares.shop-assistant.source-fingerprint image label"
-                ],
-                "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; source fingerprint calculation produced non-empty hash; npm run build passed; source scan confirmed fingerprint label and .dockerignore entries",
-                "live_validation_pending": "owner-approved image build/push plus image label verification"
-            },
-            "sa_g7_t1_image_fingerprint_label_verification": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed",
-                "scripts": [
-                    "scripts/build-and-push-image.sh",
-                    "scripts/deploy.sh"
-                ],
-                "scope": [
-                    "build script inspects built image source-fingerprint label before push",
-                    "build script fails if image label does not match computed source fingerprint",
-                    "deploy preflight prints local image source-fingerprint label when available",
-                    "deploy can enforce EXPECTED_SOURCE_FINGERPRINT before manifests/rollout"
-                ],
-                "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed image label check and EXPECTED_SOURCE_FINGERPRINT guard",
-                "live_validation_pending": "owner-approved image build/push plus deploy with EXPECTED_SOURCE_FINGERPRINT when rolling out staged frontend changes"
-            },
-            "sa_g7_t1_rollout_runbook": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_reference_validation_passed",
-                "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
-                "scope": [
-                    "source/build preflight",
-                    "owner-approved image build and push",
-                    "source fingerprint recording and EXPECTED_SOURCE_FINGERPRINT deploy",
-                    "post-deploy no-secret smoke",
-                    "customer/admin/non-admin token-backed smoke",
-                    "browser verification",
-                    "rollout failure diagnostics",
-                    "evidence checklist"
-                ],
-                "validation": "runbook exists; referenced scripts are executable; bash -n passed for build/deploy/post-deploy/smoke scripts; npm run build passed; source scan confirmed key rollout sections",
-                "live_validation_pending": "owner-approved runbook execution"
-            },
-            "sa_g7_t1_reusable_source_fingerprint_helper": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_script_syntax_passed_fingerprint_calculation_passed",
-                "scripts": [
-                    "scripts/print-source-fingerprint.sh",
-                    "scripts/build-and-push-image.sh"
-                ],
-                "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
-                "source_fingerprint": "8f8760fb016ba36a6245d3f5f7fe941dbb7deae9626475b3fdb11ea50b42bfa3",
-                "scope": [
-                    "standalone helper computes the source fingerprint over frontend, backend, Prisma, scripts, and build config inputs",
-                    "image build script uses the helper before labeling and verifying the Docker image",
-                    "rollout runbook documents precomputing the fingerprint before owner-approved build/deploy"
-                ],
-                "validation": "bash -n passed for fingerprint/build/deploy/post-deploy/smoke scripts; helper printed non-empty source fingerprint; npm run build passed; source scan confirmed helper references",
-                "live_validation_pending": "owner-approved image build/push and deploy with EXPECTED_SOURCE_FINGERPRINT"
-            },
-            "sa_g7_t1_read_only_rollout_preflight": {
-                "date": "2026-06-13",
-                "status": "implemented_preflight_passed_no_deploy",
-                "script": "scripts/sa-g7-rollout-preflight.sh",
-                "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
-                "source_fingerprint": "51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6",
-                "scope": [
-                    "checks source state, script syntax, source fingerprint, and npm build",
-                    "checks Kubernetes namespace, node, deployment, pods, and current running image digest",
-                    "checks local registry reachability and shop-assistant:latest tag state",
-                    "prints local image source-fingerprint label state without building, pushing, applying manifests, or restarting rollout"
-                ],
-                "runtime_observation": {
-                    "node": "alfares Ready",
-                    "deployment": "shop-assistant 1/1 ready",
-                    "pod": "shop-assistant-5b699c65f6-szhz2 Running",
-                    "current_image_digest": "localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
-                    "registry_tags": [
-                        "latest"
-                    ],
-                    "local_image_label": "missing; build/push required before deploy"
-                },
-                "validation": "scripts/sa-g7-rollout-preflight.sh passed; npm run build passed; Kubernetes and registry read-only checks passed; no image build/push/deploy executed",
-                "live_validation_pending": "owner-approved image build/push and deploy with EXPECTED_SOURCE_FINGERPRINT=51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6"
-            },
-            "sa_g5_deployment_success": {
-                "date": "2026-06-13",
-                "status": "deployed_live_lead_smoke_passed",
-                "image_digest": "sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011",
-                "pod": "shop-assistant-5d8d7f76f7-zkj9j",
-                "migration_status": "11 migrations found; database schema is up to date",
-                "live_smoke_run_id": "sa-g5-live-smoke-20260613170041",
-                "live_smoke_request_id": "a2c3726c-235f-48a1-a8d4-35066e4d184d",
-                "lead_forwarding_status": "sent",
-                "ai_analysis_status": "failed",
-                "ai_failure_behavior": "non-blocking and persisted",
-                "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}",
-                "deploy_script_sa_g7_smoke": "reported existing frontend/auth smoke failures; not SA-G5 blocking"
-            },
-            "sa_g7_deployment_smoke_clean": {
-                "date": "2026-06-13",
-                "status": "post_deploy_smoke_passed",
-                "commits": [
-                    "8e1a8a2",
-                    "e8540f0"
-                ],
-                "running_pod": "shop-assistant-59b9f5bb49-thkhv",
-                "running_image_digest": "sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7",
-                "final_registry_digest": "sha256:721849d59a864601a1b75cbeb3b36cc2ff52bf44955f94f2066a2fc9ba5d2637",
-                "final_source_fingerprint": "c09672d4307fd946f2ed23a9a6241f2219ced966484741d8dd012417b9ac46e9",
-                "post_deploy_check": "Failures: 0; Skipped optional checks: 3",
-                "skipped_optional_checks": [
-                    "CUSTOMER_TOKEN",
-                    "ADMIN_TOKEN",
-                    "NON_ADMIN_TOKEN"
-                ],
-                "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}"
-            },
-            "sa_g4_query_persistence_validation": {
-                "date": "2026-06-13",
-                "status": "implemented_build_passed_read_only_pod_validation_passed",
-                "script": "scripts/verify-query-persistence.js",
-                "validated_session_id": "a35fa3fe-9e1d-45d2-9ba5-c0e9f16fdce2",
-                "mode": "existing-session-read-only",
-                "counts": {
-                    "messages": 3,
-                    "userMessages": 1,
-                    "assistantMessages": 2,
-                    "tableMessages": 1,
-                    "searchRuns": 1,
-                    "searchResults": 10,
-                    "zeroResultSearchRuns": 0,
-                    "agentCommunications": 11,
-                    "agentErrors": 0,
-                    "httpResultUrls": 10,
-                    "invalidResultUrls": 0
-                },
-                "validation": "node --check passed; npm run build passed; read-only pod run emitted sanitized counts only and returned result pass",
-                "privacy": "no query text, message content, profile names, lead details, JWTs, secrets, merchant URLs, or database URLs emitted",
-                "live_validation_pending": "optional token-backed customer/admin/non-admin checks remain skipped until safe tokens are supplied"
-            }
+  "v": 1,
+  "project": "shop-assistant",
+  "stage": "active",
+  "health": "ok",
+  "cycle": 0,
+  "last_cycle_at": "2026-06-12T00:00:00Z",
+  "tasks_active": 0,
+  "tasks_failed_last_cycle": 0,
+  "open_task_ids": [],
+  "last_milestone": "SA-G2-FIX-T2-completed-build-passed",
+  "next_focus": "SA-G2 ready-now fixes completed. Remaining work is dependency-gated: admin operations data minimization owner decision, authenticated token-file smoke permission, extensionless legal route decision, and owner-approved deployment if desired.",
+  "blockers": [],
+  "budget_units_used": 0,
+  "metrics": {
+    "custom": {
+      "sa_g4_t1_synthetic_rerun": {
+        "date": "2026-06-12",
+        "source": "reports/ux/sa-g4-t1-synthetic-usage-2026-06-12.json",
+        "metrics": "reports/ux/sa-g4-t1-aggregate-metrics-2026-06-12.json",
+        "sessions": 12,
+        "search_runs": 14,
+        "search_results": 28,
+        "zero_result_search_runs": 4,
+        "choices": 5,
+        "profile_scoped_sessions": 4,
+        "saved_criteria": 3,
+        "agent_errors": 3
+      },
+      "sa_g4_t1_production_comparison": {
+        "date": "2026-06-12",
+        "production_metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-12.json",
+        "comparison": "reports/ux/sa-g4-t1-production-vs-synthetic-comparison-2026-06-12.json",
+        "production_sessions": 0,
+        "production_search_runs": 0,
+        "production_search_results": 0,
+        "production_choices": 0,
+        "production_messages": 0,
+        "production_first_session_at": null,
+        "production_last_session_at": null
+      },
+      "sa_g4_t1_write_path_check": {
+        "date": "2026-06-13",
+        "request": "POST https://shop-assistant.alfares.cz/api/sessions",
+        "synthetic_user_id": "synthetic-write-path-check-2026-06-13",
+        "production_metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-13-write-path.json",
+        "comparison": "reports/ux/sa-g4-t1-write-path-vs-synthetic-comparison-2026-06-13.json",
+        "production_sessions": 1,
+        "production_user_bound_sessions": 1,
+        "production_priority_scoped_sessions": 1,
+        "production_messages": 0,
+        "production_search_runs": 0,
+        "production_search_results": 0,
+        "production_first_session_at": "2026-06-13T03:48:23.996Z",
+        "production_last_session_at": "2026-06-13T03:48:23.996Z"
+      },
+      "sa_g7_t1_frontend_goal": {
+        "date": "2026-06-13",
+        "status": "planned",
+        "task": "docs/intent-preservation/tasks/SA-G7-T1.md",
+        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md",
+        "context_package": "docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md",
+        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md",
+        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md",
+        "first_implementation_slice": "SA-G7-B auth shell and SA-G7-C current-user dashboard APIs"
+      },
+      "sa_g7_t1_current_user_api_foundation": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed",
+        "new_module": "src/me",
+        "endpoints": [
+          "GET /api/me",
+          "GET /api/me/dashboard",
+          "GET /api/me/sessions",
+          "POST /api/me/sessions",
+          "GET /api/me/sessions/:id",
+          "POST /api/me/sessions/:id/query",
+          "POST /api/me/sessions/:id/feedback"
+        ],
+        "validation": "npm run build passed",
+        "runtime_smoke_limitation": "raw SSH start:prod could not reach db-server-postgres:5432; route mapping observed before Prisma startup failure"
+      },
+      "sa_g7_t1_dashboard_static_frontend": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_visual_qa_passed",
+        "page": "public/dashboard.html",
+        "landing_links": "public/index.html",
+        "validation": "npm run build passed; static Playwright screenshots passed for unauthenticated desktop/mobile gate",
+        "desktop_screenshot": "/private/tmp/shop-assistant-dashboard-desktop-final.png",
+        "mobile_screenshot": "/private/tmp/shop-assistant-dashboard-mobile-final.png",
+        "concept": "/Users/Sergej.Stasok/.codex/generated_images/019ebf8a-12cf-76d0-a4ff-b0e77b729ec8/ig_09e48a0f5812b98e016a2cf4f7f27c8191a963a48d697b9381.png",
+        "live_validation_pending": "database-connected runtime and test token required"
+      },
+      "sa_g7_t1_admin_overview_settings": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_migration_applied_unauthenticated_live_smoke_passed",
+        "migration": "prisma/migrations/20260613_add_app_settings/migration.sql",
+        "settings": [
+          "agentExecutionMode",
+          "maxSearchResults"
+        ],
+        "overview_endpoint": "GET /api/admin/overview",
+        "settings_endpoints": [
+          "GET /api/admin/settings",
+          "PUT /api/admin/settings",
+          "GET /api/admin/settings/agent-execution-mode",
+          "PUT /api/admin/settings/agent-execution-mode"
+        ],
+        "validation": "npm run prisma:generate && npm run build passed; static mocked Playwright admin UI QA passed; migration applied inside running pod; temporary DB-connected runtime returned 401 for unauthenticated /api/me, /api/me/dashboard, /api/admin/settings, and /api/admin/overview; /dashboard.html, /admin.html, and /health returned 200",
+        "screenshot": "/private/tmp/shop-assistant-admin-settings-final.png",
+        "migration_status": "20260613_add_app_settings applied via npx prisma migrate deploy inside running pod",
+        "live_validation_pending": "valid customer token and valid admin token required"
+      },
+      "sa_g7_t1_commercial_landing_page": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_visual_qa_passed",
+        "page": "public/index.html",
+        "concept": "/Users/Sergej.Stasok/.codex/generated_images/019ebf8a-12cf-76d0-a4ff-b0e77b729ec8/ig_091e46bc69d1ea65016a2cfce725fc8191ad2b4c3fc1d36651.png",
+        "desktop_screenshot": "/private/tmp/shop-assistant-landing-desktop-clean.png",
+        "mobile_screenshot": "/private/tmp/shop-assistant-landing-mobile-clean.png",
+        "validation": "npm run build passed; Playwright desktop/mobile screenshots passed with no console errors and no horizontal overflow; cookie consent and dynamic contact-row interactions passed",
+        "live_validation_pending": "owner-approved deploy, live anonymous search check, live lead submission check, valid customer token, and valid admin token required"
+      },
+      "sa_g7_t1_admin_auth_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_auth_qa_passed",
+        "page": "public/admin.html",
+        "auth_handoff": "https://auth.alfares.cz/login with client_id=shop-assistant, return_url, and state",
+        "validation_api": "GET /api/admin/overview",
+        "locked_screenshot": "/private/tmp/shop-assistant-admin-locked-final.png",
+        "authorized_screenshot": "/private/tmp/shop-assistant-admin-authorized-final.png",
+        "validation": "npm run build passed; Playwright locked/no-token state hid admin shell with no console errors; mocked 403 state stayed locked; mocked authorized state revealed admin shell and loaded prompts with no console errors or failing requests; sign-in button generated Auth-hosted login URL with state",
+        "live_validation_pending": "real admin account, real non-admin account, owner-approved deploy, and production Auth callback check required"
+      },
+      "sa_g7_t1_admin_operations_drilldown": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_operations_qa_passed",
+        "api_endpoints": [
+          "GET /api/admin/operations/sessions",
+          "GET /api/admin/operations/sessions/:id",
+          "GET /api/admin/operations/leads",
+          "GET /api/admin/operations/leads/:id"
+        ],
+        "page": "public/admin.html",
+        "controller": "src/admin/operations.controller.ts",
+        "list_screenshot": "/private/tmp/shop-assistant-admin-operations-list.png",
+        "detail_screenshot": "/private/tmp/shop-assistant-admin-operations-detail.png",
+        "validation": "npm run build passed; Playwright mocked authorized admin state loaded Operations tab, rendered session and lead rows, opened session detail with latest query, opened lead detail with CRM id, and reported no console errors, failed requests, or horizontal overflow",
+        "live_validation_pending": "real admin token, real non-admin token, owner-approved deploy, and production operations smoke check required"
+      },
+      "sa_g7_t1_customer_dashboard_editing": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_customer_crud_qa_passed",
+        "page": "public/dashboard.html",
+        "apis": [
+          "POST /api/profiles",
+          "PUT /api/profiles/:id",
+          "DELETE /api/profiles/:id",
+          "POST /api/saved-criteria",
+          "PUT /api/saved-criteria/:id",
+          "DELETE /api/saved-criteria/:id"
+        ],
+        "screenshot": "/private/tmp/shop-assistant-dashboard-editable-final-clean.png",
+        "validation": "npm run build passed; Playwright mocked authenticated customer dashboard created, updated, and deleted a profile and saved search, refreshed lists/dropdowns, reset forms, and reported no console errors, failed requests, or horizontal overflow",
+        "live_validation_pending": "real customer account, Auth callback, owner-approved deploy, and production dashboard CRUD smoke check required"
+      },
+      "sa_g7_t1_customer_dashboard_session_detail": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_detail_qa_passed",
+        "page": "public/dashboard.html",
+        "api": "GET /api/me/sessions/:id",
+        "screenshot": "/private/tmp/shop-assistant-dashboard-session-detail.png",
+        "validation": "npm run build passed; Playwright mocked authenticated customer clicked Details, called /api/me/sessions/session-detail-1, rendered Messages, Searches, Latest results, and Selected products, and reported no console errors, failed requests, or horizontal overflow",
+        "live_validation_pending": "real customer account, Auth callback, owner-approved deploy, and production dashboard session-detail smoke check required"
+      },
+      "sa_g7_t1_live_landing_validation": {
+        "date": "2026-06-13",
+        "status": "anonymous_search_passed_lead_capture_passed_after_deploy",
+        "production_url": "https://shop-assistant.alfares.cz",
+        "run_id": "sa-g7-live-20260613073316",
+        "health_and_legal_routes": "HEAD /, /privacy.html, /cookies.html, /terms.html, and /health all returned 200",
+        "anonymous_search": {
+          "session_id": "8c106fe2-6d1e-440a-8e71-cec64cfaea1e",
+          "session_create_status": 201,
+          "query_status": 201,
+          "result_count": 10,
+          "http_url_count": 10
+        },
+        "lead_capture_before_fix": {
+          "status": 500,
+          "local_request_id": "6d1de78a-a822-466b-8635-ee799986c328",
+          "local_save_completed": true,
+          "lead_id_present": false,
+          "ai_submission_id_present": false,
+          "root_cause": "LEADS_SERVICE_URL missing in pod; fallback used leads-microservice:3371 while Kubernetes service exposes 4400"
+        },
+        "fix_prepared": {
+          "files": [
+            "src/leads/leads.service.ts",
+            "k8s/configmap.yaml"
+          ],
+          "configured_url": "http://leads-microservice.statex-apps.svc.cluster.local:4400",
+          "fallback_url": "http://leads-microservice:4400",
+          "validation": "npm run build passed; direct in-cluster downstream probe to leads-microservice:4400 returned 201"
+        },
+        "live_validation_pending": "valid customer/admin/non-admin accounts for dashboard CRUD, admin operations, and forbidden admin checks",
+        "deployment": {
+          "date": "2026-06-13",
+          "approved_by_owner_in_active_session": true,
+          "command": "./scripts/deploy.sh",
+          "result": "success",
+          "new_pod": "shop-assistant-9d8fd6548-gvrdq",
+          "duration_seconds": 21.88
+        },
+        "lead_capture_after_deploy": {
+          "run_id": "sa-g7-lead-retest-20260613073916",
+          "health_status": 200,
+          "status": 201,
+          "request_id": "057ef3f2-9315-4756-b121-98af6e0c9af7",
+          "lead_id": "8228d598-b29f-452d-86c5-8284cb04916e",
+          "ai_submission_id_present": false,
+          "result": "pass for local persistence and downstream leads-microservice forwarding"
         }
+      },
+      "sa_g1_t1_zero_result_followup": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_deploy_pending",
+        "production_analysis": {
+          "method": "sha256 hashed normalized query fingerprints only; no raw query text exported",
+          "zero_result_runs_sampled": 4,
+          "unique_fingerprints": 4,
+          "top_fingerprints": [
+            "71758aeee575",
+            "33bd9b8ec8c5",
+            "4233e845abd4",
+            "0540222beba1"
+          ],
+          "query_length_range": "36-140"
+        },
+        "implementation": "src/sessions/sessions.service.ts deterministic no-results refinement guidance for single-intent and all-empty multi-intent searches",
+        "validation": "npm run build passed; sensitive-data scan found no new secret values",
+        "live_validation_pending": "owner-approved deploy and live zero-result behavior smoke check"
+      },
+      "sa_g7_t1_public_landing_settings": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
+        "settings_key": "publicLanding",
+        "public_endpoint": "GET /api/public/settings/landing",
+        "protected_write_endpoint": "PUT /api/admin/settings",
+        "fields": [
+          "headline",
+          "subheadline",
+          "primaryCtaLabel",
+          "secondaryCtaLabel",
+          "contactHeadline",
+          "contactSubheadline",
+          "leadSubmitLabel",
+          "footerTagline"
+        ],
+        "files": [
+          "src/admin/app-settings.service.ts",
+          "src/admin/settings.controller.ts",
+          "src/admin/public-settings.controller.ts",
+          "src/admin/admin.module.ts",
+          "public/admin.html",
+          "public/index.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-landing-settings-qa.png",
+          "/private/tmp/shop-assistant-admin-landing-settings-qa.png"
+        ],
+        "validation": "npm run build passed; Playwright mocked public landing settings applied to landing copy; mocked authorized admin settings form loaded landing settings and saved a payload containing publicLanding; no console errors or horizontal overflow",
+        "security_boundary": "public endpoint exposes only non-secret marketing copy; writes remain JWT/RBAC protected by admin roles",
+        "live_validation_pending": "owner-approved deploy, production public endpoint smoke, and real admin-token settings save smoke"
+      },
+      "sa_g7_t1_admin_session_operations_editing": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
+        "api_endpoint": "PUT /api/admin/operations/sessions/:id",
+        "editable_fields": [
+          "priorityOrder",
+          "profileId"
+        ],
+        "files": [
+          "src/admin/operations.controller.ts",
+          "public/admin.html"
+        ],
+        "screenshot": "/private/tmp/shop-assistant-admin-session-edit-qa.png",
+        "validation": "npm run build passed; Playwright mocked authorized admin opened Operations session detail, edited priorityOrder to location/price/quality and profileId to profile-2, verified PUT payload and refreshed detail, with no console errors, failed requests, or horizontal overflow",
+        "security_boundary": "admin JWT/RBAC protected; priorityOrder allowlist enforced; profileId must belong to the session user; anonymous sessions can only clear profileId; original messages/search results/choices/leads are not edited",
+        "live_validation_pending": "owner-approved deploy, real admin-token session edit smoke, and real non-admin forbidden check"
+      },
+      "sa_g7_t1_customer_dashboard_product_selection": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
+        "api_endpoint": "POST /api/me/sessions/:id/choice/:productId",
+        "files": [
+          "src/me/me.controller.ts",
+          "src/me/me.service.ts",
+          "public/dashboard.html"
+        ],
+        "screenshot": "/private/tmp/shop-assistant-dashboard-select-product-qa.png",
+        "validation": "npm run build passed; Playwright mocked authenticated customer opened dashboard request detail, clicked Select on result-1, verified one POST to /api/me/sessions/session-choice-1/choice/result-1, refreshed selected-products list, and reported no console errors, failed requests, or horizontal overflow",
+        "security_boundary": "current-user endpoint enforces session ownership before saving a product choice; product-in-session validation remains in SessionsService.chooseProduct; no admin endpoint or public choice route is required for dashboard selection",
+        "live_validation_pending": "owner-approved deploy and real customer-token dashboard product-selection smoke"
+      },
+      "sa_g7_t1_customer_dashboard_refinement": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
+        "api_endpoint": "POST /api/me/sessions/:id/feedback",
+        "files": [
+          "public/dashboard.html"
+        ],
+        "screenshot": "/private/tmp/shop-assistant-dashboard-refine-qa.png",
+        "validation": "npm run build passed; Playwright mocked authenticated customer opened dashboard request detail, submitted feedback message Need waterproof and under 90 EUR, verified POST payload to /api/me/sessions/session-refine-1/feedback, refreshed detail with Waterproof commuter backpack, and reported no console errors, failed requests, or horizontal overflow",
+        "security_boundary": "uses existing JWT-protected current-user feedback endpoint; session ownership remains enforced by MeService.submitFeedback; no public session feedback or admin endpoint is used",
+        "live_validation_pending": "owner-approved deploy and real customer-token dashboard request-refinement smoke"
+      },
+      "sa_g7_t1_customer_dashboard_priority_controls": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
+        "api_endpoints": [
+          "POST /api/me/sessions",
+          "POST /api/me/sessions/:id/query",
+          "POST /api/saved-criteria",
+          "PUT /api/saved-criteria/:id"
+        ],
+        "files": [
+          "public/dashboard.html"
+        ],
+        "screenshot": "/private/tmp/shop-assistant-dashboard-priorities-qa.png",
+        "validation": "npm run build passed; Playwright mocked authenticated customer selected priority order quality/price/location for a new request and location/price/quality for a saved search, verified payloads and saved-search edit population, and reported no console errors, failed requests, or horizontal overflow in the final QA run",
+        "security_boundary": "uses existing authenticated current-user and saved-criteria endpoints; profile ownership remains enforced by backend services; priority values use existing supported keys price, quality, location",
+        "live_validation_pending": "owner-approved deploy and real customer-token dashboard priority-control smoke"
+      },
+      "sa_g7_t1_admin_operations_filters": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_mocked_qa_passed_deploy_pending",
+        "api_endpoints": [
+          "GET /api/admin/operations/sessions?q=...",
+          "GET /api/admin/operations/leads?q=..."
+        ],
+        "files": [
+          "src/admin/operations.controller.ts",
+          "public/admin.html"
+        ],
+        "screenshot": "/private/tmp/shop-assistant-admin-operations-filters-qa.png",
+        "validation": "npm run build passed; Playwright mocked authorized admin submitted session q=red skirt and lead q=crm-42, verified q params and filtered rows, with no console errors, failed requests, or horizontal overflow",
+        "security_boundary": "admin JWT/RBAC protected; pagination and limit bounds preserved; query string normalized and capped at 120 characters",
+        "live_validation_pending": "owner-approved deploy and real admin-token operations filter smoke"
+      },
+      "sa_g3_t1_saved_criteria_traceability": {
+        "date": "2026-06-13",
+        "status": "rebuilt_image_deployed_live_customer_token_smoke_passed",
+        "migration": "prisma/migrations/20260613_add_session_saved_criteria_trace/migration.sql",
+        "source_files": [
+          "prisma/schema.prisma",
+          "src/sessions/sessions.service.ts",
+          "src/profiles/saved-criteria.service.ts",
+          "src/me/me.service.ts"
+        ],
+        "validation": "npm run prisma:generate passed; npm run build passed; focused sensitive-data scan no matches",
+        "live_validation_pending": "valid customer token for saved-criteria run traceability smoke",
+        "deployment": {
+          "date": "2026-06-13",
+          "approved_by_owner_in_active_session": true,
+          "command": "./scripts/deploy.sh",
+          "result": "success",
+          "new_pod": "shop-assistant-74fccf57d-ff7lv",
+          "duration_seconds": 23.08
+        },
+        "post_deploy_validation": {
+          "prisma_migrate_status": "Database schema is up to date; 10 migrations found",
+          "health_status": 200,
+          "unauthenticated_me_status": 401,
+          "unauthenticated_saved_criteria_status": 401,
+          "live_customer_token_smoke": "passed"
+        },
+        "image": {
+          "built_and_pushed": true,
+          "repository": "localhost:5000/shop-assistant:latest",
+          "digest": "sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
+          "pod": "shop-assistant-5b699c65f6-szhz2"
+        },
+        "live_customer_token_smoke": {
+          "run_id": "sa-g3-token-smoke-20260613094543",
+          "auth_register_status": 201,
+          "shop_me_status": 200,
+          "profile_create_status": 201,
+          "saved_criteria_create_status": 201,
+          "saved_criteria_run_status": 201,
+          "session_detail_status": 200,
+          "session_id": "1f704307-1137-44ab-be19-4da077ba1f98",
+          "profile_id": "053502cc-2306-4703-9bfe-65822eecb2d4",
+          "saved_criteria_id": "d675dbf3-79ee-4066-ba21-8da3bc8c5c14",
+          "used_saved_criteria_id_matches": true,
+          "used_saved_criteria_relation_matches": true,
+          "result_count": 10,
+          "token_printed": false,
+          "password_printed": false
+        }
+      },
+      "sa_g7_t1_admin_lead_triage": {
+        "date": "2026-06-13",
+        "status": "implemented_generate_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "migration": "prisma/migrations/20260613_add_lead_triage/migration.sql",
+        "api_endpoint": "PUT /api/admin/operations/leads/:id",
+        "editable_fields": [
+          "triageStatus",
+          "assignedTo",
+          "adminNotes"
+        ],
+        "files": [
+          "prisma/schema.prisma",
+          "src/admin/operations.controller.ts",
+          "public/admin.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-admin-lead-triage-qa.png",
+          "/private/tmp/shop-assistant-admin-lead-triage-mobile-fixed-qa.png"
+        ],
+        "validation": "npm run prisma:generate passed; npm run build passed; in-app browser mocked authorized admin opened Operations lead detail, saved triageStatus=qualified, assignedTo=sales-admin@example.invalid, and adminNotes, verified refreshed detail/list state, no console errors, and no mobile page-level overflow at 390px after layout fix",
+        "security_boundary": "admin JWT/RBAC protected; only operational lead triage metadata is editable; submitted lead message/contact/metadata and external CRM/AI ids remain read-only; status allowlist and text length bounds enforced",
+        "live_validation_pending": "owner-approved migration/deploy, real admin-token lead triage smoke, and real non-admin forbidden check"
+      },
+      "sa_g7_t1_customer_history_filters": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "api_endpoint": "GET /api/me/sessions?q=...&profileId=...&status=...",
+        "filters": [
+          "q",
+          "profileId",
+          "status:selected|searched|started"
+        ],
+        "files": [
+          "src/me/me.controller.ts",
+          "src/me/me.service.ts",
+          "public/dashboard.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-dashboard-history-filters-qa.png",
+          "/private/tmp/shop-assistant-dashboard-history-filters-mobile-viewport-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser authenticated dashboard fixture rendered filter controls, applied profileId=profile-kids and status=selected, verified only the matching selected backpack session rendered, no console errors, no page-level overflow; q=desk path validated through local API fixture because Browser text-fill/type failed due unavailable virtual clipboard",
+        "security_boundary": "current-user endpoint preserves base userId ownership scope before applying filters; q normalized and capped at 120 characters; dashboard history continues to use only /api/me routes",
+        "live_validation_pending": "owner-approved deploy, real customer-token history filter smoke, and two-account ownership negative test"
+      },
+      "sa_g7_t1_customer_history_pagination": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "api_endpoint": "GET /api/me/sessions?page=...&limit=12",
+        "files": [
+          "public/dashboard.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-dashboard-history-paging-qa.png",
+          "/private/tmp/shop-assistant-dashboard-history-paging-mobile-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser authenticated dashboard fixture loaded page 1 showing 12 of 14, clicked Load more history, verified page 2 appended History request 14 while preserving page 1 rows, final pager showed 14 of 14, mock API recorded page=1 and page=2 requests, no console errors, no page-level overflow on desktop/default or 390px mobile viewport",
+        "security_boundary": "uses existing JWT-protected current-user /api/me/sessions endpoint; no public or admin route added; load-more preserves account-scoped filters and server pagination bounds",
+        "live_validation_pending": "owner-approved deploy and real customer-token history pagination smoke"
+      },
+      "sa_g7_t1_customer_selected_products_pagination": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "api_endpoint": "GET /api/me/choices?page=...&limit=6",
+        "files": [
+          "src/me/me.controller.ts",
+          "src/me/me.service.ts",
+          "public/dashboard.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-dashboard-selected-products-paging-qa.png",
+          "/private/tmp/shop-assistant-dashboard-selected-products-paging-mobile-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser authenticated dashboard fixture loaded selected products page 1 showing 6 of 9, clicked Load more selected, verified page 2 appended Selected product 9 while preserving page 1 rows, final pager showed 9 of 9, mock API recorded page=1 and page=2 requests, no console errors, no page-level overflow on desktop/default or 390px mobile viewport",
+        "security_boundary": "new endpoint is JWT protected and scopes choices through session.userId; dashboard continues to use current-user /api/me routes only; no public/admin selected-products list added for customer history",
+        "live_validation_pending": "owner-approved deploy, real customer-token selected-products pagination smoke, and two-account ownership negative test"
+      },
+      "sa_g7_t1_customer_saved_search_pagination": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "api_endpoint": "GET /api/saved-criteria?page=...&limit=6",
+        "files": [
+          "src/profiles/saved-criteria.controller.ts",
+          "src/profiles/saved-criteria.service.ts",
+          "public/dashboard.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-dashboard-saved-searches-paging-qa.png",
+          "/private/tmp/shop-assistant-dashboard-saved-searches-paging-mobile-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser authenticated dashboard fixture loaded saved searches page 1 showing 6 of 10, clicked Load more saved, verified page 2 appended Saved search 10 while preserving page 1 rows, final pager showed 10 of 10, mock API recorded page=1 and page=2 requests, no console errors, no page-level overflow on desktop/default or 390px mobile viewport",
+        "security_boundary": "existing JWT-protected saved-criteria endpoint remains scoped by userId; pagination bounded to maximum limit 50; no public/admin saved-search list added for customer dashboard",
+        "live_validation_pending": "owner-approved deploy, real customer-token saved-search pagination smoke, and two-account ownership negative test"
+      },
+      "sa_g7_t1_admin_operational_health_overview": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "api_endpoint": "GET /api/admin/overview",
+        "files": [
+          "src/admin/overview.controller.ts",
+          "public/admin.html"
+        ],
+        "health_metrics": [
+          "leadTriage",
+          "openLeadRequests",
+          "searchRunsLast24h",
+          "zeroResultSearchRunsLast24h",
+          "agentErrorsLast24h"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-admin-health-qa.png",
+          "/private/tmp/shop-assistant-admin-health-mobile-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser authorized admin fixture rendered Operational health cards for open leads, new leads, zero-result searches, agent errors, and 24h search runs; no console errors; no page-level horizontal overflow on desktop/default or 390px mobile viewport",
+        "security_boundary": "existing admin overview endpoint remains JWT/RBAC protected by global:superadmin and app:shop-assistant:admin roles; health metrics are read-only aggregates and no public route or auth bypass was added",
+        "live_validation_pending": "owner-approved deploy, real admin-token overview health smoke, and real non-admin forbidden check"
+      },
+      "sa_g7_t1_admin_account_data_profiles_saved_searches": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "api_endpoints": [
+          "GET /api/admin/operations/profiles",
+          "PUT /api/admin/operations/profiles/:id",
+          "GET /api/admin/operations/saved-criteria",
+          "PUT /api/admin/operations/saved-criteria/:id"
+        ],
+        "files": [
+          "src/admin/operations.controller.ts",
+          "public/admin.html"
+        ],
+        "screenshots": [
+          "/private/tmp/shop-assistant-admin-account-data-qa.png",
+          "/private/tmp/shop-assistant-admin-account-data-mobile-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser authorized admin fixture rendered cross-user Account Data profiles and saved searches, clicked profile and saved-search save flows, mock server recorded PUT requests for profile and saved-search updates, no console errors, and no page-level horizontal overflow on desktop/default or 390px mobile viewport",
+        "security_boundary": "new account-data routes are admin JWT/RBAC protected; customer-owned current-user endpoints remain unchanged; saved-search profile reassignment verifies profile.userId matches savedCriteria.userId; no public account-data route was added",
+        "live_validation_pending": "owner-approved deploy, real admin-token account-data smoke, and real non-admin forbidden check"
+      },
+      "sa_g7_t1_token_url_hardening": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "files": [
+          "public/index.html",
+          "public/admin.html",
+          "public/test.html"
+        ],
+        "changes": [
+          "landing page no longer imports token query parameters",
+          "landing page search redirect no longer forwards tokens to test.html",
+          "diagnostic test page no longer imports token query parameters",
+          "diagnostic saved-search run redirect no longer forwards tokens",
+          "admin page strips and rejects token query URLs",
+          "Auth hash-fragment callback cleanup remains supported"
+        ],
+        "source_scan": "no &token=, ?token=, or encodeURIComponent(token) forwarding patterns remain in public/; only remaining p.get('token') is the admin rejection branch",
+        "screenshots": [
+          "/private/tmp/shop-assistant-token-hardening-admin-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser verified admin ?token=secret-token is stripped and rejected, Auth-style #access_token/#refresh_token callback is cleaned to admin.html and reaches authorized admin state against mocked protected overview endpoint, with no console errors",
+        "security_boundary": "bearer tokens are no longer accepted from public query strings on landing, admin, or diagnostic frontend pages; session deep links remain tokenless; manual admin token paste remains available only through the advanced form",
+        "live_validation_pending": "owner-approved deploy, real Auth callback cleanup smoke, and server/proxy access-log check that frontend flows no longer emit token query strings"
+      },
+      "sa_g7_t1_auth_callback_state_hardening": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "files": [
+          "public/dashboard.html",
+          "public/admin.html",
+          "public/test.html"
+        ],
+        "changes": [
+          "dashboard Auth callback requires stored state and returned state to exist and match",
+          "admin Auth callback requires stored state and returned state to exist and match",
+          "rejected callback fragments clear local auth state and clean the address bar",
+          "diagnostic test page no longer contains dead token query branch"
+        ],
+        "source_scan": "no loose expectedState && returnedState state-check pattern remains in public/; no token query import/forwarding patterns remain in public/",
+        "screenshots": [
+          "/private/tmp/shop-assistant-auth-state-hardening-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser verified dashboard and admin reject missing-state #access_token fragments, clean URL fragments, stay locked, and show state mismatch messaging with no console errors",
+        "security_boundary": "frontend Auth callback tokens are no longer accepted unless they correspond to the state created by the same Auth handoff; backend JWT/RBAC guards and ownership checks are unchanged",
+        "live_validation_pending": "owner-approved deploy, live Auth callback success smoke, and live mismatched-state rejection smoke if safe test-account flow is available"
+      },
+      "sa_g7_t1_session_scoped_token_storage": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "files": [
+          "public/index.html",
+          "public/dashboard.html",
+          "public/admin.html",
+          "public/test.html"
+        ],
+        "changes": [
+          "added session-scoped shop_assistant_access_token key",
+          "dashboard Auth callback stores access token in sessionStorage only",
+          "admin Auth callback stores access token in sessionStorage only; manual JWT flow was later removed by SA-G7 admin Auth-only gate",
+          "landing and diagnostic pages read session-scoped tokens for same-tab authenticated calls",
+          "legacy localStorage accessToken is migrated into sessionStorage and removed",
+          "legacy localStorage refreshToken is removed and no longer persisted by frontend pages"
+        ],
+        "source_scan": "no localStorage.setItem('accessToken'), localStorage.setItem('refreshToken'), or localStorage.getItem('refreshToken') patterns remain in public/; localStorage.getItem('accessToken') remains only in legacy migration-and-delete paths",
+        "screenshots": [
+          "/private/tmp/shop-assistant-session-token-storage-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard/admin hash callbacks, verified URL fragments cleaned, dashboard signed in, admin authorized, no console errors; mock API recorded Bearer dashboard-session-token and Bearer admin-session-token on protected calls",
+        "security_boundary": "Shop Assistant frontend no longer writes bearer or refresh tokens to persistent browser storage; backend JWT/RBAC guards and current-user ownership checks are unchanged",
+        "live_validation_pending": "owner-approved deploy and real Auth callback success smoke to confirm Auth fragment flow remains compatible with same-tab session storage"
+      },
+      "sa_g7_t1_persistent_user_identity_storage_cleanup": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_in_app_browser_qa_passed_deploy_pending",
+        "files": [
+          "public/dashboard.html"
+        ],
+        "changes": [
+          "removed dashboard localStorage.setItem('user', ...) write",
+          "dashboard renders user label directly from protected /api/me response",
+          "legacy localStorage.user cleanup remains on logout/session expiry"
+        ],
+        "source_scan": "no localStorage.setItem('user') or localStorage.getItem('user') patterns remain in public/",
+        "screenshots": [
+          "/private/tmp/shop-assistant-dashboard-user-storage-qa.png"
+        ],
+        "validation": "npm run build passed; in-app browser seeded expected Auth state, redirected through dashboard hash callback, verified URL fragment cleaned and signed-in dashboard rendered with no console errors",
+        "security_boundary": "Shop Assistant frontend no longer writes authenticated user identity/email to persistent browser storage; dashboard state continues to come from current-user APIs",
+        "live_validation_pending": "owner-approved deploy and real customer Auth callback success smoke"
+      },
+      "sa_g5_lead_forwarding_resilience": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_pending_deploy",
+        "task": "docs/intent-preservation/tasks/SA-G5-T1.md",
+        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G5-LEAD-FORWARDING.md",
+        "context_package": "docs/intent-preservation/context-packages/CP-SA-G5-LEAD-FORWARDING.md",
+        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G5-LEAD-FORWARDING.md",
+        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G5-LEAD-FORWARDING.md",
+        "migration": "prisma/migrations/20260613_add_lead_forwarding_status/migration.sql",
+        "validation": "npm run prisma:generate passed; npm run build passed; npx prisma validate passed; static secret scan found no embedded secret values",
+        "deployment_pending": "owner approval required before production deploy and migration apply"
+      },
+      "sa_g7_t1_admin_auth_failure_lockdown": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "page": "public/admin.html",
+        "scope": [
+          "401 clears session auth and locks admin shell",
+          "403 locks admin shell with missing-role message",
+          "protected admin fetches share auth-failure handling",
+          "late overview validation cannot re-unlock after auth is cleared"
+        ],
+        "validation": "npm run build passed; in-app browser mocked 401 and 403 lockout QA passed",
+        "screenshots": [
+          "/private/tmp/shop-assistant-admin-401-lockout-qa.png",
+          "/private/tmp/shop-assistant-admin-403-lockout-qa.png"
+        ],
+        "live_validation_pending": "owner-approved deploy plus real admin/non-admin Auth smoke checks"
+      },
+      "sa_g5_deployment_attempt": {
+        "date": "2026-06-13",
+        "status": "blocked_runtime_pull_rollback_stable",
+        "image_digest": "sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011",
+        "build_fix_commit": "9dafe1c",
+        "deployment_script": "./scripts/deploy.sh",
+        "failed_pod": "shop-assistant-65988f784d-c226c",
+        "stable_pod": "shop-assistant-5b699c65f6-szhz2",
+        "production_health": "https://shop-assistant.alfares.cz/ returned HTTP 200 during failed rollout",
+        "migration_applied": false
+      },
+      "sa_g7_t1_dashboard_authorization_failure_lockdown": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "page": "public/dashboard.html",
+        "scope": [
+          "401 clears auth and hides dashboard shell",
+          "403 clears auth and hides dashboard shell",
+          "authorization denial resets user label and logout visibility",
+          "stale customer dashboard data is hidden after protected API denial"
+        ],
+        "validation": "npm run build passed; in-app browser mocked /api/me 403 lockout QA passed",
+        "screenshot": "/private/tmp/shop-assistant-dashboard-403-lockout-qa.png",
+        "live_validation_pending": "owner-approved deploy plus real customer and unauthorized-account dashboard smoke checks"
+      },
+      "sa_g7_t1_customer_admin_token_isolation": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "pages": [
+          "public/index.html",
+          "public/test.html",
+          "public/admin.html"
+        ],
+        "scope": [
+          "customer-facing pages no longer read shop_assistant_admin_token directly",
+          "manual admin JWT paste no longer writes shop_assistant_access_token; manual paste UI was later removed by SA-G7 admin Auth-only gate",
+          "diagnostic account hint points to customer dashboard Auth flow",
+          "admin-only token does not authorize landing search in browser QA",
+          "customer access token still authorizes landing search in browser QA"
+        ],
+        "validation": "npm run build passed; in-app browser token-isolation QA passed",
+        "screenshot": "/private/tmp/shop-assistant-token-isolation-qa.png",
+        "live_validation_pending": "superseded by SA-G7 admin Auth-only gate; deploy/post-deploy smoke now validates Auth-only admin access and absence of manual JWT UI",
+        "superseded_by": "sa_g7_t1_admin_auth_only_gate"
+      },
+      "sa_g7_t1_landing_stale_token_fallback": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "page": "public/index.html",
+        "scope": [
+          "landing search clears stale customer auth on 401/403",
+          "public session creation retries anonymously once",
+          "public query submission uses anonymous headers after stale-token fallback",
+          "dashboard/admin protected surfaces remain separate"
+        ],
+        "validation": "npm run build passed; in-app browser stale-token fallback QA passed",
+        "screenshot": "/private/tmp/shop-assistant-landing-stale-token-fallback-qa.png",
+        "live_validation_pending": "owner-approved deploy plus safe expired-token landing smoke if available"
+      },
+      "sa_g7_t1_admin_agent_flow_deep_link_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "page": "public/admin.html",
+        "scope": [
+          "admin sessionId flow deep links no longer auto-load before auth validation",
+          "flow tab requires admin/Auth token",
+          "flow fetch sends Authorization bearer header",
+          "successful Auth callback with sessionId restores flow tab after fragment cleanup"
+        ],
+        "validation": "npm run build passed; in-app browser locked and authorized deep-link QA passed",
+        "screenshot": "/private/tmp/shop-assistant-admin-flow-gate-qa.png",
+        "live_validation_pending": "owner-approved deploy plus real admin deep-link smoke; backend route authorization review if required"
+      },
+      "sa_g7_t1_backend_agent_communications_admin_guard": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_route_guard_smoke_passed",
+        "files": [
+          "src/sessions/sessions.controller.ts",
+          "src/sessions/sessions.module.ts"
+        ],
+        "scope": [
+          "GET /api/sessions/:id/agent-communications protected by JwtAuthGuard",
+          "route protected by RolesGuard and admin roles",
+          "missing token returns 401",
+          "non-admin token returns 403",
+          "admin token reaches service"
+        ],
+        "validation": "npm run build passed; temporary Nest route smoke returned missingStatus=401 nonAdminStatus=403 adminStatus=200 serviceCalls=[session-guard-1]",
+        "live_validation_pending": "owner-approved deploy plus real admin/non-admin route smoke"
+      },
+      "sa_g7_t1_legacy_debug_admin_handoff": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "files": [
+          "public/debug.html",
+          "public/admin.html"
+        ],
+        "scope": [
+          "legacy public debug page no longer fetches messages or agent communications",
+          "debug sessionId handoff routes to admin flow deep link",
+          "Admin Flow copy says authorized admin account required",
+          "browser QA confirmed no API calls from debug handoff"
+        ],
+        "validation": "npm run build passed; in-app browser debug handoff QA passed without API requests",
+        "live_validation_pending": "owner-approved deploy plus live debug-to-admin handoff smoke"
+      },
+      "sa_g7_t1_login_register_auth_handoff": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_auth_surface_scan_passed",
+        "pages": [
+          "public/login.html",
+          "public/register.html"
+        ],
+        "auth_handoff": "https://auth.alfares.cz/login and /register with client_id=shop-assistant, return_url=dashboard.html, and state",
+        "validation": "npm run build passed; rg scan found no local forms, no password inputs, no localStorage token writes, and no /api/auth login/register calls",
+        "live_validation_pending": "owner-approved deploy and real Auth callback smoke"
+      },
+      "sa_g7_t1_test_interface_boundary_cleanup": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "page": "public/test.html",
+        "validation": "npm run build passed; source scan confirmed old agent-debug wording removed and auth cleanup handler present; Browser QA with mocked 403 hid profile and saved-search controls while leaving customer sign-in hint visible",
+        "mock_server": "127.0.0.1:8162 temporary local server",
+        "live_validation_pending": "owner-approved deploy and deployed advanced test page smoke"
+      },
+      "sa_g7_t1_admin_token_guide_cleanup": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_static_scan_passed",
+        "page": "public/getting-admin-token.html",
+        "validation": "npm run build passed; source scan confirmed old accessToken/refreshToken examples, Copy Token/Show Token, DevTools extraction, curl login extraction, and paste-token instructions were removed",
+        "live_validation_pending": "owner-approved deploy and live route smoke"
+      },
+      "sa_g7_t1_admin_auth_only_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_browser_qa_passed",
+        "page": "public/admin.html",
+        "validation": "npm run build passed; source scan confirmed manual JWT UI/code and paste/save JWT copy removed; Browser QA confirmed locked state has no token input, token query URLs are rejected and cleaned, and Auth callback unlocks through protected overview validation",
+        "security_boundary": "admin UI now uses Auth-hosted sign-in only; old shop_assistant_admin_token values are cleanup-only; backend JWT/RBAC checks unchanged",
+        "live_validation_pending": "owner-approved deploy plus real admin and non-admin Auth callback smokes"
+      },
+      "sa_g7_t1_live_smoke_script": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_no_secret_production_run_completed_with_expected_predeploy_failures",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "validation": "bash -n passed; npm run build passed; no-secret production run showed public route availability and unauthenticated /api/me,/api/me/dashboard,/api/admin/overview,/api/admin/settings protections pass, while new static copy and agent-communications guard remain absent from production until deploy",
+        "optional_inputs": [
+          "CUSTOMER_TOKEN",
+          "ADMIN_TOKEN",
+          "NON_ADMIN_TOKEN",
+          "AGENT_FLOW_SESSION_ID"
+        ],
+        "live_validation_pending": "owner-approved deploy, no-secret smoke rerun, customer/admin/non-admin token smoke rerun"
+      },
+      "sa_g7_t1_post_deploy_smoke_integration": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "scripts": [
+          "scripts/post-deploy-check.sh",
+          "scripts/sa-g7-live-smoke.sh"
+        ],
+        "validation": "bash -n passed for both scripts; npm run build passed; post-deploy-check now runs the SA-G7 smoke script as final readiness gate and documents optional customer/admin/non-admin token variables",
+        "live_validation_pending": "owner-approved deploy, post-deploy check without secrets, post-deploy check with safe Auth tokens"
+      },
+      "sa_g7_t1_deploy_script_post_deploy_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "scripts": [
+          "scripts/deploy.sh",
+          "scripts/post-deploy-check.sh",
+          "scripts/sa-g7-live-smoke.sh"
+        ],
+        "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; deploy.sh now runs post-deploy-check.sh as a timed Post-deploy checks phase before deploy_timing_finish_success",
+        "live_validation_pending": "owner-approved deploy, observe Post-deploy checks phase, rerun with safe Auth tokens"
+      },
+      "sa_g7_t1_local_auth_proxy_disabled": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_source_scan_passed",
+        "files": [
+          "src/auth/auth.module.ts",
+          "src/auth/auth.controller.ts",
+          "scripts/sa-g7-live-smoke.sh"
+        ],
+        "validation": "npm run build passed; AuthModule controllers list is empty; old AuthController proxy strings removed from src/auth; smoke script now expects POST /api/auth/login and /api/auth/register to return 404",
+        "security_boundary": "Shop Assistant no longer exposes same-origin credential proxy endpoints; Auth remains owner of credential collection, token refresh, and roles; JWT validation guards remain exported",
+        "live_validation_pending": "owner-approved deploy plus post-deploy smoke for disabled local auth proxy endpoints"
+      },
+      "sa_g7_t1_deploy_gate_failure_timing": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "script": "scripts/deploy.sh",
+        "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; Post-deploy checks now uses deploy_timing_run_phase so failures close the timed phase before nonzero exit",
+        "live_validation_pending": "owner-approved deploy plus observation of Post-deploy checks timing behavior"
+      },
+      "sa_g7_t1_live_smoke_cache_busting": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_no_secret_production_run_completed_with_expected_predeploy_failures",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "validation": "bash -n passed; npm run build passed; no-secret production run printed HTML cache-bust key, public routes returned 200, and expected predeploy failures remained for old static content, agent-communications guard, and local auth proxy disabled checks",
+        "live_validation_pending": "owner-approved deploy plus cache-busted post-deploy smoke"
+      },
+      "sa_g7_t1_post_deploy_kubernetes_diagnostics": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "script": "scripts/post-deploy-check.sh",
+        "scope": [
+          "best-effort kubectl namespace reachability check",
+          "pod listing for app=shop-assistant",
+          "deployment status output",
+          "recent deployment logs before health and SA-G7 frontend/auth smoke"
+        ],
+        "validation": "bash -n passed for post-deploy, deploy, and SA-G7 smoke scripts; npm run build passed",
+        "live_validation_pending": "owner-approved deploy plus observation of Kubernetes diagnostics during Post-deploy checks"
+      },
+      "sa_g7_t1_admin_settings_audit_metadata": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_source_scan_passed",
+        "files": [
+          "src/admin/app-settings.service.ts",
+          "public/admin.html"
+        ],
+        "scope": [
+          "protected admin settings response includes safe setting metadata",
+          "metadata reports persisted/default source, description, appliesTo, updatedBy, and updatedAt",
+          "Admin Settings tab renders audit metadata after load and save",
+          "public landing settings endpoint remains copy-only"
+        ],
+        "validation": "npm run build passed; source scan confirmed Settings audit UI, renderSettingsMeta, getSettingsMeta, and updatedBy/updatedAt metadata paths",
+        "live_validation_pending": "owner-approved deploy plus live admin-token settings audit render and save/readback smoke"
+      },
+      "sa_g7_t1_live_smoke_admin_settings_metadata_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "scope": [
+          "ADMIN_TOKEN smoke validates /api/admin/settings meta shape",
+          "safe settings metadata required for agentExecutionMode, maxSearchResults, and publicLanding",
+          "curl calls bounded by SMOKE_CURL_MAX_TIME defaulting to 12 seconds",
+          "token values are not printed"
+        ],
+        "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed metadata gate and timeout paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
+        "live_validation_pending": "owner-approved deploy plus ADMIN_TOKEN smoke proving protected settings metadata in production"
+      },
+      "sa_g7_t1_live_smoke_customer_dashboard_contract_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "scope": [
+          "CUSTOMER_TOKEN smoke validates /api/me user.id",
+          "CUSTOMER_TOKEN smoke validates /api/me/dashboard summary and recent arrays",
+          "CUSTOMER_TOKEN smoke validates /api/me/sessions and /api/me/choices pagination contracts",
+          "CUSTOMER_TOKEN smoke validates profiles and saved criteria list contracts",
+          "token values are not printed"
+        ],
+        "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed customer contract gate paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
+        "live_validation_pending": "owner-approved deploy plus CUSTOMER_TOKEN smoke proving customer dashboard/account contracts in production"
+      },
+      "sa_g7_t1_live_smoke_admin_rbac_breadth_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "scope": [
+          "ADMIN_TOKEN smoke checks prompts, ai-models, operations sessions, leads, profiles, and saved criteria",
+          "ADMIN_TOKEN smoke validates ai-models and operations list response contracts",
+          "NON_ADMIN_TOKEN smoke requires 403 across protected admin panel surfaces",
+          "token values are not printed"
+        ],
+        "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed admin RBAC breadth gate paths; no-secret production run skipped optional token checks and retained expected predeploy failures",
+        "live_validation_pending": "owner-approved deploy plus ADMIN_TOKEN and NON_ADMIN_TOKEN smoke proving admin contracts and role denial in production"
+      },
+      "sa_g7_t1_live_smoke_public_landing_settings_contract": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_no_secret_production_endpoint_passed",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "scope": [
+          "no-token smoke validates /api/public/settings/landing status 200",
+          "publicLanding contract requires eight non-empty string copy fields",
+          "public endpoint check validates runtime path used by editable commercial landing copy",
+          "no admin metadata or secret values are expected from the public endpoint"
+        ],
+        "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed public landing settings contract; no-secret production run passed public landing settings endpoint and retained expected predeploy static/API failures",
+        "live_validation_pending": "owner-approved deploy plus post-deploy landing HTML runtime copy smoke"
+      },
+      "sa_g7_t1_deploy_rollout_failure_diagnostics": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "script": "scripts/deploy.sh",
+        "scope": [
+          "ERR trap prints rollout diagnostics before nonzero deploy exit",
+          "diagnostics include deployment, ReplicaSets, pods, pod descriptions, pod logs, and recent events",
+          "diagnostic path is best-effort and does not mutate rollback state",
+          "improves evidence capture for ContainerCreating/Pulling rollout blocker"
+        ],
+        "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed diagnostics trap and Kubernetes context output",
+        "live_validation_pending": "owner-approved deploy plus observation of diagnostics if rollout fails"
+      },
+      "sa_g7_t1_live_smoke_auth_handoff_invariants": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_no_secret_smoke_completed_with_expected_predeploy_failures",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "scope": [
+          "login/register static checks require Auth host, client_id, return_url, state storage, no password input, and no persistent token write",
+          "dashboard static checks require Auth host, client_id, state mismatch handling, session token storage, and no persistent token write",
+          "admin static checks require Auth host, client_id, admin state key, state mismatch handling, session token storage, and no persistent token write"
+        ],
+        "validation": "bash -n passed for live smoke, post-deploy, and deploy scripts; npm run build passed; source scan confirmed Auth handoff invariant checks; no-secret production run documented expected predeploy static/auth gaps",
+        "live_validation_pending": "owner-approved deploy plus post-deploy no-secret smoke proving static Auth handoff invariants"
+      },
+      "sa_g7_t1_deploy_registry_preflight_diagnostics": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_read_only_live_diagnostics_passed",
+        "script": "scripts/deploy.sh",
+        "scope": [
+          "deploy preflight checks registry /v2/ reachability",
+          "deploy preflight checks shop-assistant:latest tag availability",
+          "deploy preflight prints current running image digest",
+          "read-only cluster inspection found deployment 1/1 ready and node Ready without pressure"
+        ],
+        "current_image_digest": "localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
+        "registry_tags": [
+          "latest"
+        ],
+        "validation": "bash -n passed for deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed registry preflight paths; live read-only registry and digest probes passed",
+        "live_validation_pending": "owner-approved deploy plus preflight output observation before rollout"
+      },
+      "sa_g7_t1_explicit_image_packaging_step": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "scripts": [
+          "scripts/build-and-push-image.sh",
+          "scripts/deploy.sh"
+        ],
+        "scope": [
+          "new build-and-push script runs npm build, docker build, docker push, and registry tag check",
+          "image target defaults to localhost:5000/shop-assistant:latest",
+          "image labels include source, revision, and created timestamp",
+          "deploy source/image phase prints git HEAD, dirty worktree status, and build script reminder"
+        ],
+        "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed packaging and source-state preflight markers",
+        "live_validation_pending": "owner-approved image build/push plus owner-approved deploy"
+      },
+      "sa_g7_t1_image_source_fingerprint": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_fingerprint_calculation_passed",
+        "files": [
+          ".dockerignore",
+          "scripts/build-and-push-image.sh"
+        ],
+        "source_fingerprint": "3449948fc0fb64f187f3e980fc4ea519dc8ec904025f460aaf2b24b04b582335",
+        "scope": [
+          "Docker build context excludes node_modules, dist, .git, env files, logs, coverage, and reports",
+          "build script computes source fingerprint over public, src, prisma, scripts, package/build config, and Dockerfile",
+          "build script prints source fingerprint before Docker build",
+          "build script adds cz.alfares.shop-assistant.source-fingerprint image label"
+        ],
+        "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; source fingerprint calculation produced non-empty hash; npm run build passed; source scan confirmed fingerprint label and .dockerignore entries",
+        "live_validation_pending": "owner-approved image build/push plus image label verification"
+      },
+      "sa_g7_t1_image_fingerprint_label_verification": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed",
+        "scripts": [
+          "scripts/build-and-push-image.sh",
+          "scripts/deploy.sh"
+        ],
+        "scope": [
+          "build script inspects built image source-fingerprint label before push",
+          "build script fails if image label does not match computed source fingerprint",
+          "deploy preflight prints local image source-fingerprint label when available",
+          "deploy can enforce EXPECTED_SOURCE_FINGERPRINT before manifests/rollout"
+        ],
+        "validation": "bash -n passed for build-and-push, deploy, post-deploy, and SA-G7 smoke scripts; npm run build passed; source scan confirmed image label check and EXPECTED_SOURCE_FINGERPRINT guard",
+        "live_validation_pending": "owner-approved image build/push plus deploy with EXPECTED_SOURCE_FINGERPRINT when rolling out staged frontend changes"
+      },
+      "sa_g7_t1_rollout_runbook": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_reference_validation_passed",
+        "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "scope": [
+          "source/build preflight",
+          "owner-approved image build and push",
+          "source fingerprint recording and EXPECTED_SOURCE_FINGERPRINT deploy",
+          "post-deploy no-secret smoke",
+          "customer/admin/non-admin token-backed smoke",
+          "browser verification",
+          "rollout failure diagnostics",
+          "evidence checklist"
+        ],
+        "validation": "runbook exists; referenced scripts are executable; bash -n passed for build/deploy/post-deploy/smoke scripts; npm run build passed; source scan confirmed key rollout sections",
+        "live_validation_pending": "owner-approved runbook execution"
+      },
+      "sa_g7_t1_reusable_source_fingerprint_helper": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_script_syntax_passed_fingerprint_calculation_passed",
+        "scripts": [
+          "scripts/print-source-fingerprint.sh",
+          "scripts/build-and-push-image.sh"
+        ],
+        "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "source_fingerprint": "8f8760fb016ba36a6245d3f5f7fe941dbb7deae9626475b3fdb11ea50b42bfa3",
+        "scope": [
+          "standalone helper computes the source fingerprint over frontend, backend, Prisma, scripts, and build config inputs",
+          "image build script uses the helper before labeling and verifying the Docker image",
+          "rollout runbook documents precomputing the fingerprint before owner-approved build/deploy"
+        ],
+        "validation": "bash -n passed for fingerprint/build/deploy/post-deploy/smoke scripts; helper printed non-empty source fingerprint; npm run build passed; source scan confirmed helper references",
+        "live_validation_pending": "owner-approved image build/push and deploy with EXPECTED_SOURCE_FINGERPRINT"
+      },
+      "sa_g7_t1_read_only_rollout_preflight": {
+        "date": "2026-06-13",
+        "status": "implemented_preflight_passed_no_deploy",
+        "script": "scripts/sa-g7-rollout-preflight.sh",
+        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "source_fingerprint": "51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6",
+        "scope": [
+          "checks source state, script syntax, source fingerprint, and npm build",
+          "checks Kubernetes namespace, node, deployment, pods, and current running image digest",
+          "checks local registry reachability and shop-assistant:latest tag state",
+          "prints local image source-fingerprint label state without building, pushing, applying manifests, or restarting rollout"
+        ],
+        "runtime_observation": {
+          "node": "alfares Ready",
+          "deployment": "shop-assistant 1/1 ready",
+          "pod": "shop-assistant-5b699c65f6-szhz2 Running",
+          "current_image_digest": "localhost:5000/shop-assistant@sha256:94262d813da39183c607ef09814676f6cdab3a735bc955937c4b9f97716269a8",
+          "registry_tags": [
+            "latest"
+          ],
+          "local_image_label": "missing; build/push required before deploy"
+        },
+        "validation": "scripts/sa-g7-rollout-preflight.sh passed; npm run build passed; Kubernetes and registry read-only checks passed; no image build/push/deploy executed",
+        "live_validation_pending": "owner-approved image build/push and deploy with EXPECTED_SOURCE_FINGERPRINT=51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6"
+      },
+      "sa_g5_deployment_success": {
+        "date": "2026-06-13",
+        "status": "deployed_live_lead_smoke_passed",
+        "image_digest": "sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011",
+        "pod": "shop-assistant-5d8d7f76f7-zkj9j",
+        "migration_status": "11 migrations found; database schema is up to date",
+        "live_smoke_run_id": "sa-g5-live-smoke-20260613170041",
+        "live_smoke_request_id": "a2c3726c-235f-48a1-a8d4-35066e4d184d",
+        "lead_forwarding_status": "sent",
+        "ai_analysis_status": "failed",
+        "ai_failure_behavior": "non-blocking and persisted",
+        "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}",
+        "deploy_script_sa_g7_smoke": "reported existing frontend/auth smoke failures; not SA-G5 blocking"
+      },
+      "sa_g7_deployment_smoke_clean": {
+        "date": "2026-06-13",
+        "status": "post_deploy_smoke_passed",
+        "commits": [
+          "8e1a8a2",
+          "e8540f0"
+        ],
+        "running_pod": "shop-assistant-59b9f5bb49-thkhv",
+        "running_image_digest": "sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7",
+        "final_registry_digest": "sha256:721849d59a864601a1b75cbeb3b36cc2ff52bf44955f94f2066a2fc9ba5d2637",
+        "final_source_fingerprint": "c09672d4307fd946f2ed23a9a6241f2219ced966484741d8dd012417b9ac46e9",
+        "post_deploy_check": "Failures: 0; Skipped optional checks: 3",
+        "skipped_optional_checks": [
+          "CUSTOMER_TOKEN",
+          "ADMIN_TOKEN",
+          "NON_ADMIN_TOKEN"
+        ],
+        "production_health": "https://shop-assistant.alfares.cz/health returned {\"status\":\"ok\"}"
+      },
+      "sa_g7_source_completion_audit": {
+        "date": "2026-06-13",
+        "status": "source_audit_passed_combined_preflight_passed_no_deploy",
+        "script": "scripts/sa-g7-source-audit.sh",
+        "preflight": "scripts/sa-g7-rollout-preflight.sh",
+        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "checks_passed": 86,
+        "git_head": "36481a9",
+        "source_fingerprint": "ac30026de4509d65977c09de4a9544a85aff7ef4d74f3bb9dc8040e847c03a9f",
+        "running_pod": "shop-assistant-59b9f5bb49-thkhv",
+        "running_image_digest": "localhost:5000/shop-assistant@sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7",
+        "local_image_label": "c09672d4307fd946f2ed23a9a6241f2219ced966484741d8dd012417b9ac46e9",
+        "scope": [
+          "commercial landing source coverage",
+          "Auth-hosted login/register handoff and token hardening",
+          "authenticated customer dashboard source/API coverage",
+          "admin RBAC source/API coverage",
+          "editable safe settings source/runtime application coverage",
+          "rollout and smoke tooling coverage"
+        ],
+        "validation": "sa-g7-source-audit passed 86 checks after adding strict token-smoke support; sa-g7-rollout-preflight passed source audit, fingerprint, npm build, Kubernetes readiness, registry checks, and image-label comparison without image build/push/deploy",
+        "remaining_validation": [
+          "CUSTOMER_TOKEN live smoke",
+          "ADMIN_TOKEN live smoke",
+          "NON_ADMIN_TOKEN 403 live smoke",
+          "browser verification of real Auth callbacks and role behavior"
+        ]
+      },
+      "sa_g7_strict_token_smoke_gate": {
+        "date": "2026-06-13",
+        "status": "implemented_validated_negative_missing_tokens",
+        "script": "scripts/sa-g7-live-smoke.sh",
+        "source_audit": "scripts/sa-g7-source-audit.sh",
+        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "mode": "REQUIRE_TOKEN_SMOKE=1",
+        "normal_no_secret_smoke": "Failures: 0; Skipped optional checks: 3",
+        "strict_missing_token_result": "STRICT_STATUS=1; failures for missing CUSTOMER_TOKEN, ADMIN_TOKEN, and NON_ADMIN_TOKEN",
+        "validation": "bash -n passed; source audit passed 86 checks; normal no-secret smoke still passed; strict mode without tokens failed as intended without printing token values",
+        "remaining_validation": [
+          "strict token smoke with safe CUSTOMER_TOKEN",
+          "strict token smoke with safe ADMIN_TOKEN",
+          "strict token smoke with safe NON_ADMIN_TOKEN",
+          "browser verification of real Auth callbacks and role behavior"
+        ]
+      },
+      "sa_g7_browser_verification_harness": {
+        "date": "2026-06-13",
+        "status": "implemented_node_check_passed_source_audit_passed_playwright_missing_on_remote",
+        "script": "scripts/sa-g7-browser-verify.js",
+        "source_audit": "scripts/sa-g7-source-audit.sh",
+        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "source_audit_checks": 90,
+        "coverage": [
+          "public landing renders commercial/customer-dashboard copy",
+          "customer dashboard locked state without auth",
+          "admin locked state without auth",
+          "Auth-hosted login/register redirects",
+          "customer dashboard unlock with CUSTOMER_TOKEN",
+          "admin unlock with ADMIN_TOKEN",
+          "non-admin admin denial with NON_ADMIN_TOKEN"
+        ],
+        "strict_mode": "REQUIRE_BROWSER_AUTH=1 fails missing customer/admin/non-admin browser auth checks",
+        "validation": "node --check passed; source audit passed 90 checks; remote Playwright dependency probe reported unavailable; verifier dependency-failure path exited non-zero with clear message and no token output",
+        "remaining_validation": [
+          "execute browser verifier in a Playwright-capable environment",
+          "execute REQUIRE_BROWSER_AUTH=1 browser verifier with safe CUSTOMER_TOKEN",
+          "execute REQUIRE_BROWSER_AUTH=1 browser verifier with safe ADMIN_TOKEN",
+          "execute REQUIRE_BROWSER_AUTH=1 browser verifier with safe NON_ADMIN_TOKEN"
+        ]
+      },
+      "sa_g7_public_browser_verification": {
+        "date": "2026-06-13",
+        "status": "passed_public_locked_state_auth_redirect_browser_checks",
+        "script": "scripts/sa-g7-browser-verify.js",
+        "execution_runtime": "local bundled Codex Playwright runtime",
+        "target": "https://shop-assistant.alfares.cz",
+        "tokens_supplied": false,
+        "checks": [
+          "landing page renders commercial/customer-dashboard copy",
+          "customer dashboard remains locked without auth",
+          "admin panel remains locked without auth",
+          "login page redirects to Auth-hosted login with client id",
+          "register page redirects to Auth-hosted registration with client id"
+        ],
+        "result": "Failures: 0; Skipped authenticated browser checks: 3",
+        "validation": "initial sandboxed Chromium launch failed with macOS Mach port permission denial; rerun with approved local browser-launch permissions passed public browser checks; no token values printed",
+        "remaining_validation": [
+          "REQUIRE_BROWSER_AUTH=1 browser verification with safe CUSTOMER_TOKEN",
+          "REQUIRE_BROWSER_AUTH=1 browser verification with safe ADMIN_TOKEN",
+          "REQUIRE_BROWSER_AUTH=1 browser verification with safe NON_ADMIN_TOKEN",
+          "REQUIRE_TOKEN_SMOKE=1 live smoke with safe customer/admin/non-admin tokens"
+        ]
+      },
+      "sa_g7_token_file_verification_inputs": {
+        "date": "2026-06-13",
+        "status": "implemented_validated_missing_file_failures",
+        "scripts": [
+          "scripts/sa-g7-live-smoke.sh",
+          "scripts/sa-g7-browser-verify.js",
+          "scripts/sa-g7-source-audit.sh"
+        ],
+        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "token_file_env": [
+          "CUSTOMER_TOKEN_FILE",
+          "ADMIN_TOKEN_FILE",
+          "NON_ADMIN_TOKEN_FILE"
+        ],
+        "source_audit_checks": 96,
+        "normal_no_secret_smoke": "Failures: 0; Skipped optional checks: 3",
+        "strict_live_missing_file_result": "STRICT_TOKEN_FILE_STATUS=1",
+        "strict_browser_missing_file_result": "public browser checks passed, authenticated checks failed for missing customer/admin/non-admin tokens",
+        "validation": "bash/node syntax checks passed; source audit passed 96 checks; normal no-secret smoke passed; strict missing token-file paths failed safely without printing token values",
+        "remaining_validation": [
+          "strict live smoke with safe CUSTOMER_TOKEN_FILE",
+          "strict live smoke with safe ADMIN_TOKEN_FILE",
+          "strict live smoke with safe NON_ADMIN_TOKEN_FILE",
+          "strict browser verifier with safe customer/admin/non-admin token files"
+        ]
+      },
+      "sa_g7_vault_token_file_helper": {
+        "date": "2026-06-13",
+        "status": "implemented_syntax_and_source_audit_passed_no_vault_execution",
+        "scripts": [
+          "scripts/sa-g7-token-env-from-vault.sh",
+          "scripts/sa-g7-strict-token-smoke.sh",
+          "scripts/sa-g7-source-audit.sh"
+        ],
+        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "token_dir_default": "/tmp/sa-g7-smoke-tokens",
+        "output_env_default": ".env.sa-g7-smoke",
+        "source_audit_checks": 103,
+        "security_behavior": [
+          "generated env file contains token-file paths, not raw access tokens",
+          "token directory chmod 0700",
+          "token files chmod 0600",
+          "generated env chmod 0600"
+        ],
+        "validation": "bash -n passed for Vault helper, strict token wrapper, and live smoke; browser verifier node --check passed; source audit passed 103 checks; Vault was not contacted and no credentials were created or rotated",
+        "remaining_validation": [
+          "approved Vault-backed credential bootstrap or retrieval",
+          "strict live smoke from generated token-file env",
+          "strict browser verification from generated token-file env"
+        ]
+      },
+      "sa_g4_query_persistence_validation": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_read_only_pod_validation_passed",
+        "script": "scripts/verify-query-persistence.js",
+        "validated_session_id": "a35fa3fe-9e1d-45d2-9ba5-c0e9f16fdce2",
+        "mode": "existing-session-read-only",
+        "counts": {
+          "messages": 3,
+          "userMessages": 1,
+          "assistantMessages": 2,
+          "tableMessages": 1,
+          "searchRuns": 1,
+          "searchResults": 10,
+          "zeroResultSearchRuns": 0,
+          "agentCommunications": 11,
+          "agentErrors": 0,
+          "httpResultUrls": 10,
+          "invalidResultUrls": 0
+        },
+        "validation": "node --check passed; npm run build passed; read-only pod run emitted sanitized counts only and returned result pass",
+        "privacy": "no query text, message content, profile names, lead details, JWTs, secrets, merchant URLs, or database URLs emitted",
+        "live_validation_pending": "optional token-backed customer/admin/non-admin checks remain skipped until safe tokens are supplied"
+      },
+      "sa_next_goal_selection_20260613": {
+        "date": "2026-06-13",
+        "selected_goal": "SA-G1",
+        "selected_task": "SA-G1-T1",
+        "reason": "Next non-blocked implementation goal from TASKS.md backlog after SA-G7 no-secret deployment smoke and SA-G4 query persistence validation; optional token-backed SA-G7 checks remain skipped until safe customer/admin/non-admin tokens are supplied.",
+        "blocked_or_skipped": [
+          "SA-G7 token-backed live customer/admin/non-admin checks require safe tokens and are intentionally skipped"
+        ],
+        "validation_path": "docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md",
+        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md"
+      },
+      "sa_g1_t1_feedback_zero_result_guidance": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_no_deploy",
+        "file": "src/sessions/sessions.service.ts",
+        "behavior": "feedback refinement with zero usable merchant results uses deterministic no-results refinement guidance instead of generic empty-result presentation",
+        "validation": "npm run build passed; focused sensitive-data scan found no new secret values",
+        "deployment": "not run",
+        "live_validation_pending": "owner-approved deploy and optional live zero-result feedback smoke"
+      },
+      "sa_g1_t1_empty_table_suppression": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_no_deploy",
+        "file": "src/sessions/sessions.service.ts",
+        "behavior": "zero-result initial and feedback search flows persist text guidance without empty table messages; successful result tables remain unchanged",
+        "validation": "npm run build passed; focused sensitive-data scan found no new secret values",
+        "deployment": "not run",
+        "live_validation_pending": "owner-approved deploy and optional live zero-result search/message-history smoke"
+      },
+      "sa_g1_t1_public_test_empty_state_guidance": {
+        "date": "2026-06-13",
+        "status": "implemented_build_passed_no_deploy",
+        "file": "public/test.html",
+        "behavior": "public test zero-result initial query/refine/chat/session flows render actionable no-results guidance with escaped query text",
+        "validation": "npm run build passed; public/test.html inline script parse passed; focused sensitive-data scan found no new secret values",
+        "deployment": "not run",
+        "live_validation_pending": "owner-approved deploy and optional live zero-result public test smoke"
+      },
+      "sa_g7_vault_backed_strict_token_smoke": {
+        "date": "2026-06-13",
+        "status": "passed_failures_0_no_deploy",
+        "vault_path": "secret/prod/shop-assistant-smoke",
+        "scripts": [
+          "scripts/sa-g7-bootstrap-smoke-credentials.sh",
+          "scripts/sa-g7-token-env-from-vault.sh",
+          "scripts/sa-g7-strict-token-smoke.sh"
+        ],
+        "validation": "strict live smoke exited 0 with Failures: 0; customer/admin/non-admin token checks passed; .env.sa-g7-smoke generated mode 600 from Vault",
+        "skipped": "AGENT_FLOW_SESSION_ID admin/non-admin agent-communications checks",
+        "deployment": "not run"
+      },
+      "sa_g7_token_helper_dry_run_validation": {
+        "date": "2026-06-13",
+        "status": "passed_no_vault_no_auth",
+        "script": "scripts/sa-g7-token-env-from-vault.sh",
+        "source_audit": "scripts/sa-g7-source-audit.sh",
+        "mode": "SA_G7_TOKEN_HELPER_DRY_RUN=1",
+        "source_audit_checks": 104,
+        "token_dir_mode": "700",
+        "token_file_mode": "600",
+        "env_file_mode": "600",
+        "env_shape": "CUSTOMER_TOKEN_FILE, ADMIN_TOKEN_FILE, NON_ADMIN_TOKEN_FILE, and REQUIRE_TOKEN_SMOKE present; raw CUSTOMER_TOKEN, ADMIN_TOKEN, and NON_ADMIN_TOKEN absent",
+        "validation": "dry-run wrote synthetic placeholder token files only; Vault/Auth were not contacted; env/token-file permissions and key shape validated",
+        "remaining_validation": [
+          "optional AGENT_FLOW_SESSION_ID admin/non-admin agent-communications smoke",
+          "authenticated browser verification with safe token files"
+        ]
+      },
+      "sa_g7_remote_chrome_authenticated_browser_verification": {
+        "date": "2026-06-13",
+        "status": "passed_failures_0_skipped_0_no_deploy",
+        "script": "scripts/sa-g7-chrome-browser-verify.js",
+        "target": "https://shop-assistant.alfares.cz",
+        "browser": "system Chrome on alfares via Chrome DevTools Protocol",
+        "token_handling": "read CUSTOMER_TOKEN_FILE, ADMIN_TOKEN_FILE, and NON_ADMIN_TOKEN_FILE from .env.sa-g7-smoke; token values were not printed or copied off alfares",
+        "validation": "landing, locked customer dashboard, locked admin panel, Auth login/register redirects, customer dashboard unlock, admin unlock/settings panel, and non-admin admin denial passed",
+        "source_audit": "SA-G7 source audit passed (111 checks)",
+        "remaining_optional_validation": "AGENT_FLOW_SESSION_ID admin/non-admin agent-communications smoke"
+      },
+      "sa_g7_optional_agent_flow_rbac_smoke": {
+        "date": "2026-06-13",
+        "status": "passed_in_cluster_no_deploy",
+        "session_id": "smoke",
+        "target": "Kubernetes service http://10.43.151.129:4500",
+        "unauthenticated_status": 401,
+        "admin_status": 404,
+        "non_admin_status": 403,
+        "token_handling": "read ADMIN_TOKEN_FILE and NON_ADMIN_TOKEN_FILE from .env.sa-g7-smoke on alfares; token values were not printed or copied off alfares",
+        "public_edge_note": "A broad public strict smoke encountered Cloudflare 521 responses while Kubernetes pod and direct service health were healthy",
+        "deployment": "not run"
+      },
+      "sa_g7_agent_flow_strict_token_smoke": {
+        "date": "2026-06-13",
+        "status": "passed_failures_0_skipped_0_no_deploy",
+        "script": "scripts/sa-g7-agent-flow-strict-smoke.sh",
+        "validation": "auto-created smoke session; admin agent-communications returned 200; non-admin returned 403; strict smoke exited 0 with Failures: 0 and Skipped optional checks: 0",
+        "deployment": "not run"
+      },
+      "sa_g1_next_failed_search_live_validation": {
+        "date": "2026-06-13",
+        "status": "complete_deployed_live_validation_passed",
+        "task_id": "SA-G1-next-failed-search-live-validation",
+        "scripts": [
+          "scripts/sa-g1-live-no-results-validate.js",
+          "scripts/sa-g1-zero-result-session-validate.js"
+        ],
+        "privacy": "sanitized output only: session ids, counts, booleans, timestamps, query fingerprints, and query lengths; no raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, or database URLs emitted",
+        "live_zero_result_session_id": "a4286a73-2b06-4692-9dde-025dcb1355c7",
+        "live_result": {
+          "zero_result_probe": true,
+          "actionable_no_results_guidance_present": true,
+          "search_results": 0,
+          "invalid_result_urls": 0,
+          "table_messages": 0,
+          "table_messages_suppressed": true,
+          "result": "pass"
+        },
+        "source_status": "remote source/build includes resultsForFormat.length guards for table messages",
+        "production_status": "running pod image contains guarded table writes and passed live/in-pod zero-result validation",
+        "validation": [
+          "node --check scripts/sa-g1-live-no-results-validate.js passed",
+          "node --check scripts/sa-g1-zero-result-session-validate.js passed",
+          "npm run build passed",
+          "constrained synthetic live probe reached zero-result branch and guidance was present",
+          "in-pod read-only validator confirmed production table suppression still fails until deploy",
+          "scripts/build-and-push-image.sh passed",
+          "scripts/deploy.sh passed after image rebuild",
+          "post-deploy smoke passed with Failures: 0 and Skipped optional checks: 3",
+          "constrained synthetic live probe passed after deploy",
+          "in-pod read-only zero-result validator passed after deploy"
+        ],
+        "deployment": {
+          "approved_by_owner_in_active_session": true,
+          "build_and_push_image": "passed",
+          "source_fingerprint": "dd528e08e97219e6ee6fee221088753dc5233e00f50e0c79e15d8c2e383e2892",
+          "image_digest": "sha256:87c45f1a73e2316856721999e95e357ec2131aae1c5696f70601194b172eedb9",
+          "pod": "shop-assistant-79df4b976d-dvv2x",
+          "post_deploy_smoke": "Failures: 0; Skipped optional checks: 3"
+        }
+      },
+      "sa_g2_t1_parallel_audit_plan": {
+        "date": "2026-06-13",
+        "status": "planned_parallel_ready",
+        "task": "docs/intent-preservation/tasks/SA-G2-T1.md",
+        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "context_package": "docs/intent-preservation/context-packages/CP-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "parallel_workstreams": [
+          "documentation_and_ips_audit",
+          "public_legal_surface_audit",
+          "protected_admin_test_surface_audit",
+          "integration_and_followup_planning"
+        ]
+      },
+      "sa_g2_t1_parallel_audit_integrated": {
+        "date": "2026-06-14",
+        "status": "integrated",
+        "worker_threads": [
+          "019ec2dd-0eb7-7a80-a707-ded72f4bdd98",
+          "019ec2dd-1270-7f33-aeb9-c00bbca040bc",
+          "019ec2dd-1782-7352-91b5-47d4ccfde693"
+        ],
+        "next_task": "docs/intent-preservation/tasks/SA-G2-FIX-T1.md"
+      },
+      "sa_g2_fix_t1_completed": {
+        "date": "2026-06-14",
+        "status": "completed_build_passed",
+        "validation": [
+          "npm run build passed",
+          "node --check scripts/sa-g7-browser-verify.js passed",
+          "node --check scripts/sa-g7-chrome-browser-verify.js passed",
+          "focused placeholder/token guidance scan passed"
+        ],
+        "next_task": "docs/intent-preservation/tasks/SA-G2-FIX-T2.md"
+      },
+      "sa_g2_fix_t2_completed": {
+        "date": "2026-06-14",
+        "status": "completed_build_passed_not_deployed",
+        "validation": [
+          "npm run build passed",
+          "public controller wrapper scan passed",
+          "test.html token-gated profileId scan passed",
+          "STATE.json parse passed"
+        ],
+        "deployment": "not run"
+      }
     }
+  }
 }

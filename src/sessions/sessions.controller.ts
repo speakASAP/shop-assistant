@@ -18,20 +18,20 @@ export class SessionsController {
 
   @Post()
   async create(@Body() dto: CreateSessionDto) {
-    this.logging.info('POST /api/sessions create', { userId: dto.userId ?? null, prioritiesCount: dto.priorities?.length ?? 0, profileId: dto.profileId ?? null, context: 'SessionsController' });
-    return this.sessions.createSession(dto.userId, dto.priorities, dto.profileId);
+    this.logging.info('POST /api/sessions create', { hasIgnoredUserId: !!dto.userId, prioritiesCount: dto.priorities?.length ?? 0, hasIgnoredProfileId: !!dto.profileId, context: 'SessionsController' });
+    return this.sessions.createSession(undefined, dto.priorities, undefined);
   }
 
   @Post(':id/query')
   async query(@Param('id') id: string, @Body() dto: QueryDto) {
     this.logging.info('POST /api/sessions/:id/query', { sessionId: id, hasText: !!dto.text, hasAudioUrl: !!dto.audioUrl, context: 'SessionsController' });
-    return this.sessions.submitQuery(id, dto.text, dto.audioUrl, dto.priorities, dto.profileId);
+    return this.sessions.submitPublicQuery(id, dto.text, dto.audioUrl, dto.priorities);
   }
 
   @Post(':id/feedback')
   async feedback(@Param('id') id: string, @Body() dto: FeedbackDto) {
     this.logging.info('POST /api/sessions/:id/feedback', { sessionId: id, messageLength: dto.message?.length, selectedCount: dto.selectedIndices?.length ?? 0, context: 'SessionsController' });
-    return this.sessions.submitFeedback(id, dto.message, dto.selectedIndices, dto.priorities, dto.profileId);
+    return this.sessions.submitPublicFeedback(id, dto.message, dto.selectedIndices, dto.priorities);
   }
 
   @Get(':id/results')
@@ -43,13 +43,13 @@ export class SessionsController {
     const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
     const limitNum = Math.min(30, Math.max(1, parseInt(String(limit), 10) || 20));
     this.logging.debug('GET /api/sessions/:id/results', { sessionId: id, page: pageNum, limit: limitNum, context: 'SessionsController' });
-    return this.sessions.getResults(id, pageNum, limitNum);
+    return this.sessions.getPublicResults(id, pageNum, limitNum);
   }
 
   @Get(':id/choice/:productId')
   async choice(@Param('id') id: string, @Param('productId') productId: string) {
     this.logging.info('GET /api/sessions/:id/choice/:productId', { sessionId: id, productId, context: 'SessionsController' });
-    return this.sessions.getChoiceRedirect(id, productId);
+    return this.sessions.getPublicChoiceRedirect(id, productId);
   }
 
   @Get(':id/choice/:productId/redirect')
@@ -59,14 +59,14 @@ export class SessionsController {
     @Res() res: Response,
   ) {
     this.logging.info('GET /api/sessions/:id/choice/:productId/redirect', { sessionId: id, productId, context: 'SessionsController' });
-    const { url } = await this.sessions.getChoiceRedirect(id, productId);
+    const { url } = await this.sessions.getPublicChoiceRedirect(id, productId);
     res.redirect(302, url);
   }
 
   @Get(':id/messages')
   async getClientMessages(@Param('id') id: string) {
     this.logging.debug('GET /api/sessions/:id/messages', { sessionId: id, context: 'SessionsController' });
-    return this.sessions.getClientMessages(id);
+    return this.sessions.getPublicClientMessages(id);
   }
 
   @Get(':id/agent-communications')

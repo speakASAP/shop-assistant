@@ -1,5 +1,11 @@
 # Tasks: shop-assistant
 
+## Next Selected Task
+
+- [x] SA-G2-FIX-T2 Public session ownership boundary hardening completed (2026-06-14)
+- [x] SA-G2-FIX-T1 Documentation and legal/privacy surface hardening completed (2026-06-14)
+- [x] SA-G2-T1 Legal, privacy, and secret-surface audit integrated (2026-06-14)
+
 ## Backlog
 
 - [ ] SA-G7-T1 Commercial frontend, authenticated client dashboard, and role-protected admin control panel (priority: 1)
@@ -89,4 +95,27 @@
 - [x] 2026-06-13 SA-G5 deployment retry succeeded; running pod uses image digest sha256:a71aa4ec6c15dbf378461b161bf57474eef5f44f0442704edc523d2fcd934011, Prisma reports 11 migrations up to date, live lead smoke saved request a2c3726c-235f-48a1-a8d4-35066e4d184d with leadForwardingStatus=sent and aiAnalysisStatus=failed as non-blocking
 
 - [x] 2026-06-13 SA-G7 deployment smoke cleaned: frontend/auth static checks, unauthenticated protection checks, disabled local auth endpoints, and post-deploy SA-G7 smoke all passed with Failures=0; optional token checks skipped
+- [x] 2026-06-13 SA-G7 source audit added and wired into rollout preflight; 85 source checks passed for landing, Auth handoff, customer dashboard, admin RBAC, editable settings, token hardening, and rollout tooling; combined preflight passed but current source fingerprint differs from built image label
+- [x] 2026-06-13 SA-G7 strict token-smoke gate added; REQUIRE_TOKEN_SMOKE=1 now fails when CUSTOMER_TOKEN, ADMIN_TOKEN, or NON_ADMIN_TOKEN is missing, while normal no-secret smoke still passes with optional token checks skipped
+- [x] 2026-06-13 SA-G7 browser verification harness added for public locked states, Auth-hosted redirects, customer dashboard unlock, admin unlock, and non-admin denial; node syntax and source audit passed, remote execution is pending Playwright availability and safe tokens
+- [x] 2026-06-13 SA-G7 public browser verification executed from local bundled Playwright runtime; landing copy, locked customer dashboard, locked admin panel, and Auth-hosted login/register redirects passed; authenticated browser checks skipped pending safe tokens
+- [x] 2026-06-13 SA-G7 token-file support added for strict live smoke and browser verifier; CUSTOMER_TOKEN_FILE, ADMIN_TOKEN_FILE, and NON_ADMIN_TOKEN_FILE avoid raw token shell history exposure; source audit passed 96 checks and strict missing-token-file paths fail safely
+- [x] 2026-06-13 SA-G7 Vault token helper hardened to write 0600 token files and an env file containing only CUSTOMER_TOKEN_FILE, ADMIN_TOKEN_FILE, and NON_ADMIN_TOKEN_FILE references; source audit passed 103 checks without creating or rotating credentials
 - [x] 2026-06-13 SA-G4 query persistence validation harness added; read-only pod run against documented smoke session proved messages/search run/results/agent communications persisted with sanitized output only; build passed
+- [x] 2026-06-13 Next non-blocked implementation goal selected: SA-G1-T1 Search Quality From Failed Searches; SA-G7 token-backed customer/admin/non-admin live checks remain skipped until safe tokens are supplied.
+- [x] 2026-06-13 SA-G1 failed-search follow-up improved feedback zero-result handling; refined searches with no usable merchant results now persist concrete refinement guidance instead of generic empty-result presentation; build passed; no deploy run.
+- [x] 2026-06-13 SA-G1 failed-search follow-up suppressed empty table messages for zero-result initial and feedback searches; successful result tables remain unchanged; build passed; no deploy run.
+- [x] 2026-06-13 SA-G1 public test empty-state guidance implemented for initial query, refine form, chat refine, and existing zero-result session runs; inline script syntax/build/sensitive-data scan passed; no deploy run.
+- [x] 2026-06-13 SA-G7 Vault-backed customer/admin/non-admin smoke credentials created; strict token smoke generated .env.sa-g7-smoke from Vault and passed with Failures: 0; only AGENT_FLOW_SESSION_ID checks skipped.
+- [x] 2026-06-13 SA-G7 token helper dry-run mode added; SA_G7_TOKEN_HELPER_DRY_RUN=1 validates token-file env generation and 0700/0600 permissions with synthetic placeholder tokens only, without contacting Vault/Auth.
+- [x] 2026-06-13 SA-G7 remote Chrome authenticated browser verification passed; system Chrome/CDP verifier kept token files on alfares and verified landing, locked states, Auth redirects, customer dashboard unlock, admin unlock, and non-admin denial with Failures: 0 and Skipped authenticated browser checks: 0.
+- [x] 2026-06-13 SA-G7 optional agent-flow RBAC smoke passed in-cluster after public Cloudflare edge returned 521 during broad smoke; synthetic session id `smoke` returned 401 unauthenticated, 404 admin-allowed, and 403 non-admin denied through the Kubernetes service.
+- [x] 2026-06-13 SA-G7 agent-flow strict token smoke implemented with auto-created smoke session; admin agent-communications returned 200, non-admin returned 403, Failures: 0, Skipped optional checks: 0.
+- [x] 2026-06-13 SA-G1 failed-search live validation harness added; sanitized public and in-pod validators prove live zero-result guidance is present without raw query text, but production table-message suppression remains blocked until owner-approved deploy of current source.
+- [x] 2026-06-13 SA-G1 failed-search live validation deployed after approval; rebuilt/pushed image sha256:87c45f1a73e2316856721999e95e357ec2131aae1c5696f70601194b172eedb9, rollout/post-deploy smoke passed, constrained zero-result live probe and in-pod validator passed with guidance present, tableMessages=0, and no invalid URLs.
+
+- [x] 2026-06-14 SA-G2-T1 parallel audit completed and integrated into docs/intent-preservation/validation-reports/VAL-SA-G2-LEGAL-PRIVACY-AUDIT.md; next fix task SA-G2-FIX-T1 selected.
+
+- [x] 2026-06-14 SA-G2-FIX-T1 documentation and legal/privacy surface hardening completed; build and focused scans passed; next fix task SA-G2-FIX-T2 selected.
+
+- [x] 2026-06-14 SA-G2-FIX-T2 public session ownership boundary hardening completed; public sessions are anonymous-only, account-bound sessions require /api/me ownership routes, and build/focused scans passed; no deploy run.

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoggingService } from '../logging/logging.service';
 import { AiService } from './ai.service';
@@ -68,6 +68,51 @@ export class SessionsService {
       throw new NotFoundException('Session not found');
     }
     return session;
+  }
+
+  private async assertPublicSession(sessionId: string) {
+    const session = await this.getSession(sessionId);
+    if (session.userId || session.profileId || session.usedSavedCriteriaId) {
+      this.logging.warn('Public session access rejected for account-bound session', {
+        sessionId,
+        hasUserId: !!session.userId,
+        hasProfileId: !!session.profileId,
+        hasSavedCriteria: !!session.usedSavedCriteriaId,
+        context: 'SessionsService',
+      });
+      throw new ForbiddenException('Use authenticated account session endpoints for this session');
+    }
+    return session;
+  }
+
+  async submitPublicQuery(sessionId: string, text?: string, audioUrl?: string, priorities?: string[]) {
+    await this.assertPublicSession(sessionId);
+    return this.submitQuery(sessionId, text, audioUrl, priorities, undefined);
+  }
+
+  async submitPublicFeedback(sessionId: string, message: string, selectedIndices?: number[], priorities?: string[]) {
+    await this.assertPublicSession(sessionId);
+    return this.submitFeedback(sessionId, message, selectedIndices, priorities, undefined);
+  }
+
+  async getPublicResults(sessionId: string, page = 1, limit = 20) {
+    await this.assertPublicSession(sessionId);
+    return this.getResults(sessionId, page, limit);
+  }
+
+  async choosePublicProduct(sessionId: string, productId: string) {
+    await this.assertPublicSession(sessionId);
+    return this.chooseProduct(sessionId, productId);
+  }
+
+  async getPublicChoiceRedirect(sessionId: string, productId: string): Promise<{ url: string }> {
+    const { productUrl } = await this.choosePublicProduct(sessionId, productId);
+    return { url: productUrl };
+  }
+
+  async getPublicClientMessages(sessionId: string) {
+    await this.assertPublicSession(sessionId);
+    return this.getClientMessages(sessionId);
   }
 
   /** Update session profileId if provided (10.3). */
@@ -217,24 +262,26 @@ export class SessionsService {
       await this.prisma.message.create({
         data: { sessionId, role: 'assistant', contentType: 'text', content: formattedContent },
       });
-      // Rich content (3.3–3.5): emit table content for chat UI
-      const tableForMulti = {
-        headers: ['Title', 'Price', 'Source', 'URL'],
-        rows: resultsForFormat.map((r) => ({
-          Title: r.title,
-          Price: r.price ?? '',
-          Source: r.source ?? '',
-          URL: r.url ?? '',
-        })),
-      };
-      await this.prisma.message.create({
-        data: {
-          sessionId,
-          role: 'assistant',
-          contentType: 'table',
-          content: JSON.stringify(tableForMulti),
-        },
-      });
+      if (resultsForFormat.length > 0) {
+        // Rich content (3.3-3.5): emit table content for chat UI when results exist.
+        const tableForMulti = {
+          headers: ['Title', 'Price', 'Source', 'URL'],
+          rows: resultsForFormat.map((r) => ({
+            Title: r.title,
+            Price: r.price ?? '',
+            Source: r.source ?? '',
+            URL: r.url ?? '',
+          })),
+        };
+        await this.prisma.message.create({
+          data: {
+            sessionId,
+            role: 'assistant',
+            contentType: 'table',
+            content: JSON.stringify(tableForMulti),
+          },
+        });
+      }
       this.logging.info('Multi-product query processed', {
         sessionId,
         intentCount: intents.length,
@@ -353,25 +400,27 @@ export class SessionsService {
     await this.prisma.message.create({
       data: { sessionId, role: 'assistant', contentType: 'text', content: formattedContent },
     });
-    // Rich content (3.3–3.5): emit structured table for chat (including image URLs when present)
-    const tableForSingle = {
-      headers: ['Title', 'Price', 'Source', 'URL', 'Image'],
-      rows: resultsForFormat.map((r) => ({
-        Title: r.title,
-        Price: r.price ?? '',
-        Source: r.source ?? '',
-        URL: r.url ?? '',
-        Image: (r as any).imageUrl ?? '',
-      })),
-    };
-    await this.prisma.message.create({
-      data: {
-        sessionId,
-        role: 'assistant',
-        contentType: 'table',
-        content: JSON.stringify(tableForSingle),
-      },
-    });
+    if (resultsForFormat.length > 0) {
+      // Rich content (3.3-3.5): emit structured table for chat when results exist.
+      const tableForSingle = {
+        headers: ['Title', 'Price', 'Source', 'URL', 'Image'],
+        rows: resultsForFormat.map((r) => ({
+          Title: r.title,
+          Price: r.price ?? '',
+          Source: r.source ?? '',
+          URL: r.url ?? '',
+          Image: (r as any).imageUrl ?? '',
+        })),
+      };
+      await this.prisma.message.create({
+        data: {
+          sessionId,
+          role: 'assistant',
+          contentType: 'table',
+          content: JSON.stringify(tableForSingle),
+        },
+      });
+    }
     this.logging.info('Query processed', { sessionId, searchRunId: run.id, resultCount: created.length, queryText: queryText?.slice(0, 100), context: 'SessionsService' });
     return {
       results: created.map((r, index) => ({
@@ -473,16 +522,28 @@ export class SessionsService {
       snippet: r.snippet,
       imageUrl: items[index]?.imageUrl,
     }));
-    let formattedContent = await this.ai.formatResultsForPresentation(
-      resultsForFormat,
-      queryText,
-      'default',
-      sessionId,
-    );
-    // 5.1: COMPARISON agent on feedback flow (10.1: priorityOrder)
-    const comparisonSummary = await this.ai.comparePrices(resultsForFormat, queryText, 'default', sessionId, priorityOrder ?? undefined);
-    if (comparisonSummary) {
-      formattedContent = `${formattedContent}\n\n---\n**Price comparison:** ${comparisonSummary}`;
+    let formattedContent = buildNoResultsMessage(queryText);
+    if (resultsForFormat.length > 0) {
+      formattedContent = await this.ai.formatResultsForPresentation(
+        resultsForFormat,
+        queryText,
+        'default',
+        sessionId,
+      );
+      // 5.1: COMPARISON agent on feedback flow (10.1: priorityOrder)
+      const comparisonSummary = await this.ai.comparePrices(resultsForFormat, queryText, 'default', sessionId, priorityOrder ?? undefined);
+      if (comparisonSummary) {
+        formattedContent = `${formattedContent}\n\n---\n**Price comparison:** ${comparisonSummary}`;
+      }
+    } else {
+      await this.logAgentCommunication(
+        sessionId,
+        'SEARCH',
+        'COMMUNICATION',
+        'response',
+        'No usable merchant results for refined feedback search after recovery attempts',
+        { resultCount: 0, queryText },
+      );
     }
     await this.prisma.message.create({
       data: {
@@ -492,25 +553,27 @@ export class SessionsService {
         content: formattedContent,
       },
     });
-    // Rich content (3.3–3.5): emit structured table for chat (including image URLs when present)
-    const tableForFeedback = {
-      headers: ['Title', 'Price', 'Source', 'URL', 'Image'],
-      rows: resultsForFormat.map((r) => ({
-        Title: r.title,
-        Price: r.price ?? '',
-        Source: r.source ?? '',
-        URL: r.url ?? '',
-        Image: (r as any).imageUrl ?? '',
-      })),
-    };
-    await this.prisma.message.create({
-      data: {
-        sessionId,
-        role: 'assistant',
-        contentType: 'table',
-        content: JSON.stringify(tableForFeedback),
-      },
-    });
+    if (resultsForFormat.length > 0) {
+      // Rich content (3.3-3.5): emit structured table for chat when results exist.
+      const tableForFeedback = {
+        headers: ['Title', 'Price', 'Source', 'URL', 'Image'],
+        rows: resultsForFormat.map((r) => ({
+          Title: r.title,
+          Price: r.price ?? '',
+          Source: r.source ?? '',
+          URL: r.url ?? '',
+          Image: (r as any).imageUrl ?? '',
+        })),
+      };
+      await this.prisma.message.create({
+        data: {
+          sessionId,
+          role: 'assistant',
+          contentType: 'table',
+          content: JSON.stringify(tableForFeedback),
+        },
+      });
+    }
     this.logging.info('Feedback processed', { sessionId, searchRunId: run.id, resultCount: created.length, queryText: queryText?.slice(0, 100), context: 'SessionsService' });
     return {
       results: created.map((r) => ({ id: r.id, title: r.title, url: r.url, price: r.price, source: r.source, position: r.position, snippet: r.snippet })),

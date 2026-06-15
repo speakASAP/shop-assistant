@@ -15,11 +15,13 @@ Purpose: deploy and verify the Shop Assistant commercial landing page, customer 
 ```bash
 cd /home/ssf/Documents/Github/shop-assistant
 git status --short
+./scripts/sa-g7-source-audit.sh
 ./scripts/sa-g7-rollout-preflight.sh
 ```
 
 Expected:
 
+- Source audit passes and maps the staged frontend/admin/customer/Auth/settings requirements to repository evidence.
 - Build passes.
 - Script syntax checks pass.
 - Source fingerprint command prints a non-empty SHA-256 value.
@@ -87,30 +89,94 @@ Expected:
 
 Set tokens as environment variables only for the command invocation. Do not echo them.
 
+If the smoke Vault secret is available, generate a local token-file env first:
+
 ```bash
 cd /home/ssf/Documents/Github/shop-assistant
-CUSTOMER_TOKEN=<customer-token> \
-ADMIN_TOKEN=<admin-token> \
-NON_ADMIN_TOKEN=<non-admin-token> \
+TOKEN_DIR=/tmp/sa-g7-smoke-tokens \
+OUTPUT_ENV=/tmp/sa-g7-smoke.env \
+./scripts/sa-g7-token-env-from-vault.sh
+set -a
+. /tmp/sa-g7-smoke.env
+set +a
+./scripts/sa-g7-live-smoke.sh
+```
+
+The generated env file contains token-file paths, not raw token values. Token files are written with `0600` permissions under `TOKEN_DIR`.
+
+To validate token-file generation without contacting Vault/Auth:
+
+```bash
+cd /home/ssf/Documents/Github/shop-assistant
+SA_G7_TOKEN_HELPER_DRY_RUN=1 \
+TOKEN_DIR=/tmp/sa-g7-smoke-token-dry-run \
+OUTPUT_ENV=/tmp/sa-g7-smoke-dry-run.env \
+./scripts/sa-g7-token-env-from-vault.sh
+```
+
+Dry-run mode writes synthetic placeholder tokens only. Do not use its output for live smoke.
+
+Without Vault, provide token files directly:
+
+```bash
+cd /home/ssf/Documents/Github/shop-assistant
+CUSTOMER_TOKEN_FILE=/path/to/customer-token.txt \
+ADMIN_TOKEN_FILE=/path/to/admin-token.txt \
+NON_ADMIN_TOKEN_FILE=/path/to/non-admin-token.txt \
 AGENT_FLOW_SESSION_ID=<optional-session-id> \
+REQUIRE_TOKEN_SMOKE=1 \
 ./scripts/sa-g7-live-smoke.sh
 ```
 
 Expected:
 
-- `CUSTOMER_TOKEN` proves customer dashboard/account contracts:
+- `CUSTOMER_TOKEN_FILE` proves customer dashboard/account contracts:
   - `/api/me`
   - `/api/me/dashboard`
   - `/api/me/sessions`
   - `/api/me/choices`
   - `/api/profiles`
   - `/api/saved-criteria`
-- `ADMIN_TOKEN` proves admin overview, settings metadata, prompts, models, operations, and optional Agent Flow access.
-- `NON_ADMIN_TOKEN` returns `403` for protected admin surfaces.
+- `ADMIN_TOKEN_FILE` proves admin overview, settings metadata, prompts, models, operations, and optional Agent Flow access.
+- `NON_ADMIN_TOKEN_FILE` returns `403` for protected admin surfaces.
+- Token-file variables are required for documented authenticated smoke examples so tokens are not stored in shell history.
+- `REQUIRE_TOKEN_SMOKE=1` makes missing customer/admin/non-admin tokens fail the run instead of being reported as skipped optional checks. Use this for SA-G7 completion evidence.
 
 ## 6. Browser Verification
 
-Use a real browser/Auth callback for at least:
+Use the optional browser verifier when Playwright is available in the execution environment:
+
+```bash
+cd /home/ssf/Documents/Github/shop-assistant
+node --check scripts/sa-g7-browser-verify.js
+node scripts/sa-g7-browser-verify.js
+CUSTOMER_TOKEN_FILE=/path/to/customer-token.txt \
+ADMIN_TOKEN_FILE=/path/to/admin-token.txt \
+NON_ADMIN_TOKEN_FILE=/path/to/non-admin-token.txt \
+REQUIRE_BROWSER_AUTH=1 \
+node scripts/sa-g7-browser-verify.js
+```
+
+Use token-file variables with the browser verifier. Do not put raw token values in shell history or validation reports.
+
+On `alfares`, where system Chrome is available, run the dependency-free Chrome/CDP verifier:
+
+```bash
+cd /home/ssf/Documents/Github/shop-assistant
+set -a
+. /tmp/sa-g7-smoke.env
+set +a
+REQUIRE_BROWSER_AUTH=1 node scripts/sa-g7-chrome-browser-verify.js
+```
+
+Expected:
+
+- No token values are printed.
+- Without tokens, public landing, locked customer dashboard, locked admin panel, and Auth-hosted login/register redirects are checked.
+- With `REQUIRE_BROWSER_AUTH=1`, missing `CUSTOMER_TOKEN_FILE`, `ADMIN_TOKEN_FILE`, or `NON_ADMIN_TOKEN_FILE` fails the run.
+- With safe tokens, customer dashboard unlock, admin unlock, and non-admin admin denial are verified in a real browser.
+
+Manual browser verification must still cover at least:
 
 - Landing page:
   - commercial copy loads;

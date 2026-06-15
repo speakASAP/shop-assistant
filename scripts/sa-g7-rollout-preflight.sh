@@ -37,7 +37,11 @@ bash -n scripts/build-and-push-image.sh
 bash -n scripts/deploy.sh
 bash -n scripts/post-deploy-check.sh
 bash -n scripts/sa-g7-live-smoke.sh
+bash -n scripts/sa-g7-source-audit.sh
 echo "OK script syntax checks passed"
+
+section "SA-G7 source audit"
+./scripts/sa-g7-source-audit.sh
 
 section "Source fingerprint"
 SOURCE_FINGERPRINT="$(./scripts/print-source-fingerprint.sh)"

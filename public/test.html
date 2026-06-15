@@ -37,6 +37,15 @@
       color: #64748b;
       font-size: 0.875rem;
     }
+    .ai-transparency {
+      background: #ecfeff;
+      border: 1px solid #67e8f9;
+      color: #155e75;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+    }
     .session-info {
       background: #e0f2fe;
       padding: 1rem;
@@ -465,6 +474,10 @@
     <div class="header">
       <h1>🤖 Shop Assistant — Test Interface</h1>
       <p>Run an advanced customer search, inspect returned products, and continue the request conversation. Agent diagnostics are available only in Admin Flow.</p>
+    </div>
+
+    <div class="ai-transparency" role="note">
+      <strong>AI transparency:</strong> You are interacting with an AI-enabled shopping assistant. Speech-to-text, language models, search providers, and automated ranking may process this request. Verify merchant pages, prices, delivery terms, and suitability before purchase.
     </div>
 
     <div id="sessionInfo" class="session-info" style="display: none;">
@@ -899,9 +912,11 @@
       btn.textContent = 'Creating...';
 
       try {
+        const token = getToken();
         const profileId = getProfileId();
-        const body = profileId ? { profileId: profileId } : {};
-        const response = await fetch(`${API_BASE}/sessions`, {
+        const body = token && profileId ? { profileId: profileId } : {};
+        const sessionPath = token ? `${API_BASE}/me/sessions` : `${API_BASE}/sessions`;
+        const response = await fetch(sessionPath, {
           method: 'POST',
           headers: authHeaders(),
           body: JSON.stringify(body),
@@ -947,10 +962,12 @@
       setProgressSteps(false, false, false);
 
       try {
+        const token = getToken();
         const profileId = getProfileId();
         const body = { text: queryText };
-        if (profileId) body.profileId = profileId;
-        const response = await fetch(`${API_BASE}/sessions/${currentSessionId}/query`, {
+        if (token && profileId) body.profileId = profileId;
+        const sessionPath = token ? `${API_BASE}/me/sessions/${currentSessionId}/query` : `${API_BASE}/sessions/${currentSessionId}/query`;
+        const response = await fetch(sessionPath, {
           method: 'POST',
           headers: authHeaders(),
           body: JSON.stringify(body),
@@ -969,9 +986,9 @@
           displayResults(data.results, data.queryText, currentSessionId, data.groups || null);
           showSuccess(`Found ${data.results.length} results!`);
         } else {
-          showError('No results found');
-          document.getElementById('resultsSection').style.display = 'block';
-          document.getElementById('resultsContainer').innerHTML = '<div class="empty-state">No results found</div>';
+          showError('No usable merchant results found');
+          renderNoResultsState(data.queryText || queryText, 'Refined Query');
+          loadChatMessages(currentSessionId);
         }
       } catch (error) {
         console.error('Error submitting query:', error);
@@ -1091,10 +1108,12 @@
       btn.disabled = true;
       btn.textContent = 'Refining…';
       try {
+        const token = getToken();
         const profileId = getProfileId();
         const body = { message: message };
-        if (profileId) body.profileId = profileId;
-        const r = await fetch(`${API_BASE}/sessions/${currentSessionId}/feedback`, {
+        if (token && profileId) body.profileId = profileId;
+        const sessionPath = token ? `${API_BASE}/me/sessions/${currentSessionId}/feedback` : `${API_BASE}/sessions/${currentSessionId}/feedback`;
+        const r = await fetch(sessionPath, {
           method: 'POST',
           headers: authHeaders(),
           body: JSON.stringify(body)
@@ -1107,7 +1126,9 @@
           showSuccess('Refined: ' + data.results.length + ' results');
           loadChatMessages(currentSessionId);
         } else {
-          showError('No results after refine');
+          showError('No usable merchant results after refine');
+          renderNoResultsState(data.queryText || message, 'Refined Query');
+          loadChatMessages(currentSessionId);
         }
       } catch (e) {
         showError(e.message || 'Refine failed');
@@ -1174,10 +1195,12 @@
       const btn = document.getElementById('chatSendBtn');
       btn.disabled = true;
       try {
+        const token = getToken();
         const profileId = getProfileId();
         const body = { message: text };
-        if (profileId) body.profileId = profileId;
-        const r = await fetch(`${API_BASE}/sessions/${currentSessionId}/feedback`, {
+        if (token && profileId) body.profileId = profileId;
+        const sessionPath = token ? `${API_BASE}/me/sessions/${currentSessionId}/feedback` : `${API_BASE}/sessions/${currentSessionId}/feedback`;
+        const r = await fetch(sessionPath, {
           method: 'POST',
           headers: authHeaders(),
           body: JSON.stringify(body)
@@ -1188,6 +1211,8 @@
         if (data.results && data.results.length > 0) {
           displayResults(data.results, data.queryText, currentSessionId, data.groups || null);
           showSuccess('Refined: ' + data.results.length + ' results');
+        } else {
+          renderNoResultsState(data.queryText || text, 'Refined Query');
         }
       } catch (e) {
         showError(e.message || 'Send failed');
@@ -1218,6 +1243,31 @@
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    function noResultsHtml(queryText) {
+      const safeQuery = escapeHtml(queryText || 'your request');
+      return '<div class="empty-state"><strong>No usable merchant results found.</strong>' +
+        '<p>Refined query: ' + safeQuery + '</p>' +
+        '<p>Try one or two concrete details: product category, brand or model, size, material, color, budget, and delivery location.</p>' +
+        '<p>Only real HTTP or HTTPS merchant links are shown.</p></div>';
+    }
+
+    function renderNoResultsState(queryText, label) {
+      const section = document.getElementById('resultsSection');
+      const container = document.getElementById('resultsContainer');
+      const queryInfo = document.getElementById('queryInfo');
+      if (section) section.style.display = 'block';
+      if (queryInfo) queryInfo.innerHTML = '<strong>' + escapeHtml(label || 'Query') + ':</strong> ' + escapeHtml(queryText || '');
+      if (container) container.innerHTML = noResultsHtml(queryText);
+      const groupsBlock = document.getElementById('groupsBlock');
+      if (groupsBlock) groupsBlock.style.display = 'none';
+      const groupsContainer = document.getElementById('groupsContainer');
+      if (groupsContainer) groupsContainer.innerHTML = '';
+      const intermediaryBlock = document.getElementById('intermediaryBlock');
+      if (intermediaryBlock) intermediaryBlock.style.display = 'none';
+      const finalBlock = document.getElementById('finalBlock');
+      if (finalBlock) finalBlock.style.display = 'none';
     }
 
     function setProgressSteps(step1Done, step2Done, step3Done) {
@@ -1255,14 +1305,12 @@
         const flatResults = batch.flatMap(function(item) {
           return item.results || [];
         });
+        var combinedQuery = batch.map(function(i) { return i.queryText || ''; }).join('; ');
         if (flatResults.length === 0) {
-          document.getElementById('resultsSection').style.display = 'block';
-          document.getElementById('queryInfo').innerHTML = '<strong>Query:</strong> (no results yet)';
-          document.getElementById('resultsContainer').innerHTML = '<div class="empty-state">No results in this session yet.</div>';
+          renderNoResultsState(combinedQuery || '(no query text stored)', 'Query');
           loadChatMessages(sessionId);
           return;
         }
-        var combinedQuery = batch.map(function(i) { return i.queryText || ''; }).join('; ');
         var groups = null;
         if (batch.length > 1) {
           groups = batch.map(function(i) {

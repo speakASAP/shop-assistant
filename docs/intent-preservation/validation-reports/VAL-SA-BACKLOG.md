@@ -414,3 +414,268 @@ Remaining risks:
 - This harness validates persistence shape, not business relevance of merchant results.
 - Broader live customer/admin/non-admin token checks remain skipped until safe tokens are supplied.
 - Synthetic query mode is available but should be used only when an explicitly namespaced write is acceptable.
+
+## SA-G1-T1 Follow-Up Pre-Coding Gate - 2026-06-13
+
+Gate: Shop Assistant pre-coding gate
+Date: 2026-06-13
+Goal: SA-G1 Request-to-result quality
+Task: SA-G1-T1 Search Quality From Failed Searches follow-up slice
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: dirty before this slice: STATE.json and TASKS.md modified by goal selection; unrelated docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md modified and scripts/sa-g7-source-audit.sh untracked; this slice will not touch unrelated SA-G7 files
+Remote status: working directly on alfares per project instructions
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Selected scope: improve zero-result handling in feedback refinement so a failed refined search returns concrete refinement guidance instead of generic zero-result formatting
+Invariants checked: real merchant URLs only, no fabricated result data, ai-microservice remains search/AI owner, no admin auth weakening, no legal page changes, no deployment
+Sensitive-data classification: source-only deterministic behavior change; no raw production queries, messages, voice transcripts, lead details, JWTs, API keys, provider secrets, or profile identifiers will be added to docs/tests/logs
+Contract/schema impact: no Prisma schema change and no endpoint shape change; existing feedback response remains { results, queryText } with persisted assistant text improved for zero-result feedback
+Privacy/legal impact: no public legal/cookie/terms behavior change; no production data export; user-facing guidance continues to avoid fabricated merchant claims
+Replay/determinism impact: no-results message generation is deterministic from the refined query text; external search remains nondeterministic and delegated
+External service boundary impact: no AI/search/auth/database/logging/leads ownership changes; SearchService still delegates external search to ai-microservice
+Validation commands planned:
+- npm run build
+- focused source scan for secret-like additions in touched files and validation docs
+Result: pass
+
+## SA-G1-T1 Follow-Up Completion Evidence - 2026-06-13
+
+Implemented slice: feedback refinement zero-result guidance.
+
+Files changed:
+- src/sessions/sessions.service.ts
+- docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md
+- TASKS.md
+- STATE.json
+
+Behavior:
+- When a feedback refinement search returns no usable merchant results, the assistant now persists the same concrete no-results guidance used by the initial query flow instead of asking the presentation agent to format an empty result list.
+- Successful feedback searches still use PRESENTATION formatting and COMPARISON when configured.
+- The feedback route response contract remains unchanged: it returns the existing results array and queryText.
+
+Privacy and boundary handling:
+- No production query text, message content, voice transcript, lead data, contact details, JWT, provider key, or secret value was exported or added.
+- No Prisma schema, public legal pages, admin auth, deployment script, or external service ownership boundary changed.
+- External search remains delegated to ai-microservice through SearchService.
+
+Validation commands:
+- npm run build
+- focused sensitive-data scan over src/sessions/sessions.service.ts, VAL-SA-BACKLOG.md, TASKS.md, and STATE.json
+
+Validation result:
+- pass: npm run build completed successfully.
+- pass: focused sensitive-data scan found only historical policy/validation wording and existing token references in state/task history; no new secret values were added.
+
+Deviations:
+- No production failed-search rows were inspected for this slice; the change targets a source-visible quality gap in the feedback zero-result path.
+- No deployment was run.
+
+Remaining risks:
+- Live production behavior remains pending owner-approved deploy.
+- SA-G7 token-backed customer/admin/non-admin checks remain skipped until safe tokens are supplied.
+
+## SA-G1-T1 Empty Table Suppression Pre-Coding Gate - 2026-06-13
+
+Gate: Shop Assistant pre-coding gate
+Date: 2026-06-13
+Goal: SA-G1 Request-to-result quality
+Task: SA-G1-T1 failed-search quality follow-up: suppress empty table messages
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: dirty before this slice with active SA-G1 and unrelated SA-G7 source-audit/token-gate changes present; this slice touches only src/sessions/sessions.service.ts plus backlog validation/state/task evidence
+Remote status: working directly on alfares per project instructions
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Selected scope: prevent zero-result query and feedback flows from persisting empty structured table messages after the text no-results guidance
+Invariants checked: real merchant URLs only, no fabricated result data, ai-microservice remains search owner, no admin auth weakening, no legal page changes, no deployment
+Sensitive-data classification: source-only deterministic behavior change; no production query text, messages, voice transcripts, lead details, JWTs, API keys, secrets, or profile identifiers are added
+Contract/schema impact: no Prisma schema or endpoint response shape change; messages history contains no table message for zero-result searches, while successful result tables remain unchanged
+Privacy/legal impact: no public legal/cookie behavior change and no production data export
+Replay/determinism impact: table-message creation now deterministically depends on resultsForFormat.length > 0
+External service boundary impact: no AI/search/auth/database/logging/leads ownership changes
+Validation commands planned:
+- npm run build
+- focused source scan for secret-like additions in touched files and validation docs
+Result: pass
+
+## SA-G1-T1 Empty Table Suppression Completion Evidence - 2026-06-13
+
+Implemented slice: suppress empty table messages for zero-result search flows.
+
+Files changed:
+- src/sessions/sessions.service.ts
+- docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md
+- TASKS.md
+- STATE.json
+
+Behavior:
+- Multi-product initial searches, single-intent initial searches, and feedback refinement now create structured table messages only when at least one result exists.
+- Zero-result flows still persist the assistant text guidance, but no longer add an empty table message that can make the failed-search conversation look like a malformed result set.
+- Successful searches still persist the same table payloads as before.
+
+Privacy and boundary handling:
+- No production data was inspected or exported.
+- No Prisma schema, API response shape, Auth/RBAC, legal page, deployment script, or external service ownership boundary changed.
+- Real merchant URL filtering remains in SearchService; this slice only changes message persistence for empty result sets.
+
+Validation commands:
+- npm run build
+- focused sensitive-data scan over src/sessions/sessions.service.ts, VAL-SA-BACKLOG.md, TASKS.md, and STATE.json
+
+Validation result:
+- pass: npm run build completed successfully.
+- pass: focused sensitive-data scan found only historical policy/validation wording and token-variable references; no new secret values were added.
+
+Deviations:
+- No production failed-search rows were inspected for this slice.
+- No deployment was run.
+
+Remaining risks:
+- Live production behavior remains pending owner-approved deploy.
+- SA-G7 strict customer/admin/non-admin token smoke remains pending safe credentials.
+
+## SA-G1-T1 Public Test Empty-State Pre-Coding Gate - 2026-06-13
+
+Gate: Shop Assistant pre-coding gate
+Date: 2026-06-13
+Goal: SA-G1 Request-to-result quality
+Task: SA-G1-T1 failed-search quality follow-up: actionable public test empty state
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: dirty before this slice with completed SA-G1 source changes and unrelated SA-G7 source-audit/browser/token-gate changes present; this slice touches public/test.html plus backlog validation/state/task evidence
+Remote status: working directly on alfares per project instructions
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Selected scope: replace generic public test no-result UI with actionable refinement guidance for initial query, refine form, chat refine, and existing zero-result session runs
+Invariants checked: real merchant URLs only, no fabricated result data, no admin auth weakening, no legal page changes, no deployment
+Sensitive-data classification: static frontend copy only; no production query text, messages, voice transcripts, lead details, JWTs, API keys, secrets, or profile identifiers are added
+Contract/schema impact: no backend/API/Prisma response shape change; frontend renders existing results/queryText fields differently when result arrays are empty
+Privacy/legal impact: no public legal/cookie behavior change and no production data export
+Replay/determinism impact: empty-state rendering deterministically depends on empty result arrays
+External service boundary impact: no AI/search/auth/database/logging/leads ownership changes
+Validation commands planned:
+- npm run build
+- static inline script syntax check for public/test.html
+- focused source scan for secret-like additions in touched files and validation docs
+Result: pass
+
+## SA-G1-T1 Public Test Empty-State Completion Evidence - 2026-06-13
+
+Implemented slice: actionable public test no-results guidance.
+
+Files changed:
+- public/test.html
+- docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md
+- TASKS.md
+- STATE.json
+
+Behavior:
+- Initial query, refine form, chat refine, and existing zero-result session runs now render actionable no-results guidance instead of generic errors or a blank table surface.
+- Empty-state query text is escaped before insertion into the public test page.
+- Successful result rendering and non-empty result grouping remain unchanged.
+
+Validation:
+- npm run build passed.
+- public/test.html inline scripts parse ok: 1.
+- Focused sensitive-data scan matched only existing token variable names/usages, historical validation text, and policy wording; no new secret values were introduced.
+
+Deployment: not run.
+Live validation pending: owner-approved deploy and optional live zero-result public test smoke.
+
+
+## SA-G1-T1 Failed-Search Live Validation Harness - 2026-06-13
+
+Gate: Shop Assistant pre-coding gate
+Date: 2026-06-13
+Goal: SA-G1 Request-to-result quality
+Task: SA-G1-next-failed-search-live-validation / SA-G1-T1 Search Quality From Failed Searches follow-up
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: dirty before this slice with existing SA-G1/SA-G7 validation and source changes present; this slice adds scripts/sa-g1-live-no-results-validate.js, scripts/sa-g1-zero-result-session-validate.js, and updates backlog evidence/state
+Remote status: edited directly on alfares per project instructions
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Selected scope: strengthen failed-search live validation and evidence for actionable no-results guidance without inspecting raw production query text or fabricating merchant results
+Invariants checked: real HTTP/HTTPS merchant URLs only, no fabricated product data, ai-microservice remains search owner, no admin auth or legal page changes, no deployment without owner approval
+Sensitive-data classification: synthetic probe query is non-user validation text; script output emits only session ids, counts, booleans, timestamps, query fingerprints, and query lengths. Raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, and database URLs are not emitted.
+Contract/schema impact: no API, Prisma schema, public UI, admin auth, legal, deployment, or external-service contract changed; added validation-script contracts only
+Privacy/legal impact: no production user query text or personal data is exported; public legal transparency unchanged
+Replay/determinism impact: public live probe is state-changing only for synthetic sessions and external search remains nondeterministic; pod read-only validator is deterministic for the selected persisted session
+External service boundary impact: public probe uses the existing Shop Assistant API and delegated ai-microservice search; pod validator reads database state inside the running application pod without moving ownership boundaries
+Validation commands:
+- node --check scripts/sa-g1-live-no-results-validate.js
+- node --check scripts/sa-g1-zero-result-session-validate.js
+- npm run build
+- node scripts/sa-g1-live-no-results-validate.js
+- SYNTHETIC_QUERY="site:invalid.invalid qzvxqzvxqzvxqzvx product sku no merchant result validation" node scripts/sa-g1-live-no-results-validate.js
+- kubectl cp scripts/sa-g1-zero-result-session-validate.js statex-apps/$POD:/tmp/sa-g1-zero-result-session-validate.js
+- kubectl exec -n statex-apps $POD -- sh -lc "cd /app && SESSION_ID=aa04bc87-f410-41ae-a89b-667a32de1350 NODE_PATH=/app/node_modules node /tmp/sa-g1-zero-result-session-validate.js"
+- focused sensitive-data scan over the two SA-G1 scripts, VAL-SA-BACKLOG.md, TASKS.md, and STATE.json
+Result: pass-with-documented-risk for harness implementation; live production table suppression remains blocked pending owner-approved deployment of the already-built source change.
+
+Implementation:
+
+- Added scripts/sa-g1-live-no-results-validate.js for sanitized public API failed-search probes.
+- Added scripts/sa-g1-zero-result-session-validate.js for in-pod read-only validation of persisted zero-result sessions.
+- Both scripts avoid printing raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, or database URLs.
+- The live script verifies HTTP status, zero-result behavior, actionable guidance, table-message suppression, and HTTP/HTTPS URL truthfulness.
+- The pod script can validate an explicit SESSION_ID or FIND_LATEST_ZERO_RESULT=1 with query fingerprints and query lengths only.
+
+Validation results:
+
+- Syntax checks passed for both SA-G1 scripts.
+- npm run build passed.
+- Default synthetic public probe returned 10 HTTP/HTTPS results, so it did not exercise the no-results branch; no fabricated URL issue was observed.
+- Constrained synthetic public probe created session aa04bc87-f410-41ae-a89b-667a32de1350 and returned zero results with actionable no-results guidance present.
+- The same constrained probe still persisted 1 table message in production, so table-message suppression failed live.
+- In-pod read-only validation of session aa04bc87-f410-41ae-a89b-667a32de1350 confirmed: messages=3, assistantTextMessages=1, tableMessages=1, searchRuns=1, zeroResultSearchRuns=1, searchResults=0, invalidResultUrls=0, actionableNoResultsGuidancePresent=true, tableMessagesSuppressed=false.
+- Running pod /app/dist/sessions/sessions.service.js still writes table messages unconditionally after zero-result searches, while the remote source and local build include resultsForFormat.length guards. This indicates production is running an older image than the current source.
+- Focused sensitive-data scan matched only historical token-variable wording in STATE.json/TASKS.md/VAL-SA-BACKLOG.md; no secret values were added by the SA-G1 scripts.
+
+Passed criteria:
+
+- Privacy-safe live validation harness now exists.
+- Live failed-search probe can exercise the zero-result branch without exposing raw query text.
+- Actionable no-results guidance is present in live zero-result assistant text.
+- Real URL truthfulness checks are enforced by the harness.
+- Build and script syntax validation pass.
+
+Blocked criteria:
+
+- Live table-message suppression cannot pass until the current source is deployed. Production pod evidence shows the running image still has unconditional table writes for zero-result searches.
+
+Deviations:
+
+- A direct remote Prisma query from SSH could not reach db-server-postgres:5432, so read-only database validation was run inside the existing Kubernetes pod using kubectl exec.
+- No deployment was run because production deployment requires explicit owner approval in the active session.
+
+Next command:
+
+- After owner approval, run ./scripts/deploy.sh, then rerun the constrained synthetic probe and in-pod validator for the new zero-result session.
+
+
+## SA-G1-T1 Failed-Search Live Validation Deployment Evidence - 2026-06-13
+
+Deployment evidence:
+
+- Owner approved deployment in the active session on 2026-06-13 after the SA-G1 live validation harness identified that production was still running an older image.
+- First ran scripts/deploy.sh; it completed successfully with post-deploy smoke Failures: 0 and Skipped optional checks: 3, but the preflight showed the registry image source fingerprint did not include current source changes.
+- Ran scripts/build-and-push-image.sh; npm build passed, Docker image build passed, image label matched source fingerprint dd528e08e97219e6ee6fee221088753dc5233e00f50e0c79e15d8c2e383e2892, and the registry push completed with digest sha256:87c45f1a73e2316856721999e95e357ec2131aae1c5696f70601194b172eedb9.
+- Ran scripts/deploy.sh again; rollout completed successfully to pod shop-assistant-79df4b976d-dvv2x and post-deploy smoke passed with Failures: 0 and Skipped optional checks: 3.
+- Verified the running pod image digest is localhost:5000/shop-assistant@sha256:87c45f1a73e2316856721999e95e357ec2131aae1c5696f70601194b172eedb9.
+- Verified the running pod dist file contains guarded table-write checks.
+
+SA-G1 live validation after deployment:
+
+- Constrained synthetic public probe created session a4286a73-2b06-4692-9dde-025dcb1355c7.
+- Public probe result: sessionCreateStatus=201, queryStatus=201, messagesStatus=200, results=0, invalidResultUrls=0, messages=2, assistantTextMessages=1, tableMessages=0, actionableNoResultsGuidancePresent=true, zeroResultProbe=true, tableMessagesSuppressed=true, onlyHttpMerchantUrls=true, result=pass.
+- In-pod read-only validator result for the same session: messages=2, assistantTextMessages=1, tableMessages=0, searchRuns=1, zeroResultSearchRuns=1, searchResults=0, invalidResultUrls=0, agentCommunications=8, actionableNoResultsGuidancePresent=true, tableMessagesSuppressed=true, result=pass.
+- The validator emitted query fingerprints and query lengths only; no raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, or database URLs were emitted.
+
+Result:
+
+- SA-G1-next-failed-search-live-validation is complete for the approved deployment slice.
+- Live actionable no-results guidance is present.
+- Live zero-result table-message suppression is verified.
+- Real URL truthfulness guard remains enforced by validation.

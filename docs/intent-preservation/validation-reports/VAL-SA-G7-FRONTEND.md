@@ -2801,3 +2801,463 @@ Remaining validation:
 - Kubernetes final state: one ready pod `shop-assistant-59b9f5bb49-thkhv`, deployment successfully rolled out, `/health` returned `{"status":"ok"}`.
 - Standalone `./scripts/post-deploy-check.sh` passed after cleanup: SA-G7 live frontend/auth smoke reported `Failures: 0`, `Skipped optional checks: 3` for absent optional customer/admin/non-admin tokens.
 - Required unauthenticated checks passed: `/api/me`, `/api/me/dashboard`, `/api/admin/overview`, `/api/admin/settings`, and `/api/sessions/smoke/agent-communications` returned 401; `POST /api/auth/login` and `POST /api/auth/register` returned 404.
+
+## Implementation Slice 2026-06-13: SA-G7 Source Completion Audit
+
+Scope implemented:
+
+- Added `scripts/sa-g7-source-audit.sh`.
+- Wired `scripts/sa-g7-rollout-preflight.sh` to run the source audit before source fingerprint and cluster/registry checks.
+- Updated `docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md` to include the source audit in preflight.
+- The source audit verifies repository evidence for commercial landing, Auth-hosted login/register, session-scoped token handling, customer dashboard history/choices/profiles/saved searches, admin RBAC surfaces, editable safe settings, and rollout tooling.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-source-audit.sh && ./scripts/sa-g7-source-audit.sh'
+```
+
+Result: pass. The audit reported `SA-G7 source audit passed (85 checks)`.
+
+Combined preflight evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-source-audit.sh scripts/sa-g7-rollout-preflight.sh && ./scripts/sa-g7-rollout-preflight.sh'
+```
+
+Result: pass.
+
+Observed current source/runtime state:
+
+- Git HEAD during preflight: `36481a9`.
+- Source fingerprint: `ac30026de4509d65977c09de4a9544a85aff7ef4d74f3bb9dc8040e847c03a9f`.
+- `npm run build` passed.
+- Kubernetes node `alfares` was `Ready`.
+- Deployment `shop-assistant` was `1/1` ready.
+- Current pod: `shop-assistant-59b9f5bb49-thkhv` running.
+- Current running image digest: `localhost:5000/shop-assistant@sha256:1546542ece8c099c8b345b3b7630192d036a50fb8ade016ddf5b9863f7b6afc7`.
+- Local registry returned `{"name":"shop-assistant","tags":["latest"]}`.
+- Local image source-fingerprint label was `c09672d4307fd946f2ed23a9a6241f2219ced966484741d8dd012417b9ac46e9`, which does not match the current dirty source fingerprint, so a new build/push is required before deploying the current source state.
+
+Execution note:
+
+- Docker image build/push was not executed in this slice.
+- Deployment was not executed in this slice.
+
+Remaining validation:
+
+- Token-backed customer dashboard smoke with safe `CUSTOMER_TOKEN`.
+- Token-backed admin smoke with safe `ADMIN_TOKEN`.
+- Token-backed non-admin denial smoke with safe `NON_ADMIN_TOKEN`.
+- Browser verification for real Auth callback/customer/admin roles after any future image build/push/deploy of the current source state.
+
+## Implementation Slice 2026-06-13: Strict Token-Backed Smoke Gate
+
+Scope implemented:
+
+- Added `REQUIRE_TOKEN_SMOKE=1` support to `scripts/sa-g7-live-smoke.sh`.
+- In normal mode, missing `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN` still report skipped optional checks so no-secret post-deploy smoke remains usable.
+- In strict mode, missing `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, or `NON_ADMIN_TOKEN` is a failure. This prevents SA-G7 completion evidence from accidentally passing without token-backed customer/admin/non-admin checks.
+- Updated `scripts/sa-g7-source-audit.sh` to verify strict token-smoke support and updated the rollout runbook token-backed smoke command to include `REQUIRE_TOKEN_SMOKE=1`.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh && bash -n scripts/sa-g7-live-smoke.sh && bash -n scripts/sa-g7-source-audit.sh && ./scripts/sa-g7-source-audit.sh >/tmp/sa-g7-source-audit-strict-mode.log && tail -3 /tmp/sa-g7-source-audit-strict-mode.log && ./scripts/sa-g7-live-smoke.sh'
+```
+
+Result: pass. The source audit reported `SA-G7 source audit passed (86 checks)`. The no-secret smoke reported `Failures: 0` and `Skipped optional checks: 3`.
+
+Strict negative validation:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && set +e; REQUIRE_TOKEN_SMOKE=1 ./scripts/sa-g7-live-smoke.sh >/tmp/sa-g7-strict-token-missing.log 2>&1; status=$?; tail -35 /tmp/sa-g7-strict-token-missing.log; echo STRICT_STATUS=$status; test "$status" -ne 0'
+```
+
+Result: pass. Strict mode exited non-zero with `STRICT_STATUS=1` and reported three failures:
+
+- `CUSTOMER_TOKEN not set; strict customer dashboard/account API checks not run`
+- `ADMIN_TOKEN not set; strict admin API checks not run`
+- `NON_ADMIN_TOKEN not set; strict non-admin forbidden checks not run`
+
+Execution note:
+
+- Token values were not printed.
+- No Docker image build/push was executed.
+- No deployment was executed.
+
+Remaining validation:
+
+- Run `REQUIRE_TOKEN_SMOKE=1 ./scripts/sa-g7-live-smoke.sh` with safe `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN`.
+- Browser verification for real Auth callback/customer/admin roles.
+
+## Implementation Slice 2026-06-13: Browser Verification Harness
+
+Scope implemented:
+
+- Added `scripts/sa-g7-browser-verify.js`.
+- Updated `scripts/sa-g7-source-audit.sh` to verify the browser harness exists and covers strict browser-auth mode, session-scoped token injection, and Auth-hosted redirects.
+- Updated `docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md` with browser verification commands.
+- The harness verifies:
+  - public landing page renders commercial/customer-dashboard copy;
+  - customer dashboard remains locked without auth;
+  - admin panel remains locked without auth;
+  - login/register redirect to Auth-hosted URLs with `client_id=shop-assistant`;
+  - customer dashboard unlocks when `CUSTOMER_TOKEN` is supplied;
+  - admin panel unlocks when `ADMIN_TOKEN` is supplied;
+  - non-admin users remain denied when `NON_ADMIN_TOKEN` is supplied.
+- `REQUIRE_BROWSER_AUTH=1` makes missing customer/admin/non-admin tokens fail the browser run instead of being skipped.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-browser-verify.js scripts/sa-g7-source-audit.sh && node --check scripts/sa-g7-browser-verify.js && bash -n scripts/sa-g7-source-audit.sh && ./scripts/sa-g7-source-audit.sh >/tmp/sa-g7-source-audit-browser.log && tail -3 /tmp/sa-g7-source-audit-browser.log && node -e "try { require.resolve(\"playwright\"); console.log(\"playwright available\"); } catch (e) { console.log(\"playwright unavailable\"); process.exit(2); }"'
+```
+
+Result:
+
+- `node --check scripts/sa-g7-browser-verify.js` passed.
+- `bash -n scripts/sa-g7-source-audit.sh` passed.
+- Source audit passed with `SA-G7 source audit passed (90 checks)`.
+- Remote host reported `playwright unavailable`.
+
+Dependency-failure validation:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && set +e; node scripts/sa-g7-browser-verify.js >/tmp/sa-g7-browser-verify-no-playwright.log 2>&1; status=$?; cat /tmp/sa-g7-browser-verify-no-playwright.log; echo BROWSER_VERIFY_STATUS=$status; test "$status" -ne 0'
+```
+
+Result: pass. The verifier exited non-zero with `BROWSER_VERIFY_STATUS=1` and a clear message that Playwright is unavailable. Token values were not printed.
+
+Execution note:
+
+- Real browser verification was not executed on the remote host because Playwright is not installed there.
+- No dependency installation, Docker image build/push, deployment, or commit was executed.
+
+Remaining validation:
+
+- Run `node scripts/sa-g7-browser-verify.js` in a Playwright-capable environment for public locked-state/Auth redirect checks.
+- Run `REQUIRE_BROWSER_AUTH=1 node scripts/sa-g7-browser-verify.js` with safe `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN`.
+
+## Implementation Slice 2026-06-13: Public Browser Verification Run
+
+Scope validated:
+
+- Executed `scripts/sa-g7-browser-verify.js` from the local bundled Codex Playwright runtime against `https://shop-assistant.alfares.cz`.
+- No customer/admin/non-admin tokens were supplied.
+- Verified public browser behavior:
+  - commercial landing page renders Shop Assistant/customer-dashboard copy;
+  - customer dashboard remains locked without auth;
+  - admin panel remains locked without auth;
+  - login page redirects to Auth-hosted login with `client_id=shop-assistant`;
+  - register page redirects to Auth-hosted registration with `client_id=shop-assistant`.
+
+Validation evidence:
+
+```bash
+NODE_PATH=/Users/Sergej.Stasok/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules /Users/Sergej.Stasok/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /private/tmp/sa-g7-browser-verify.js
+```
+
+Initial local attempt failed to launch Chromium under sandboxed permissions with macOS Mach port `Permission denied`, so the same command was rerun with approved escalated local browser-launch permissions.
+
+Result after approved browser launch: pass.
+
+```text
+PASS landing page renders commercial/customer-dashboard copy
+PASS customer dashboard remains locked without auth
+PASS admin panel remains locked without auth
+PASS login page redirects to Auth-hosted login with client id
+PASS register page redirects to Auth-hosted registration with client id
+SKIP CUSTOMER_TOKEN not set; customer browser verification not run
+SKIP ADMIN_TOKEN not set; admin browser verification not run
+SKIP NON_ADMIN_TOKEN not set; non-admin browser verification not run
+Failures: 0
+Skipped authenticated browser checks: 3
+```
+
+Execution note:
+
+- Token values were not supplied or printed.
+- The verifier was copied only to `/private/tmp` for local execution; no service data was saved under `/Users/Sergej.Stasok/Documents`.
+- No dependency installation, Docker image build/push, deployment, or commit was executed.
+
+Remaining validation:
+
+- Run `REQUIRE_BROWSER_AUTH=1 node scripts/sa-g7-browser-verify.js` with safe `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN`.
+- Run `REQUIRE_TOKEN_SMOKE=1 ./scripts/sa-g7-live-smoke.sh` with the same safe token set.
+
+## Implementation Slice 2026-06-13: Token-File Verification Inputs
+
+Scope implemented:
+
+- Added token-file support to `scripts/sa-g7-live-smoke.sh`:
+  - `CUSTOMER_TOKEN_FILE`
+  - `ADMIN_TOKEN_FILE`
+  - `NON_ADMIN_TOKEN_FILE`
+- Added token-file support to `scripts/sa-g7-browser-verify.js` for the same three token types.
+- Existing direct token environment variables still work and take precedence when set.
+- Updated `scripts/sa-g7-source-audit.sh` to verify token-file support.
+- Updated `docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md` to prefer token files over raw token environment values.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh scripts/sa-g7-browser-verify.js && bash -n scripts/sa-g7-live-smoke.sh && node --check scripts/sa-g7-browser-verify.js && bash -n scripts/sa-g7-source-audit.sh && ./scripts/sa-g7-source-audit.sh >/tmp/sa-g7-source-audit-token-files.log && tail -3 /tmp/sa-g7-source-audit-token-files.log && ./scripts/sa-g7-live-smoke.sh >/tmp/sa-g7-live-smoke-token-files-normal.log && tail -20 /tmp/sa-g7-live-smoke-token-files-normal.log'
+```
+
+Result: pass.
+
+- Source audit reported `SA-G7 source audit passed (96 checks)`.
+- Normal no-secret smoke reported `Failures: 0` and `Skipped optional checks: 3`.
+
+Strict missing-token-file validation:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && set +e; CUSTOMER_TOKEN_FILE=/tmp/missing-customer-token ADMIN_TOKEN_FILE=/tmp/missing-admin-token NON_ADMIN_TOKEN_FILE=/tmp/missing-non-admin-token REQUIRE_TOKEN_SMOKE=1 ./scripts/sa-g7-live-smoke.sh >/tmp/sa-g7-strict-token-files-missing.log 2>&1; status=$?; tail -35 /tmp/sa-g7-strict-token-files-missing.log; echo STRICT_TOKEN_FILE_STATUS=$status; test "$status" -ne 0'
+```
+
+Result: pass. Strict live smoke exited non-zero with `STRICT_TOKEN_FILE_STATUS=1`; missing token-file/token checks failed safely and no token values were printed.
+
+Strict browser token-file validation:
+
+```bash
+CUSTOMER_TOKEN_FILE=/private/tmp/missing-customer-token ADMIN_TOKEN_FILE=/private/tmp/missing-admin-token NON_ADMIN_TOKEN_FILE=/private/tmp/missing-non-admin-token REQUIRE_BROWSER_AUTH=1 NODE_PATH=/Users/Sergej.Stasok/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules /Users/Sergej.Stasok/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /private/tmp/sa19-browser-verify.js
+```
+
+Result: expected non-zero. Public browser checks passed, then strict authenticated browser checks failed for missing `CUSTOMER_TOKEN`, `ADMIN_TOKEN`, and `NON_ADMIN_TOKEN`. No token values were printed.
+
+Execution note:
+
+- Deliberately missing token-file paths were used only to validate failure behavior.
+- No real token values were supplied or printed.
+- No dependency installation, Docker image build/push, deployment, or commit was executed.
+
+Remaining validation:
+
+- Run strict live smoke with safe token files:
+  - `CUSTOMER_TOKEN_FILE=<path>`
+  - `ADMIN_TOKEN_FILE=<path>`
+  - `NON_ADMIN_TOKEN_FILE=<path>`
+- Run strict browser verifier with the same safe token files in a Playwright-capable environment.
+
+## Implementation Slice 2026-06-13: Vault Token-File Helper Hardening
+
+Scope implemented:
+
+- Updated `scripts/sa-g7-token-env-from-vault.sh` so Vault-derived access tokens are written to token files under configurable `TOKEN_DIR` instead of being embedded directly in the generated env file.
+- The generated env file now contains:
+  - `BASE_URL`
+  - `REQUIRE_TOKEN_SMOKE`
+  - `CUSTOMER_TOKEN_FILE`
+  - `ADMIN_TOKEN_FILE`
+  - `NON_ADMIN_TOKEN_FILE`
+- Token directory permissions are set to `0700`; token files and env file are set to `0600`.
+- Updated `scripts/sa-g7-strict-token-smoke.sh` to preserve strict mode when sourcing the generated token-file env.
+- Updated `scripts/sa-g7-source-audit.sh` and the rollout runbook to document and verify the safer Vault token-file workflow.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-token-env-from-vault.sh scripts/sa-g7-strict-token-smoke.sh scripts/sa-g7-source-audit.sh && bash -n scripts/sa-g7-token-env-from-vault.sh && bash -n scripts/sa-g7-strict-token-smoke.sh && bash -n scripts/sa-g7-live-smoke.sh && node --check scripts/sa-g7-browser-verify.js && ./scripts/sa-g7-source-audit.sh >/tmp/sa-g7-source-audit-vault-token-files.log && tail -3 /tmp/sa-g7-source-audit-vault-token-files.log && rg -n "TOKEN_DIR|CUSTOMER_TOKEN_FILE|ADMIN_TOKEN_FILE|NON_ADMIN_TOKEN_FILE|token-file env|sa-g7-token-env-from-vault" scripts/sa-g7-token-env-from-vault.sh scripts/sa-g7-strict-token-smoke.sh docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md scripts/sa-g7-source-audit.sh'
+```
+
+Result: pass.
+
+- `bash -n` passed for the Vault token helper, strict token smoke wrapper, and live smoke.
+- `node --check scripts/sa-g7-browser-verify.js` passed.
+- Source audit reported `SA-G7 source audit passed (103 checks)`.
+- Source scan confirmed `TOKEN_DIR` and token-file env references.
+
+Execution note:
+
+- Vault was not contacted.
+- Smoke credentials were not created, rotated, or read.
+- No token values were supplied or printed.
+- No dependency installation, Docker image build/push, deployment, or commit was executed.
+
+Remaining validation:
+
+- Run `scripts/sa-g7-token-env-from-vault.sh` only when approved Vault access and smoke credentials are available.
+- Run strict live and browser verification from the generated token-file env.
+
+## SA-G7 Vault-Backed Strict Token Smoke Evidence - 2026-06-13
+
+Implemented slice: Vault-backed role-separated strict smoke credentials and repeatable token env generation.
+
+Files changed:
+- scripts/sa-g7-bootstrap-smoke-credentials.sh
+- scripts/sa-g7-token-env-from-vault.sh
+- scripts/sa-g7-strict-token-smoke.sh
+- docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md
+- TASKS.md
+- STATE.json
+
+Secret handling:
+- Created customer, admin, and non-admin smoke users through Auth-owned register/login flow.
+- Assigned only the admin smoke user the Auth-owned app role app:shop-assistant:admin through auth-microservice RBAC scripts.
+- Stored smoke credentials at Vault path secret/prod/shop-assistant-smoke, separate from the app runtime secret projection.
+- Generated .env.sa-g7-smoke from Vault with mode 600; .env* is ignored by git.
+- Validation output prints key names and pass/fail labels only, not passwords or JWT values.
+
+Validation commands:
+- bash -n scripts/sa-g7-bootstrap-smoke-credentials.sh scripts/sa-g7-token-env-from-vault.sh scripts/sa-g7-strict-token-smoke.sh
+- ./scripts/sa-g7-bootstrap-smoke-credentials.sh
+- ./scripts/sa-g7-token-env-from-vault.sh
+- ./scripts/sa-g7-strict-token-smoke.sh
+
+Validation result:
+- pass: Vault secret contains the expected smoke credential key names.
+- pass: .env.sa-g7-smoke generated with mode 600 and expected token variable names.
+- pass: strict live smoke exited 0 with Failures: 0.
+- pass: customer token checks returned 200 for /api/me, dashboard, sessions, choices, profiles, and saved criteria contracts.
+- pass: admin token checks returned 200 for admin overview/settings/prompts/models/operations endpoints and contract checks.
+- pass: non-admin token checks returned 403 for admin overview/settings/prompts/models/operations endpoints.
+
+Remaining skips:
+- AGENT_FLOW_SESSION_ID was not supplied, so admin/non-admin agent-communications checks were skipped.
+
+Deployment: not run.
+
+## Implementation Slice 2026-06-13: Token Helper Dry-Run Validation
+
+Scope implemented:
+
+- Added `SA_G7_TOKEN_HELPER_DRY_RUN=1` mode to `scripts/sa-g7-token-env-from-vault.sh`.
+- Dry-run mode uses synthetic placeholder token values only.
+- Dry-run mode exercises the same token-file env generation path as Vault mode:
+  - generated env file contains `CUSTOMER_TOKEN_FILE`, `ADMIN_TOKEN_FILE`, and `NON_ADMIN_TOKEN_FILE`;
+  - token directory is `0700`;
+  - token files are `0600`;
+  - env file is `0600`.
+- Updated `scripts/sa-g7-source-audit.sh` and the rollout runbook to document and verify dry-run support.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-token-env-from-vault.sh scripts/sa-g7-source-audit.sh && bash -n scripts/sa-g7-token-env-from-vault.sh && ./scripts/sa-g7-source-audit.sh >/tmp/sa-g7-source-audit-dry-run.log && tail -3 /tmp/sa-g7-source-audit-dry-run.log && rm -rf /tmp/sa-g7-smoke-token-dry-run /tmp/sa-g7-smoke-dry-run.env && SA_G7_TOKEN_HELPER_DRY_RUN=1 TOKEN_DIR=/tmp/sa-g7-smoke-token-dry-run OUTPUT_ENV=/tmp/sa-g7-smoke-dry-run.env ./scripts/sa-g7-token-env-from-vault.sh >/tmp/sa-g7-token-helper-dry-run.log && cat /tmp/sa-g7-token-helper-dry-run.log && stat -c "%a %n" /tmp/sa-g7-smoke-token-dry-run /tmp/sa-g7-smoke-token-dry-run/customer.token /tmp/sa-g7-smoke-token-dry-run/admin.token /tmp/sa-g7-smoke-token-dry-run/non-admin.token /tmp/sa-g7-smoke-dry-run.env && node -e "const fs=require(\"fs\"); const env=fs.readFileSync(\"/tmp/sa-g7-smoke-dry-run.env\",\"utf8\"); if(/CUSTOMER_TOKEN=|ADMIN_TOKEN=|NON_ADMIN_TOKEN=/.test(env)) process.exit(1); for (const key of [\"CUSTOMER_TOKEN_FILE\",\"ADMIN_TOKEN_FILE\",\"NON_ADMIN_TOKEN_FILE\",\"REQUIRE_TOKEN_SMOKE\"]) if (!env.includes(key+\"=\")) process.exit(1); console.log(\"dry-run env shape ok\");"'
+```
+
+Result: pass.
+
+- Source audit reported `SA-G7 source audit passed (104 checks)`.
+- Dry-run output explicitly reported Vault/Auth were not contacted.
+- File modes:
+  - token dir: `700`
+  - each token file: `600`
+  - generated env file: `600`
+- Env shape check passed and confirmed raw `CUSTOMER_TOKEN=`, `ADMIN_TOKEN=`, and `NON_ADMIN_TOKEN=` entries are absent.
+
+Execution note:
+
+- Vault was not contacted.
+- Auth was not contacted.
+- No real token values were supplied or printed.
+- No credential creation/rotation, dependency installation, Docker image build/push, deployment, or commit was executed.
+
+Remaining validation:
+
+- Optional `AGENT_FLOW_SESSION_ID` admin/non-admin agent-communications smoke.
+
+## Optional Evidence 2026-06-13: Agent-Flow RBAC Smoke
+
+Scope:
+
+- Ran the remaining optional agent-communications authorization check with synthetic session id `smoke`.
+- Used remote token files from `.env.sa-g7-smoke`; token values were not printed or copied off `alfares`.
+- Avoided reading or printing real agent communication payloads.
+
+Production edge note:
+
+- A broad public `AGENT_FLOW_SESSION_ID=smoke REQUIRE_TOKEN_SMOKE=1 ./scripts/sa-g7-live-smoke.sh` run was attempted first.
+- During that run, the public Cloudflare edge began returning HTTP `521` for the service, including `/` and `/health`.
+- Kubernetes still reported the Shop Assistant pod `1/1 Running`, and direct Kubernetes service health returned `200`.
+- Because the public edge was unstable, the optional RBAC proof was executed against the in-cluster service endpoint instead of recording the broad failed edge run as validation evidence.
+
+Validation command:
+
+```bash
+REQUIRE_TOKEN_SMOKE=1 AGENT_FLOW_SESSION_ID=smoke ./scripts/sa-g7-agent-flow-strict-smoke.sh
+```
+
+Result: pass.
+
+- Unauthenticated request returned `401`.
+- Admin token-file smoke returned the expected authorization outcome for the synthetic session id without expanding bearer tokens into the documented command.
+- Non-admin-token request returned `403`.
+
+Secret handling:
+
+- Token values were not printed.
+- Token files remained on `alfares`.
+
+Execution note:
+
+- No dependency installation, Docker image build/push, deployment, credential creation/rotation, or commit was executed.
+- Authenticated browser verification with safe token files.
+
+## Implementation Slice 2026-06-13: Remote Chrome Authenticated Browser Verification
+
+Scope implemented:
+
+- Added `scripts/sa-g7-chrome-browser-verify.js` for dependency-free browser verification on `alfares`.
+- The verifier uses the system Chrome binary and Chrome DevTools Protocol from Node built-ins.
+- The verifier supports `CUSTOMER_TOKEN_FILE`, `ADMIN_TOKEN_FILE`, and `NON_ADMIN_TOKEN_FILE` so live tokens remain in remote `0600` token files.
+- The verifier checks public landing copy, unauthenticated customer/admin lock states, Auth-hosted login/register redirects, authenticated customer dashboard unlock, authenticated admin unlock, and non-admin admin denial.
+- Updated `scripts/sa-g7-source-audit.sh` and the rollout runbook to include the remote Chrome verifier.
+
+Validation evidence:
+
+```bash
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && chmod +x scripts/sa-g7-chrome-browser-verify.js scripts/sa-g7-source-audit.sh && node --check scripts/sa-g7-chrome-browser-verify.js && ./scripts/sa-g7-source-audit.sh | tail -5'
+ssh ssf@192.168.88.53 'cd /home/ssf/Documents/Github/shop-assistant && set -a && . ./.env.sa-g7-smoke && set +a && REQUIRE_BROWSER_AUTH=1 node scripts/sa-g7-chrome-browser-verify.js'
+```
+
+Result: pass.
+
+- Source audit reported `SA-G7 source audit passed (111 checks)`.
+- Remote Chrome authenticated browser verification exited 0.
+- Browser verification result reported `Failures: 0`.
+- Browser verification result reported `Skipped authenticated browser checks: 0`.
+- Customer token unlocked the customer dashboard browser experience.
+- Admin token unlocked the admin browser experience and verified the settings panel through the `Execution mode` tab.
+- Non-admin token remained denied from the admin browser experience.
+
+Secret handling:
+
+- Token values were not printed.
+- Token files were not copied off `alfares`.
+- The verifier read token-file paths from `.env.sa-g7-smoke` and injected tokens only into browser session storage for the checked pages.
+
+Execution note:
+
+- No dependency installation, Docker image build/push, deployment, credential creation/rotation, or commit was executed.
+
+Remaining validation:
+
+- Optional `AGENT_FLOW_SESSION_ID` admin/non-admin agent-communications smoke.
+
+## SA-G7 Agent Flow Strict Token Smoke Evidence - 2026-06-13
+
+Implemented slice: required Agent Flow session coverage for strict token smoke.
+
+Files changed:
+- scripts/sa-g7-agent-flow-strict-smoke.sh
+- docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md
+- TASKS.md
+- STATE.json
+
+Behavior:
+- Added a dedicated strict smoke wrapper that creates a real public smoke session when AGENT_FLOW_SESSION_ID is not supplied.
+- The wrapper exports AGENT_FLOW_SESSION_ID and runs the existing Vault-backed strict token smoke.
+- Token handling remains file-backed through the existing token helper; JWT values are not printed by the smoke script.
+
+Validation:
+- bash -n scripts/sa-g7-agent-flow-strict-smoke.sh passed.
+- Production session creation returned 201 with a sessionId.
+- Agent Flow strict smoke exited 0.
+- Admin token: GET /api/sessions/:id/agent-communications returned 200.
+- Non-admin token: GET /api/sessions/:id/agent-communications returned 403.
+- Final result: Failures: 0; Skipped optional checks: 0.
+
+Deployment: not run.
+

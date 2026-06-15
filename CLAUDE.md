@@ -37,3 +37,7 @@ kubectl -n statex-apps exec deployment/shop-assistant -- curl -s -X POST http://
 | auth-microservice:3370 | User auth |
 
 **Ops**: `kubectl logs -n statex-apps -l app=shop-assistant -f` · `kubectl rollout restart deployment/shop-assistant -n statex-apps` · `./scripts/deploy.sh`
+
+## Central Instruction Source
+
+Shared agent rules now live in `/home/ssf/.claude/CLAUDE.md`, `/home/ssf/Documents/Github/CLAUDE.md`, `/home/ssf/.codex/AGENTS.md`, and `/home/ssf/.ai-agent-standards/CROSS_AGENT_AUTOMATION_STANDARD.md`. Keep this file for repository-specific Claude constraints only; do not duplicate shared operating rules here.

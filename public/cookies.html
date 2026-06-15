@@ -73,12 +73,27 @@
 
       <section>
         <h2>8. Contact</h2>
-        <p>For questions: <a href="mailto:{{PRIVACY_EMAIL}}">{{PRIVACY_EMAIL}}</a> · {{COMPANY_PHONE}}</p>
+        <p>For questions: <a href="mailto:ssfskype@gmail.com">ssfskype@gmail.com</a> · +420 774 287 541</p>
+      </section>
+      <section>
+        <h2>Cookie Preference</h2>
+        <p>You can reset your stored cookie preference and choose again on the home page.</p>
+        <button type="button" id="cookie-reset">Reset cookie preference</button>
       </section>
     </main>
     <footer class="legal-footer">
       <a href="/">Home</a> · <a href="privacy.html">Privacy</a> · <a href="cookies.html">Cookies</a> · <a href="terms.html">Terms</a>
     </footer>
   </div>
+<script>
+  (function() {
+    var btn = document.getElementById('cookie-reset');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+      try { localStorage.removeItem('shop_assistant_cookie_consent'); } catch (e) {}
+      window.location.href = '/';
+    });
+  })();
+</script>
 </body>
 </html>
