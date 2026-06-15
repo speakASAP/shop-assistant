@@ -193,3 +193,40 @@ Remaining dependency-gated work:
 - Admin operations data minimization/redaction requires owner decision on operational need for full detail.
 - Authenticated strict token-file smoke requires explicit permission to read/use token files in the active session.
 - Extensionless legal route aliases require product/SEO decision.
+
+
+## SA-G2-FIX-T3 Implementation Evidence
+
+Date: 2026-06-15
+Scope: protected admin operations redaction by default.
+
+Changed files:
+
+- src/admin/operations.controller.ts
+- public/admin.html
+- docs/intent-preservation/tasks/SA-G2-FIX-T3.md
+- TASKS.md
+- STATE.json
+
+Implemented:
+
+- Admin operations session detail responses now redact message content, query text, raw search response metadata, and agent communication content/metadata by default.
+- Admin operations lead list/detail responses now redact lead messages, contact methods, and metadata by default.
+- Authorized admins can still request full operational detail with `includeSensitive=true`.
+- Admin UI now displays redacted summaries first and adds explicit reveal buttons before fetching full session or lead detail.
+- Existing JwtAuthGuard and RolesGuard admin protections remain unchanged.
+
+Validation:
+
+- npm run build: pass.
+- git diff --check: pass.
+- Focused scan confirmed `includeSensitive`, `sensitiveDetailRedacted`, backend redaction helpers, and admin UI reveal wiring are present.
+
+Deployment:
+
+- Not deployed. Production deployment still requires explicit deploy approval and rollout validation.
+
+Remaining dependency-gated work:
+
+- Authenticated strict token-file smoke remains dependent on active-session permission to use safe token files.
+- Extensionless legal route aliases remain dependent on product/SEO decision.

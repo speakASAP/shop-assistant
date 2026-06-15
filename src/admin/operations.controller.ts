@@ -101,6 +101,64 @@ function requestUserId(req: Request): string | null {
   return (req as Request & { user?: { id?: string; email?: string } }).user?.id ?? null;
 }
 
+function wantsSensitiveDetail(value: string | undefined): boolean {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'true' || normalized === '1' || normalized === 'yes';
+}
+
+function textSummary(value: string | null | undefined, previewLength = 140) {
+  const text = String(value || '');
+  return {
+    redacted: true,
+    length: text.length,
+    preview: text ? `${text.slice(0, previewLength)}${text.length > previewLength ? '...' : ''}` : '',
+  };
+}
+
+function jsonSummary(value: unknown) {
+  if (value == null) return { redacted: true, type: 'empty', count: 0 };
+  if (Array.isArray(value)) return { redacted: true, type: 'array', count: value.length };
+  if (typeof value === 'object') return { redacted: true, type: 'object', keys: Object.keys(value as Record<string, unknown>).slice(0, 12) };
+  return { redacted: true, type: typeof value };
+}
+
+function redactMessage(message: { content?: string | null; [key: string]: unknown }) {
+  const { content, ...rest } = message;
+  return { ...rest, content: textSummary(content) };
+}
+
+function redactSearchRun(run: { queryText?: string | null; rawSearchResponse?: unknown; searchResults?: unknown; [key: string]: unknown }) {
+  const { queryText, rawSearchResponse, searchResults, ...rest } = run;
+  return { ...rest, queryText: textSummary(queryText), rawSearchResponse: jsonSummary(rawSearchResponse), searchResults };
+}
+
+function redactAgentCommunication(item: { content?: string | null; metadata?: unknown; [key: string]: unknown }) {
+  const { content, metadata, ...rest } = item;
+  return { ...rest, content: textSummary(content), metadata: jsonSummary(metadata) };
+}
+
+function redactLead(lead: { message?: string | null; contactMethods?: unknown; metadata?: unknown; [key: string]: unknown }) {
+  const { message, contactMethods, metadata, ...rest } = lead;
+  const messageSummary = textSummary(message, 220);
+  return { ...rest, message: messageSummary, messagePreview: messageSummary.preview, contactMethods: jsonSummary(contactMethods), contactSummary: jsonSummary(contactMethods), metadata: jsonSummary(metadata) };
+}
+
+function maybeRedactSessionDetail(session: any, includeSensitive: boolean) {
+  if (!session || includeSensitive) return session;
+  return {
+    ...session,
+    sensitiveDetailRedacted: true,
+    messages: (session.messages || []).map(redactMessage),
+    searchRuns: (session.searchRuns || []).map(redactSearchRun),
+    agentCommunications: (session.agentCommunications || []).map(redactAgentCommunication),
+  };
+}
+
+function maybeRedactLead(lead: any, includeSensitive: boolean) {
+  if (!lead || includeSensitive) return lead;
+  return { ...redactLead(lead), sensitiveDetailRedacted: true };
+}
+
 @Controller('admin/operations')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('global:superadmin', 'app:shop-assistant:admin')
@@ -180,10 +238,10 @@ export class OperationsController {
   }
 
   @Get('sessions/:id')
-  async getSession(@Param('id') id: string) {
+  async getSession(@Param('id') id: string, @Query('includeSensitive') includeSensitive?: string) {
     const session = await this.getSessionDetail(id);
 
-    return { session };
+    return { session: maybeRedactSessionDetail(session, wantsSensitiveDetail(includeSensitive)) };
   }
 
   @Put('sessions/:id')
@@ -425,18 +483,15 @@ export class OperationsController {
     ]);
 
     return {
-      items: items.map((item) => ({
-        ...item,
-        messagePreview: item.message.length > 220 ? `${item.message.slice(0, 220)}...` : item.message,
-      })),
+      items: items.map((item) => redactLead(item)),
       pagination: { page, limit, total, q: search ?? null },
     };
   }
 
   @Get('leads/:id')
-  async getLead(@Param('id') id: string) {
+  async getLead(@Param('id') id: string, @Query('includeSensitive') includeSensitive?: string) {
     const lead = await this.prisma.leadRequest.findUnique({ where: { id } });
-    return { lead };
+    return { lead: maybeRedactLead(lead, wantsSensitiveDetail(includeSensitive)) };
   }
 
   @Put('leads/:id')
@@ -458,12 +513,13 @@ export class OperationsController {
     const adminNotes = normalizeOptionalText(body?.adminNotes, 'adminNotes', MAX_ADMIN_NOTES_LENGTH);
     if (adminNotes !== undefined) data.adminNotes = adminNotes;
     if (!Object.keys(data).length) {
-      return { lead: await this.prisma.leadRequest.findUnique({ where: { id } }) };
+      const unchanged = await this.prisma.leadRequest.findUnique({ where: { id } });
+      return { lead: maybeRedactLead(unchanged, false) };
     }
 
     data.triagedAt = new Date();
     data.triagedBy = requestUserId(req);
     const updated = await this.prisma.leadRequest.update({ where: { id }, data });
-    return { lead: updated };
+    return { lead: maybeRedactLead(updated, false) };
   }
 }

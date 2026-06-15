@@ -901,7 +901,24 @@
       }
     }
 
+    function redactedSummary(value) {
+      if (!value || value.redacted !== true) return null;
+      if (value.preview) return value.preview;
+      if (value.type === 'array') return 'Redacted array, ' + (value.count || 0) + ' item(s)';
+      if (value.type === 'object') return 'Redacted object' + (Array.isArray(value.keys) && value.keys.length ? ': ' + value.keys.join(', ') : '');
+      if (value.type === 'empty') return '—';
+      return 'Redacted ' + (value.type || 'value');
+    }
+
+    function sensitiveText(value) {
+      const summary = redactedSummary(value);
+      if (summary !== null) return summary;
+      return String(value ?? '');
+    }
+
     function firstContact(contactMethods) {
+      const summary = redactedSummary(contactMethods);
+      if (summary !== null) return summary;
       const list = Array.isArray(contactMethods) ? contactMethods : [];
       const first = list.find(function(item) { return item && item.value; });
       if (!first) return '—';
@@ -1027,11 +1044,12 @@
       });
     }
 
-    async function loadOperationSessionDetail(id) {
+    async function loadOperationSessionDetail(id, includeSensitive) {
       const detail = document.getElementById('operationsDetail');
       detail.innerHTML = '<h3>Session detail</h3><p style="color:#64748b;">Loading...</p>';
       try {
-        const r = await fetch(API_BASE + '/admin/operations/sessions/' + encodeURIComponent(id), { headers: authHeaders() });
+        const detailUrl = API_BASE + '/admin/operations/sessions/' + encodeURIComponent(id) + (includeSensitive ? '?includeSensitive=true' : '');
+        const r = await fetch(detailUrl, { headers: authHeaders() });
         if (handleAdminAuthResponse(r, showOperationsStatus)) return;
         if (!r.ok) throw new Error(await r.text() || r.statusText);
         const data = await r.json();
@@ -1042,7 +1060,11 @@
         }
         const latestRun = (session.searchRuns || [])[0];
         const priorities = Array.isArray(session.priorityOrder) ? session.priorityOrder : [];
+        const redactionNotice = session.sensitiveDetailRedacted
+          ? '<div class="status info" style="display:block;margin-bottom:0.75rem;">Message, query, agent, contact, and metadata content is redacted by default. <button type="button" class="btn btn-secondary" id="revealSessionSensitiveBtn" data-session-id="' + escapeHtml(session.id) + '">Reveal full admin detail</button></div>'
+          : '<div class="status success" style="display:block;margin-bottom:0.75rem;">Full sensitive admin detail is visible for this inspection.</div>';
         detail.innerHTML =
+          redactionNotice +
           '<h3>Session ' + escapeHtml(shortId(session.id)) + '</h3>' +
           '<p><strong>User:</strong> ' + escapeHtml(session.userId || 'Anonymous') + '</p>' +
           '<p><strong>Profile:</strong> ' + escapeHtml(session.profile ? session.profile.name : (session.profileId || '—')) + '</p>' +
@@ -1063,7 +1085,7 @@
             '<div><button type="button" class="btn btn-primary" id="saveSessionOpsBtn" data-session-id="' + escapeHtml(session.id) + '">Save session edits</button></div>' +
           '</div>' +
           '<h3 style="margin-top:1rem;">Latest query</h3>' +
-          '<pre>' + escapeHtml(latestRun ? latestRun.queryText : 'No search runs yet.') + '</pre>' +
+          '<pre>' + escapeHtml(latestRun ? sensitiveText(latestRun.queryText) : 'No search runs yet.') + '</pre>' +
           '<h3 style="margin-top:1rem;">Stored detail</h3>' +
           '<pre>' + escapeHtml(safeJson({
             messages: session.messages,
@@ -1071,6 +1093,10 @@
             choices: session.choices,
             agentCommunications: session.agentCommunications,
           })) + '</pre>';
+        const revealBtn = document.getElementById('revealSessionSensitiveBtn');
+        if (revealBtn) {
+          revealBtn.onclick = function() { loadOperationSessionDetail(revealBtn.getAttribute('data-session-id'), true); };
+        }
         const saveBtn = document.getElementById('saveSessionOpsBtn');
         if (saveBtn) {
           saveBtn.onclick = function() { saveOperationSessionDetail(saveBtn.getAttribute('data-session-id')); };
@@ -1110,11 +1136,12 @@
       await loadOperationSessionDetail(session.id);
     }
 
-    async function loadOperationLeadDetail(id) {
+    async function loadOperationLeadDetail(id, includeSensitive) {
       const detail = document.getElementById('operationsDetail');
       detail.innerHTML = '<h3>Lead detail</h3><p style="color:#64748b;">Loading...</p>';
       try {
-        const r = await fetch(API_BASE + '/admin/operations/leads/' + encodeURIComponent(id), { headers: authHeaders() });
+        const detailUrl = API_BASE + '/admin/operations/leads/' + encodeURIComponent(id) + (includeSensitive ? '?includeSensitive=true' : '');
+        const r = await fetch(detailUrl, { headers: authHeaders() });
         if (handleAdminAuthResponse(r, showOperationsStatus)) return;
         if (!r.ok) throw new Error(await r.text() || r.statusText);
         const data = await r.json();
@@ -1123,7 +1150,11 @@
           detail.innerHTML = '<h3>Lead detail</h3><p style="color:#64748b;">Lead not found.</p>';
           return;
         }
+        const leadRedactionNotice = lead.sensitiveDetailRedacted
+          ? '<div class="status info" style="display:block;margin-bottom:0.75rem;">Lead message, contact, and metadata content is redacted by default. <button type="button" class="btn btn-secondary" id="revealLeadSensitiveBtn" data-lead-id="' + escapeHtml(lead.id) + '">Reveal full lead detail</button></div>'
+          : '<div class="status success" style="display:block;margin-bottom:0.75rem;">Full sensitive lead detail is visible for this inspection.</div>';
         detail.innerHTML =
+          leadRedactionNotice +
           '<h3>Lead ' + escapeHtml(shortId(lead.id)) + '</h3>' +
           '<p><strong>Source:</strong> ' + escapeHtml(lead.sourceLabel || lead.sourceService || '—') + '</p>' +
           '<p><strong>CRM lead id:</strong> ' + escapeHtml(lead.leadId || 'Pending') + '</p>' +
@@ -1140,9 +1171,13 @@
             '<div><button type="button" class="btn btn-primary" id="saveLeadOpsBtn" data-lead-id="' + escapeHtml(lead.id) + '">Save lead triage</button></div>' +
           '</div>' +
           '<h3 style="margin-top:1rem;">Message</h3>' +
-          '<pre>' + escapeHtml(lead.message || '') + '</pre>' +
+          '<pre>' + escapeHtml(sensitiveText(lead.message)) + '</pre>' +
           '<h3 style="margin-top:1rem;">Contact and metadata</h3>' +
           '<pre>' + escapeHtml(safeJson({ contactMethods: lead.contactMethods, metadata: lead.metadata, sourceUrl: lead.sourceUrl, triagedBy: lead.triagedBy })) + '</pre>';
+        const revealLeadBtn = document.getElementById('revealLeadSensitiveBtn');
+        if (revealLeadBtn) {
+          revealLeadBtn.onclick = function() { loadOperationLeadDetail(revealLeadBtn.getAttribute('data-lead-id'), true); };
+        }
         const saveBtn = document.getElementById('saveLeadOpsBtn');
         if (saveBtn) {
           saveBtn.onclick = function() { saveOperationLeadDetail(saveBtn.getAttribute('data-lead-id')); };

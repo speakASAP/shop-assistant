@@ -1475,6 +1475,23 @@
           "STATE.json parse passed"
         ],
         "deployment": "not run"
+      },
+      "sa_g2_fix_t3_completed": {
+        "date": "2026-06-15",
+        "status": "completed_build_passed_not_deployed",
+        "task": "docs/intent-preservation/tasks/SA-G2-FIX-T3.md",
+        "changed_source": [
+          "src/admin/operations.controller.ts",
+          "public/admin.html"
+        ],
+        "behavior": "admin operations session and lead detail responses redact sensitive content by default; authorized admins can explicitly request includeSensitive=true and the UI requires a reveal click before fetching full detail",
+        "validation": [
+          "npm run build passed",
+          "git diff --check passed",
+          "focused includeSensitive/sensitiveDetailRedacted scan passed",
+          "STATE.json parse passed"
+        ],
+        "deployment": "not run"
       }
     }
   }
