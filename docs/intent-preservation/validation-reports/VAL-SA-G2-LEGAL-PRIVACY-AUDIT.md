@@ -260,13 +260,19 @@ Validation:
 - bash -n scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh: pass.
 - ./scripts/sa-g7-source-audit.sh: pass, 119 checks.
 - STATE.json parse: pass.
-- Pending after deploy: post-deploy smoke, authenticated strict token-file smoke, and live extensionless legal route status.
+- Deployment package: scripts/build-and-push-image.sh passed from commit b260c66 with source fingerprint 35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3 and registry digest sha256:d4b101c88e1ecde6b79cced2091465b6057c9a963f0f74ed2ecd8984d3cbcc63.
+- Owner-approved deploy: EXPECTED_SOURCE_FINGERPRINT=35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3 ./scripts/deploy.sh exited 0; rollout reached pod shop-assistant-557cf8bc45-jc65t, 1/1 Running, total deployment time 41.55s.
+- Deploy smoke note: the built-in no-secret smoke initially observed transient edge 502s for /health, /admin.html, /register.html, and /debug.html, but the deploy script still exited 0. Immediate direct follow-up checks returned 200 for /health, /admin.html, /register.html, /debug.html, /privacy, /cookies, and /terms.
+- Authenticated strict token-file smoke: ./scripts/sa-g7-agent-flow-strict-smoke.sh passed with Failures: 0 and Skipped optional checks: 0; token files stayed on alfares and token values were not printed.
+- Admin operations data minimization production check: pass; default session and lead details were marked sensitiveDetailRedacted, includeSensitive=true returned non-redacted admin detail, and token values were not printed.
 
 Deployment:
 
-- Pending owner-approved deployment in the current run.
+- Complete. Owner-approved deployment ran on 2026-06-21 with ./scripts/deploy.sh after image build/push.
+- Running pod: shop-assistant-557cf8bc45-jc65t.
+- Source fingerprint: 35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3.
+- Registry digest: sha256:d4b101c88e1ecde6b79cced2091465b6057c9a963f0f74ed2ecd8984d3cbcc63.
 
 Remaining dependency-gated work:
 
-- Authenticated strict token-file smoke is now allowed by the active owner delegation and should run only through token-file helpers without printing token values.
-- Production deployment is owner-approved in the active delegation and should run after validation passes.
+- None for the SA-G2 closeout slice. Admin operations data minimization, authenticated token-file smoke, extensionless legal route decision, and owner-approved deployment are closed by this evidence.

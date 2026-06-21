@@ -122,4 +122,4 @@
 
 - [x] 2026-06-15 SA-G2-FIX-T3 admin operations redaction by default implemented; protected detail responses redact sensitive content unless authorized admins explicitly request includeSensitive=true; build and focused scans passed; no deploy run.
 
-- [x] 2026-06-21 SA-G2-FIX-T4 extensionless legal route aliases implemented; /privacy, /cookies, and /terms use the existing runtime legal page controller, source audit/live smoke coverage added, pre-deploy validation passed; deploy evidence pending in current run.
+- [x] 2026-06-21 SA-G2-FIX-T4 extensionless legal route aliases implemented; /privacy, /cookies, and /terms use the existing runtime legal page controller, source audit/live smoke coverage added, pre-deploy validation passed, owner-approved deployment completed, strict token-file smoke passed, and live legal aliases returned 200.

@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "SA-G2-FIX-T4-validation-passed-deploy-pending",
-  "next_focus": "Commit, push, package image, deploy owner-approved SA-G2 hardening, then run no-secret and authenticated token-file smoke evidence.",
+  "last_milestone": "SA-G2-closeout-deployed-strict-smoke-passed",
+  "next_focus": "SA-G2 closeout complete. Backlog remains: SA-G7 commercial frontend/dashboard/admin broad goal, failed-search quality analysis, and UX improvement report as listed in TASKS.md.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1495,7 +1495,7 @@
       },
       "sa_g2_fix_t4_extensionless_legal_routes": {
         "date": "2026-06-21",
-        "status": "validation_passed_deploy_pending",
+        "status": "deployed_strict_token_smoke_passed",
         "task": "docs/intent-preservation/tasks/SA-G2-FIX-T4.md",
         "changed_source": [
           "src/legal/legal.controller.ts",
@@ -1509,9 +1509,53 @@
           "git diff --check passed",
           "bash -n scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh passed",
           "scripts/sa-g7-source-audit.sh passed 119 checks",
-          "STATE.json parse passed"
+          "STATE.json parse passed",
+          "direct post-deploy route checks returned 200 for /health, /admin.html, /register.html, /debug.html, /privacy, /cookies, and /terms",
+          "scripts/sa-g7-agent-flow-strict-smoke.sh passed with Failures: 0 and Skipped optional checks: 0",
+          "admin operations production redaction check passed for session and lead detail"
         ],
-        "deployment": "pending owner-approved deployment in active delegation"
+        "deployment": {
+          "approved_by_owner_in_active_delegation": true,
+          "commit": "b260c66",
+          "command": "EXPECTED_SOURCE_FINGERPRINT=35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3 ./scripts/deploy.sh",
+          "result": "success",
+          "pod": "shop-assistant-557cf8bc45-jc65t",
+          "source_fingerprint": "35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3",
+          "image_digest": "sha256:d4b101c88e1ecde6b79cced2091465b6057c9a963f0f74ed2ecd8984d3cbcc63",
+          "deploy_duration_seconds": 41.55,
+          "note": "built-in deploy smoke initially saw transient edge 502s on four routes but deploy exited 0; immediate direct follow-up route checks and strict token-file smoke passed"
+        }
+      },
+      "sa_g2_closeout_20260621": {
+        "date": "2026-06-21",
+        "status": "complete_deployed_validated",
+        "closed_gates": [
+          "admin operations data minimization owner decision implemented as redacted-by-default with explicit includeSensitive=true reveal",
+          "authenticated token-file smoke permission exercised through Vault-backed token-file helper without printing token values",
+          "extensionless legal route decision implemented as /privacy, /cookies, and /terms aliases",
+          "owner-approved production deployment completed"
+        ],
+        "validation": [
+          "npm run build passed",
+          "git diff --check passed",
+          "bash -n scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh passed",
+          "scripts/sa-g7-source-audit.sh passed 119 checks",
+          "STATE.json parse passed",
+          "direct post-deploy route checks returned 200 for /health, /admin.html, /register.html, /debug.html, /privacy, /cookies, and /terms",
+          "scripts/sa-g7-agent-flow-strict-smoke.sh passed with Failures: 0 and Skipped optional checks: 0",
+          "admin operations production redaction check passed for session and lead detail"
+        ],
+        "deployment": {
+          "approved_by_owner_in_active_delegation": true,
+          "commit": "b260c66",
+          "command": "EXPECTED_SOURCE_FINGERPRINT=35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3 ./scripts/deploy.sh",
+          "result": "success",
+          "pod": "shop-assistant-557cf8bc45-jc65t",
+          "source_fingerprint": "35ffec9c81220d729a65d59d9fe15ee502ab049040d14e0bc0deffe983965aa3",
+          "image_digest": "sha256:d4b101c88e1ecde6b79cced2091465b6057c9a963f0f74ed2ecd8984d3cbcc63",
+          "deploy_duration_seconds": 41.55,
+          "note": "built-in deploy smoke initially saw transient edge 502s on four routes but deploy exited 0; immediate direct follow-up route checks and strict token-file smoke passed"
+        }
       }
     }
   }
