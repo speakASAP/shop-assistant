@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "generatedAt": "2026-06-21T08:52:53.433Z",
+    "source": "production-zero-result-search-runs",
+    "sampleLimit": 200,
+    "privacy": "Hashed normalized query/session fingerprints and aggregate counts only. No raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, or database URLs emitted."
+  },
+  "totals": {
+    "sampledZeroResultRuns": 6,
+    "uniqueQueryFingerprints": 6,
+    "topReturned": 6
+  },
+  "topFailedSearches": [
+    {
+      "rank": 1,
+      "queryFingerprint": "0540222beba1d759",
+      "count": 1,
+      "distinctSessionFingerprints": 1,
+      "queryLength": {
+        "min": 110,
+        "max": 110,
+        "average": 110
+      },
+      "rawSearchItemsCount": {
+        "min": 0,
+        "max": 0,
+        "average": 0
+      },
+      "firstSeenAt": "2026-06-13T04:08:24.662Z",
+      "lastSeenAt": "2026-06-13T04:08:24.662Z"
+    },
+    {
+      "rank": 2,
+      "queryFingerprint": "21ed88089c38be9a",
+      "count": 1,
+      "distinctSessionFingerprints": 1,
+      "queryLength": {
+        "min": 68,
+        "max": 68,
+        "average": 68
+      },
+      "rawSearchItemsCount": {
+        "min": 0,
+        "max": 0,
+        "average": 0
+      },
+      "firstSeenAt": "2026-06-13T20:18:43.917Z",
+      "lastSeenAt": "2026-06-13T20:18:43.917Z"
+    },
+    {
+      "rank": 3,
+      "queryFingerprint": "33bd9b8ec8c5feae",
+      "count": 1,
+      "distinctSessionFingerprints": 1,
+      "queryLength": {
+        "min": 140,
+        "max": 140,
+        "average": 140
+      },
+      "rawSearchItemsCount": {
+        "min": 0,
+        "max": 0,
+        "average": 0
+      },
+      "firstSeenAt": "2026-06-13T05:36:02.240Z",
+      "lastSeenAt": "2026-06-13T05:36:02.240Z"
+    },
+    {
+      "rank": 4,
+      "queryFingerprint": "4233e845abd4ca70",
+      "count": 1,
+      "distinctSessionFingerprints": 1,
+      "queryLength": {
+        "min": 135,
+        "max": 135,
+        "average": 135
+      },
+      "rawSearchItemsCount": {
+        "min": 0,
+        "max": 0,
+        "average": 0
+      },
+      "firstSeenAt": "2026-06-13T04:19:49.586Z",
+      "lastSeenAt": "2026-06-13T04:19:49.586Z"
+    },
+    {
+      "rank": 5,
+      "queryFingerprint": "71758aeee575831b",
+      "count": 1,
+      "distinctSessionFingerprints": 1,
+      "queryLength": {
+        "min": 36,
+        "max": 36,
+        "average": 36
+      },
+      "rawSearchItemsCount": {
+        "min": 0,
+        "max": 0,
+        "average": 0
+      },
+      "firstSeenAt": "2026-06-13T05:38:15.222Z",
+      "lastSeenAt": "2026-06-13T05:38:15.222Z"
+    },
+    {
+      "rank": 6,
+      "queryFingerprint": "d20869b74d0435ff",
+      "count": 1,
+      "distinctSessionFingerprints": 1,
+      "queryLength": {
+        "min": 81,
+        "max": 81,
+        "average": 81
+      },
+      "rawSearchItemsCount": {
+        "min": 0,
+        "max": 0,
+        "average": 0
+      },
+      "firstSeenAt": "2026-06-13T20:36:42.247Z",
+      "lastSeenAt": "2026-06-13T20:36:42.247Z"
+    }
+  ]
+}

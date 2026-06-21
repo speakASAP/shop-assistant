@@ -3261,3 +3261,18 @@ Validation:
 
 Deployment: not run.
 
+
+
+## SA-G7-T1 Umbrella Closeout - 2026-06-21
+
+Result: close. The commercial landing, Auth-hosted login/register handoff, authenticated customer dashboard, role-protected admin panel, operations drill-down, editable safe settings, token-hardening, source audit, strict token-file smoke, browser verification history, and latest owner-approved deployment evidence together satisfy the SA-G7-T1 acceptance criteria.
+
+Current closeout evidence:
+
+- Latest deployed commit lineage includes b260c66 and final evidence commit 066ac3c.
+- Latest strict token-file smoke from 2026-06-21 passed with Failures: 0 and Skipped optional checks: 0.
+- Latest source audit passed 119 checks.
+- Public legal routes, dashboard, admin, login/register, and unauthenticated protection checks passed in the latest smoke evidence.
+- Admin operations data minimization remains redacted by default with explicit includeSensitive=true reveal.
+
+No new deployment was run for this backlog closeout entry.

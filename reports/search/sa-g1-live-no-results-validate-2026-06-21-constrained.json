@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "generatedAt": "2026-06-21T08:53:42.078Z",
+    "privacy": "Synthetic live validation only. Raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, and database URLs are not emitted.",
+    "baseUrl": "https://shop-assistant.alfares.cz",
+    "queryFingerprint": "2073edfa5293a1e8",
+    "mode": "strict-zero-result"
+  },
+  "session": {
+    "id": "71bf1f0e-0233-493f-8a5a-4c4abffd9fa5"
+  },
+  "http": {
+    "sessionCreateStatus": 201,
+    "queryStatus": 201,
+    "messagesStatus": 200
+  },
+  "counts": {
+    "results": 0,
+    "httpResultUrls": 0,
+    "invalidResultUrls": 0,
+    "messages": 2,
+    "assistantTextMessages": 1,
+    "tableMessages": 0
+  },
+  "checks": {
+    "actionableNoResultsGuidancePresent": true,
+    "zeroResultProbe": true,
+    "tableMessagesSuppressed": true,
+    "onlyHttpMerchantUrls": true
+  },
+  "result": "pass",
+  "failures": []
+}

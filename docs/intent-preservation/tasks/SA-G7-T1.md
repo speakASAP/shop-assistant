@@ -2,11 +2,11 @@
 
 ```yaml
 id: SA-G7-T1
-status: draft
+status: complete
 owner: shop-assistant-owner
 created: 2026-06-13
-last_updated: 2026-06-13
-completeness_level: planning
+last_updated: 2026-06-21
+completeness_level: complete
 upstream:
   - owner request 2026-06-13
   - BUSINESS.md

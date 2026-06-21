@@ -8,9 +8,9 @@
 
 ## Backlog
 
-- [ ] SA-G7-T1 Commercial frontend, authenticated client dashboard, and role-protected admin control panel (priority: 1)
-- [ ] Analyze top 20 failed searches and improve response quality (priority: 2)
-- [ ] Generate UX improvement report based on session data (priority: 3)
+- [x] SA-G7-T1 Commercial frontend, authenticated client dashboard, and role-protected admin control panel (priority: 1) - closed 2026-06-21 after deployed strict token-file smoke, source audit evidence, and SA-G7 completion history
+- [x] Analyze top 20 failed searches and improve response quality (priority: 2) - closed 2026-06-21 with hashed top-failed-search refresh and constrained no-results validation
+- [x] Generate UX improvement report based on session data (priority: 3) - closed 2026-06-21 with current aggregate production UX report
 
 ## Completed
 <!-- AI appends here. Never modifies previous entries. -->
@@ -123,3 +123,7 @@
 - [x] 2026-06-15 SA-G2-FIX-T3 admin operations redaction by default implemented; protected detail responses redact sensitive content unless authorized admins explicitly request includeSensitive=true; build and focused scans passed; no deploy run.
 
 - [x] 2026-06-21 SA-G2-FIX-T4 extensionless legal route aliases implemented; /privacy, /cookies, and /terms use the existing runtime legal page controller, source audit/live smoke coverage added, pre-deploy validation passed, owner-approved deployment completed, strict token-file smoke passed, and live legal aliases returned 200.
+
+- [x] 2026-06-21 SA-G7-T1 umbrella backlog closed; deployed strict token-file smoke and source audit evidence cover commercial landing, authenticated dashboard, and role-protected admin surfaces.
+- [x] 2026-06-21 SA-G1 failed-search quality refresh completed; added reusable hashed top-20 failed-search script, generated sanitized production evidence, and constrained no-results live validation passed.
+- [x] 2026-06-21 SA-G4 current UX improvement report generated from aggregate production session metrics and static workflow inspection; no raw personal data exported.

@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "SA-G2-closeout-deployed-strict-smoke-passed",
-  "next_focus": "SA-G2 closeout complete. Backlog remains: SA-G7 commercial frontend/dashboard/admin broad goal, failed-search quality analysis, and UX improvement report as listed in TASKS.md.",
+  "last_milestone": "shop-assistant-backlog-closed-20260621",
+  "next_focus": "Backlog rows in TASKS.md are closed. Future work should be new owner-selected improvements from the UX report recommendations, not continuation of the old backlog rows.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1556,6 +1556,48 @@
           "deploy_duration_seconds": 41.55,
           "note": "built-in deploy smoke initially saw transient edge 502s on four routes but deploy exited 0; immediate direct follow-up route checks and strict token-file smoke passed"
         }
+      },
+      "sa_g1_failed_search_refresh_20260621": {
+        "date": "2026-06-21",
+        "status": "complete_no_additional_code_behavior_change_needed",
+        "script": "scripts/sa-g1-failed-search-top20.js",
+        "evidence": [
+          "reports/search/sa-g1-failed-search-top20-2026-06-21.json",
+          "reports/search/sa-g1-live-no-results-validate-2026-06-21-constrained.json",
+          "docs/intent-preservation/handoffs/SA-G1-failed-search-refresh-handoff-2026-06-21.md"
+        ],
+        "sampled_zero_result_runs": 6,
+        "unique_query_fingerprints": 6,
+        "constrained_no_results_validation": {
+          "result": "pass",
+          "results": 0,
+          "invalid_result_urls": 0,
+          "table_messages": 0,
+          "actionable_guidance_present": true
+        }
+      },
+      "sa_g4_ux_report_refresh_20260621": {
+        "date": "2026-06-21",
+        "status": "complete_current_aggregate_report_generated",
+        "report": "docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-21.md",
+        "metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-21.json",
+        "sessions": 21,
+        "search_runs": 15,
+        "search_results": 89,
+        "zero_result_search_runs": 6,
+        "choices": 0,
+        "feedback_messages": 0,
+        "agent_errors": 0
+      },
+      "sa_g7_umbrella_closeout_20260621": {
+        "date": "2026-06-21",
+        "status": "complete_closed_from_existing_deployed_validation_evidence",
+        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md",
+        "evidence": [
+          "strict token-file smoke passed with Failures: 0 and Skipped optional checks: 0",
+          "source audit passed 119 checks",
+          "latest deployment evidence recorded in STATE.json sa_g2_closeout_20260621"
+        ]
       }
     }
   }

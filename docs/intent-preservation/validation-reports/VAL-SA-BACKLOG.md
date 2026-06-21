@@ -679,3 +679,49 @@ Result:
 - Live actionable no-results guidance is present.
 - Live zero-result table-message suppression is verified.
 - Real URL truthfulness guard remains enforced by validation.
+
+
+## SA-G1 Failed-Search Refresh - 2026-06-21
+
+Gate:
+Date: 2026-06-21
+Goal: SA-G1 Request-to-result quality
+Task: Analyze top 20 failed searches and improve response quality
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: clean before integration; this slice adds scripts/sa-g1-failed-search-top20.js and sanitized report artifacts
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Invariants checked: real merchant URL truthfulness, privacy-safe failed-search analysis, ai-microservice search ownership, no deployment for this slice
+Sensitive-data classification: hashed normalized query/session fingerprints, aggregate counts, query lengths, raw item counts, and timestamps only
+Contract/schema impact: no API response, Prisma schema, Auth, legal, or deployment contract changed
+Privacy/legal impact: no raw query text, message content, merchant URLs, JWTs, secrets, lead details, profile names, or database URLs emitted
+Replay/determinism impact: script deterministically groups latest zero-result search runs by hashed normalized query fingerprint
+External service boundary impact: search remains delegated to ai-microservice; database read ran inside the Shop Assistant pod environment
+Validation commands:
+- node --check scripts/sa-g1-failed-search-top20.js
+- kubectl exec ... node /tmp/sa-g1-failed-search-top20.js > reports/search/sa-g1-failed-search-top20-2026-06-21.json
+- SYNTHETIC_QUERY=[sanitized constrained no-results probe] node scripts/sa-g1-live-no-results-validate.js > reports/search/sa-g1-live-no-results-validate-2026-06-21-constrained.json
+Result: pass. The current sample has 6 zero-result runs and 6 unique failed-search fingerprints; no repeated production fingerprint justifies a new query-specific behavior change. Constrained live no-results validation passed with actionable guidance present and tableMessages=0.
+
+## SA-G4 Current UX Report Refresh - 2026-06-21
+
+Gate:
+Date: 2026-06-21
+Goal: SA-G4 Agent admin and observability
+Task: Generate UX improvement report based on session data
+Repository root: /home/ssf/Documents/Github/shop-assistant
+Git status: clean before integration; this slice adds reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-21.json and docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-21.md
+Execution plan: docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md
+Context package: docs/intent-preservation/context-packages/CP-SA-BACKLOG.md
+Coding prompt: docs/intent-preservation/coding-prompts/PROMPT-SA-BACKLOG.md
+Invariants checked: privacy-safe aggregate analytics, legal transparency preservation, admin JWT boundary preservation, no deployment for this report slice
+Sensitive-data classification: aggregate counts/rates/distributions and static workflow observations only
+Contract/schema impact: report-only task plus reusable script artifact; no API, Prisma schema, Auth, legal, deployment, or external-service contract changed
+Privacy/legal impact: no raw query text, message content, profile names, lead details, JWTs, secrets, merchant URLs, or database URLs exported
+Replay/determinism impact: production aggregate query is deterministic for current database state
+External service boundary impact: database read ran inside the Shop Assistant pod environment; logging/database ownership unchanged
+Validation commands:
+- kubectl exec ... node /tmp/aggregate-ux-production-metrics.js > reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-21.json
+- static inspection of public/index.html, public/dashboard.html, public/admin.html
+Result: pass. Current aggregate report covers 21 sessions, 15 search runs, 89 search results, 6 zero-result runs, 0 choices, 0 feedback messages, and 0 agent errors. Primary recommendations: improve selected-product affordance, refinement prompts, profile/saved-search reuse, and aggregate metric coverage.

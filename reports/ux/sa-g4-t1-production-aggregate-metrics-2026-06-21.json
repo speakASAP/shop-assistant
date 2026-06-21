@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "source": "production-aggregate",
+    "generatedAt": "2026-06-21T08:52:53.682Z",
+    "privacy": "Aggregate counts only. No raw message content, query text, profile names, lead details, JWTs, secrets, or database URLs exported.",
+    "window": {
+      "firstSessionAt": "2026-06-13T03:48:23.996Z",
+      "lastSessionAt": "2026-06-21T08:51:59.876Z"
+    }
+  },
+  "counts": {
+    "sessions": 21,
+    "userBoundSessions": 13,
+    "profileScopedSessions": 2,
+    "priorityScopedSessions": 18,
+    "sessionsWithAtLeastOneQueryMessage": 15,
+    "searchRuns": 15,
+    "searchResults": 89,
+    "zeroResultSearchRuns": 6,
+    "choices": 0,
+    "messages": 44,
+    "feedbackMessages": 0,
+    "agentCommunications": 157,
+    "agentErrors": 0,
+    "accountProfiles": 2,
+    "savedCriteria": 2,
+    "sessionsUsingSavedCriteria": null
+  },
+  "rates": {
+    "querySessionRate": 71.4,
+    "zeroResultRunRate": 40,
+    "sessionChoiceRate": 0,
+    "resultSessionChoiceRate": 0,
+    "feedbackAfterResultsRate": 0,
+    "profileAdoptionRate": 9.5,
+    "savedCriteriaSessionRate": null,
+    "agentErrorSessionRate": 0
+  },
+  "distributions": {
+    "searchRunsPerSession": {
+      "average": 0.71,
+      "p50": 1,
+      "p90": 1,
+      "max": 1
+    },
+    "resultCountPerSearchRun": {
+      "average": 5.93,
+      "p50": 10,
+      "p90": 10,
+      "max": 10,
+      "buckets": {
+        "0": 6,
+        "5+": 9
+      }
+    }
+  },
+  "agentErrorsByType": {}
+}

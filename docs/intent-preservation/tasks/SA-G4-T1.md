@@ -2,10 +2,10 @@
 
 ```yaml
 id: SA-G4-T1
-status: draft
+status: complete
 owner: shop-assistant-owner
 created: 2026-06-12
-last_updated: 2026-06-12
+last_updated: 2026-06-21
 completeness_level: complete
 upstream:
   - TASKS.md
