@@ -2,11 +2,11 @@
 
 ```yaml
 id: VAL-SA-G7-FRONTEND
-status: draft
+status: complete
 owner: shop-assistant-owner
 created: 2026-06-13
-last_updated: 2026-06-13
-completeness_level: planning
+last_updated: 2026-06-21
+completeness_level: complete
 upstream:
   - docs/intent-preservation/tasks/SA-G7-T1.md
   - docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md
@@ -3276,3 +3276,16 @@ Current closeout evidence:
 - Admin operations data minimization remains redacted by default with explicit includeSensitive=true reveal.
 
 No new deployment was run for this backlog closeout entry.
+
+## Metadata Closeout Alignment - 2026-06-21
+
+Result: pass. Downstream SA-G7 Intent Preservation artifacts were aligned with the closed umbrella task after integration commit `0cdb05e` closed `TASKS.md`, `STATE.json`, and `docs/intent-preservation/tasks/SA-G7-T1.md`.
+
+Aligned artifacts:
+
+- `docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md`
+- `docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md`
+- `docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md`
+- `docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md`
+
+No deployment was run. No source behavior changed.

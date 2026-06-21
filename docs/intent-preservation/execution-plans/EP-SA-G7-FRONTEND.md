@@ -2,13 +2,13 @@
 
 ```yaml
 id: EP-SA-G7-FRONTEND
-status: draft
+status: complete
 source_task:
   - ../tasks/SA-G7-T1.md
 owner: shop-assistant-owner
 created: 2026-06-13
-last_updated: 2026-06-13
-completeness_level: planning
+last_updated: 2026-06-21
+completeness_level: complete
 ```
 
 ## Metadata
@@ -208,3 +208,9 @@ Shared contracts: Auth owns identity/JWT/RBAC; ai-microservice owns ASR/LLM/sear
 ## Rollback Plan
 
 Revert the selected implementation slice only. Preserve validation notes by appending a rollback entry. Do not revert unrelated dirty worktree changes.
+
+## Closeout Status
+
+Status as of 2026-06-21: complete. This execution plan was implemented across the recorded SA-G7 slices and closed from deployed validation evidence. Current-user dashboard APIs, authenticated dashboard UI, Auth-hosted handoff, role-protected admin controls, editable safe settings, token hardening, source audit, strict token-file smoke, browser verification, and agent-flow RBAC smoke all have validation evidence in `docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md` and `STATE.json`.
+
+No further implementation work remains under SA-G7-T1. Future frontend/admin changes should be opened as new tasks rather than reopening this plan.

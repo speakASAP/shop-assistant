@@ -2,11 +2,11 @@
 
 ```yaml
 id: PROMPT-SA-G7-FRONTEND
-status: draft
+status: complete
 owner: shop-assistant-owner
 created: 2026-06-13
-last_updated: 2026-06-13
-completeness_level: planning
+last_updated: 2026-06-21
+completeness_level: complete
 upstream:
   - docs/intent-preservation/tasks/SA-G7-T1.md
   - docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md
@@ -61,3 +61,9 @@ Also record focused auth checks for the selected slice, including unauthenticate
 ## Completion
 
 Append validation evidence to `docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md`, append task status evidence to `TASKS.md`, and update `STATE.json` with the current goal state and next focus.
+
+## Closeout Status
+
+Status as of 2026-06-21: complete. This prompt has been executed through the SA-G7 implementation history. It is preserved for traceability from task to code and validation, not as an active coding instruction.
+
+Do not use this prompt as an open work item. Follow-up changes need a fresh task, execution plan, context package, prompt, code change, and validation evidence.

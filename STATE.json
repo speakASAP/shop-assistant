@@ -1598,6 +1598,22 @@
           "source audit passed 119 checks",
           "latest deployment evidence recorded in STATE.json sa_g2_closeout_20260621"
         ]
+      },
+      "sa_g7_intent_chain_metadata_alignment_20260621": {
+        "date": "2026-06-21",
+        "status": "complete_docs_only_no_deploy",
+        "reason": "Align downstream SA-G7 execution plan, context package, coding prompt, and validation report metadata with closed SA-G7-T1 umbrella task.",
+        "files": [
+          "docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md",
+          "docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md",
+          "docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md",
+          "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md"
+        ],
+        "validation": [
+          "metadata no longer marks SA-G7 downstream artifacts as draft/planning",
+          "STATE.json parsed successfully during update"
+        ],
+        "deployment": "not run"
       }
     }
   }
