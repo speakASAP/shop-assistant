@@ -230,3 +230,43 @@ Remaining dependency-gated work:
 
 - Authenticated strict token-file smoke remains dependent on active-session permission to use safe token files.
 - Extensionless legal route aliases remain dependent on product/SEO decision.
+
+
+## SA-G2-FIX-T4 Implementation Evidence
+
+Date: 2026-06-21
+Scope: extensionless public legal route aliases.
+
+Changed files:
+
+- src/legal/legal.controller.ts
+- src/main.ts
+- scripts/sa-g7-live-smoke.sh
+- scripts/sa-g7-source-audit.sh
+- docs/intent-preservation/tasks/SA-G2-FIX-T4.md
+- TASKS.md
+- STATE.json
+
+Implemented:
+
+- /privacy, /cookies, and /terms now serve the same runtime-substituted legal pages as /privacy.html, /cookies.html, and /terms.html.
+- The extensionless legal routes are excluded from the global API prefix.
+- SA-G7 live smoke and source audit now check extensionless legal route coverage.
+
+Validation:
+
+- npm run build: pass.
+- git diff --check: pass.
+- bash -n scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh: pass.
+- ./scripts/sa-g7-source-audit.sh: pass, 119 checks.
+- STATE.json parse: pass.
+- Pending after deploy: post-deploy smoke, authenticated strict token-file smoke, and live extensionless legal route status.
+
+Deployment:
+
+- Pending owner-approved deployment in the current run.
+
+Remaining dependency-gated work:
+
+- Authenticated strict token-file smoke is now allowed by the active owner delegation and should run only through token-file helpers without printing token values.
+- Production deployment is owner-approved in the active delegation and should run after validation passes.

@@ -121,3 +121,5 @@
 - [x] 2026-06-14 SA-G2-FIX-T2 public session ownership boundary hardening completed; public sessions are anonymous-only, account-bound sessions require /api/me ownership routes, and build/focused scans passed; no deploy run.
 
 - [x] 2026-06-15 SA-G2-FIX-T3 admin operations redaction by default implemented; protected detail responses redact sensitive content unless authorized admins explicitly request includeSensitive=true; build and focused scans passed; no deploy run.
+
+- [x] 2026-06-21 SA-G2-FIX-T4 extensionless legal route aliases implemented; /privacy, /cookies, and /terms use the existing runtime legal page controller, source audit/live smoke coverage added, pre-deploy validation passed; deploy evidence pending in current run.

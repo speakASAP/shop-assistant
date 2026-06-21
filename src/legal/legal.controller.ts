@@ -70,13 +70,28 @@ export class LegalController {
     this.serve(res, 'privacy.html');
   }
 
+  @Get('privacy')
+  privacyAlias(@Res() res: Response): void {
+    this.serve(res, 'privacy.html');
+  }
+
   @Get('cookies.html')
   cookies(@Res() res: Response): void {
     this.serve(res, 'cookies.html');
   }
 
+  @Get('cookies')
+  cookiesAlias(@Res() res: Response): void {
+    this.serve(res, 'cookies.html');
+  }
+
   @Get('terms.html')
   terms(@Res() res: Response): void {
+    this.serve(res, 'terms.html');
+  }
+
+  @Get('terms')
+  termsAlias(@Res() res: Response): void {
     this.serve(res, 'terms.html');
   }
 }

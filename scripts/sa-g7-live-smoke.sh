@@ -370,8 +370,11 @@ for path in \
   /debug.html \
   /getting-admin-token.html \
   /privacy.html \
+  /privacy \
   /cookies.html \
-  /terms.html
+  /cookies \
+  /terms.html \
+  /terms
 do
   expect_status "HEAD ${path}" HEAD "$path" 200
 done

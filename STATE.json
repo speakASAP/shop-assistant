@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "SA-G2-FIX-T2-completed-build-passed",
-  "next_focus": "SA-G2 ready-now fixes completed. Remaining work is dependency-gated: admin operations data minimization owner decision, authenticated token-file smoke permission, extensionless legal route decision, and owner-approved deployment if desired.",
+  "last_milestone": "SA-G2-FIX-T4-validation-passed-deploy-pending",
+  "next_focus": "Commit, push, package image, deploy owner-approved SA-G2 hardening, then run no-secret and authenticated token-file smoke evidence.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1492,6 +1492,26 @@
           "STATE.json parse passed"
         ],
         "deployment": "not run"
+      },
+      "sa_g2_fix_t4_extensionless_legal_routes": {
+        "date": "2026-06-21",
+        "status": "validation_passed_deploy_pending",
+        "task": "docs/intent-preservation/tasks/SA-G2-FIX-T4.md",
+        "changed_source": [
+          "src/legal/legal.controller.ts",
+          "src/main.ts",
+          "scripts/sa-g7-live-smoke.sh",
+          "scripts/sa-g7-source-audit.sh"
+        ],
+        "behavior": "extensionless /privacy, /cookies, and /terms serve the same runtime-substituted legal pages as the existing .html routes",
+        "validation": [
+          "npm run build passed",
+          "git diff --check passed",
+          "bash -n scripts/sa-g7-live-smoke.sh scripts/sa-g7-source-audit.sh passed",
+          "scripts/sa-g7-source-audit.sh passed 119 checks",
+          "STATE.json parse passed"
+        ],
+        "deployment": "pending owner-approved deployment in active delegation"
       }
     }
   }

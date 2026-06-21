@@ -68,6 +68,7 @@ require_file src/admin/settings.controller.ts
 require_file src/admin/public-settings.controller.ts
 require_file src/admin/operations.controller.ts
 require_file src/admin/app-settings.service.ts
+require_file src/legal/legal.controller.ts
 require_file src/auth/auth.module.ts
 require_file src/auth/auth.controller.ts
 require_file scripts/sa-g7-live-smoke.sh
@@ -90,6 +91,16 @@ require_text public/index.html "publicLanding" "landing applies editable public 
 require_text public/index.html "landingFetchJson('/sessions'" "landing keeps public session creation flow"
 require_text public/index.html "'/query'" "landing keeps public search query flow"
 require_text public/index.html "/api/leads/submit" "landing keeps lead capture flow"
+
+echo ""
+echo "=== Legal routes ==="
+require_text src/legal/legal.controller.ts "@Get('privacy')" "extensionless privacy route exists"
+require_text src/legal/legal.controller.ts "@Get('cookies')" "extensionless cookies route exists"
+require_text src/legal/legal.controller.ts "@Get('terms')" "extensionless terms route exists"
+require_text src/main.ts "'privacy', 'cookies.html', 'cookies', 'terms.html', 'terms'" "extensionless legal routes bypass API prefix"
+require_text scripts/sa-g7-live-smoke.sh "/privacy" "live smoke checks extensionless privacy route"
+require_text scripts/sa-g7-live-smoke.sh "/cookies" "live smoke checks extensionless cookies route"
+require_text scripts/sa-g7-live-smoke.sh "/terms" "live smoke checks extensionless terms route"
 
 echo ""
 echo "=== Auth handoff and token storage ==="

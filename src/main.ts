@@ -47,7 +47,7 @@ async function bootstrap() {
     const corsOrigins = corsOrigin.includes(',') ? corsOrigin.split(',').map(o => o.trim()) : corsOrigin;
     app.enableCors({ origin: corsOrigins, credentials: true });
     app.setGlobalPrefix('api', {
-      exclude: ['health', 'privacy.html', 'cookies.html', 'terms.html'],
+      exclude: ['health', 'privacy.html', 'privacy', 'cookies.html', 'cookies', 'terms.html', 'terms'],
     });
 
     const port = Number(process.env.PORT) || 4500;
