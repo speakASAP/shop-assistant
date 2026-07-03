@@ -8,11 +8,12 @@ import { SessionsService } from './sessions.service';
 import { SearchService } from './search.service';
 import { AiService } from './ai.service';
 import { AgentQueueService } from './agent-queue.service';
+import { SearchRateLimitService } from '../common/search-rate-limit.service';
 
 @Module({
   imports: [HttpModule, LoggingModule, AdminModule, AuthModule],
   controllers: [SessionsController],
-  providers: [SessionsService, SearchService, AiService, AgentQueueService],
-  exports: [SessionsService],
+  providers: [SessionsService, SearchService, AiService, AgentQueueService, SearchRateLimitService],
+  exports: [SessionsService, SearchRateLimitService],
 })
 export class SessionsModule {}

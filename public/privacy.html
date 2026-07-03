@@ -18,7 +18,7 @@
     </header>
     <main class="legal-main container">
       <h1>Privacy Policy</h1>
-      <p class="last-updated">Last updated: February 2025</p>
+      <p class="last-updated">Last updated: July 2026</p>
 
       <section>
         <h2>1. Introduction</h2>
@@ -94,9 +94,13 @@
       <section>
         <h2>8. Data Retention</h2>
         <ul>
-          <li><strong>Session data:</strong> As long as needed for the session and for a limited period thereafter (e.g. for debugging or legal compliance)</li>
-          <li><strong>Logs:</strong> As per central logging retention policy</li>
+          <li><strong>Anonymous session data:</strong> Kept only as long as needed to provide the shopping session and short operational troubleshooting.</li>
+          <li><strong>Account session data:</strong> Available to the signed-in user until the user deletes it or requests anonymization through the account privacy controls.</li>
+          <li><strong>Anonymization:</strong> Account-linked session identifiers can be detached from the account, and stored query/message/search-run text is replaced with anonymized markers while non-personal merchant result records may remain for service integrity.</li>
+          <li><strong>Deletion:</strong> Signed-in users can delete their Shop Assistant session, profile, saved-search, message, result, and choice data from the account privacy endpoint.</li>
+          <li><strong>Logs:</strong> Operational logs follow the central logging retention policy and should contain metadata only, not raw search text, JWTs, or secrets.</li>
         </ul>
+        <p>Automated scheduled retention jobs are not yet documented in this repository. Until that infrastructure is available, user-triggered deletion/anonymization is the implemented control.</p>
       </section>
 
       <section>
@@ -115,8 +119,9 @@
       </section>
 
       <section>
-        <h2>10. Security</h2>
+        <h2>10. Security and Abuse Controls</h2>
         <p>We implement technical and organizational measures to protect your data, including encryption in transit and at rest, access controls, and secure infrastructure.</p>
+        <p>Search and refinement requests are rate-limited per anonymous IP address or signed-in user to reduce abuse and protect external search providers.</p>
       </section>
 
       <section>

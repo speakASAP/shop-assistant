@@ -1,14 +1,18 @@
-import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateSessionDto } from '../sessions/dto/create-session.dto';
 import { QueryDto } from '../sessions/dto/query.dto';
 import { FeedbackDto } from '../sessions/dto/feedback.dto';
 import { MeService } from './me.service';
+import { SearchRateLimitService } from '../common/search-rate-limit.service';
 
 @Controller('me')
 @UseGuards(JwtAuthGuard)
 export class MeController {
-  constructor(private readonly me: MeService) {}
+  constructor(
+    private readonly me: MeService,
+    private readonly rateLimit: SearchRateLimitService,
+  ) {}
 
   @Get()
   async profile(@Req() req: any) {
@@ -53,12 +57,24 @@ export class MeController {
 
   @Post('sessions/:id/query')
   async submitQuery(@Req() req: any, @Param('id') id: string, @Body() dto: QueryDto) {
+    this.rateLimit.assertAllowed(`user:${req.user.id}`, { endpoint: 'me-query' });
     return this.me.submitQuery(req.user.id as string, id, dto.text, dto.audioUrl, dto.priorities, dto.profileId);
   }
 
   @Post('sessions/:id/feedback')
   async submitFeedback(@Req() req: any, @Param('id') id: string, @Body() dto: FeedbackDto) {
+    this.rateLimit.assertAllowed(`user:${req.user.id}`, { endpoint: 'me-feedback' });
     return this.me.submitFeedback(req.user.id as string, id, dto.message, dto.selectedIndices, dto.priorities, dto.profileId);
+  }
+
+  @Post('privacy/session-data/anonymize')
+  async anonymizeSessionData(@Req() req: any) {
+    return this.me.anonymizeSessionData(req.user.id as string);
+  }
+
+  @Delete('privacy/session-data')
+  async deleteSessionData(@Req() req: any) {
+    return this.me.deleteSessionData(req.user.id as string);
   }
 
   @Post('sessions/:id/choice/:productId')

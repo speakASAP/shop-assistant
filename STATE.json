@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "shop-assistant-backlog-closed-20260621",
-  "next_focus": "Backlog rows in TASKS.md are closed. Future work should be new owner-selected improvements from the UX report recommendations, not continuation of the old backlog rows.",
+  "last_milestone": "sa-g8-p1-privacy-ratelimit-core-20260703",
+  "next_focus": "Integrate SA-G8 worker branches, then run token-backed release validation before any production deploy.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1614,6 +1614,24 @@
           "STATE.json parsed successfully during update"
         ],
         "deployment": "not run"
+      },
+      "sa_g8_p1_privacy_ratelimit": {
+        "date": "2026-07-03",
+        "status": "implemented_build_passed_no_deploy",
+        "branch": "codex/sa-g8-p1-privacy-ratelimit",
+        "controls": [
+          "public per-IP search/refinement rate limit",
+          "authenticated per-user search/refinement rate limit",
+          "current-user session-data anonymization endpoint",
+          "current-user session-data deletion endpoint",
+          "privacy page retention/rate-limit copy update"
+        ],
+        "validation": "npm run build; placeholder DATABASE_URL npx prisma validate; npm run prisma:generate; git diff --check; rate-limit smoke; focused static wiring scan",
+        "remaining_blockers": [
+          "[MISSING: scheduled retention-job infrastructure/runner contract]",
+          "[MISSING: production-safe token/account files for destructive privacy endpoint live smoke]",
+          "[UNKNOWN: central logging retention duration]"
+        ]
       }
     }
   }

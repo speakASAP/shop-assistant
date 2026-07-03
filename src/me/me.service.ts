@@ -254,6 +254,69 @@ export class MeService {
     return this.sessions.submitFeedback(sessionId, message, selectedIndices, priorities, profileId);
   }
 
+
+  async anonymizeSessionData(userId: string) {
+    this.logging.info('Current-user session-data anonymization requested', { userId, context: 'MeService' });
+    const sessions = await this.prisma.session.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+    const sessionIds = sessions.map((session) => session.id);
+
+    if (!sessionIds.length) {
+      return { anonymizedSessions: 0, anonymizedMessages: 0, anonymizedSearchRuns: 0, deletedChoices: 0 };
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const deletedChoices = await tx.choice.deleteMany({ where: { sessionId: { in: sessionIds } } });
+      await tx.agentCommunication.updateMany({
+        where: { sessionId: { in: sessionIds } },
+        data: { content: '[anonymized]', metadata: { anonymized: true } },
+      });
+      const anonymizedMessages = await tx.message.updateMany({
+        where: { sessionId: { in: sessionIds } },
+        data: { content: '[anonymized]', contentType: 'anonymized' },
+      });
+      const anonymizedSearchRuns = await tx.searchRun.updateMany({
+        where: { sessionId: { in: sessionIds } },
+        data: { queryText: '[anonymized]', refinedParams: { anonymized: true }, rawSearchResponse: { anonymized: true } },
+      });
+      const anonymizedSessions = await tx.session.updateMany({
+        where: { id: { in: sessionIds } },
+        data: { userId: null, profileId: null, usedSavedCriteriaId: null, priorityOrder: { anonymized: true } },
+      });
+      await tx.savedSearchCriteria.deleteMany({ where: { userId } });
+      await tx.accountProfile.deleteMany({ where: { userId } });
+
+      return {
+        anonymizedSessions: anonymizedSessions.count,
+        anonymizedMessages: anonymizedMessages.count,
+        anonymizedSearchRuns: anonymizedSearchRuns.count,
+        deletedChoices: deletedChoices.count,
+      };
+    });
+
+    this.logging.info('Current-user session-data anonymized', { userId, ...result, context: 'MeService' });
+    return result;
+  }
+
+  async deleteSessionData(userId: string) {
+    this.logging.info('Current-user session-data deletion requested', { userId, context: 'MeService' });
+    const result = await this.prisma.$transaction(async (tx) => {
+      const deletedSessions = await tx.session.deleteMany({ where: { userId } });
+      const deletedSavedCriteria = await tx.savedSearchCriteria.deleteMany({ where: { userId } });
+      const deletedProfiles = await tx.accountProfile.deleteMany({ where: { userId } });
+      return {
+        deletedSessions: deletedSessions.count,
+        deletedSavedCriteria: deletedSavedCriteria.count,
+        deletedProfiles: deletedProfiles.count,
+      };
+    });
+
+    this.logging.info('Current-user session-data deleted', { userId, ...result, context: 'MeService' });
+    return result;
+  }
+
   async chooseProduct(userId: string, sessionId: string, productId: string) {
     await this.assertSessionBelongsToUser(userId, sessionId);
     return this.sessions.chooseProduct(sessionId, productId);

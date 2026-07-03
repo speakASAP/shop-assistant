@@ -127,3 +127,5 @@
 - [x] 2026-06-21 SA-G7-T1 umbrella backlog closed; deployed strict token-file smoke and source audit evidence cover commercial landing, authenticated dashboard, and role-protected admin surfaces.
 - [x] 2026-06-21 SA-G1 failed-search quality refresh completed; added reusable hashed top-20 failed-search script, generated sanitized production evidence, and constrained no-results live validation passed.
 - [x] 2026-06-21 SA-G4 current UX improvement report generated from aggregate production session metrics and static workflow inspection; no raw personal data exported.
+
+- [x] 2026-07-03 SA-G8-P1 privacy retention and rate-limit core implemented on worker branch; build, Prisma validate/generate, diff check, rate-limit smoke, and sensitive-data scan passed; scheduled retention jobs remain blocked by missing runner contract; no deploy run.
