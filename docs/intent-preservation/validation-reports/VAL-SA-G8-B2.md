@@ -50,6 +50,29 @@ Results:
 
 No live `payments/create`, refund, provider, or DB production mutation has been executed by this report.
 
+## Production Deployment Evidence
+
+Deployment date: 2026-07-03.
+
+- Source commit merged and pushed: `aa34067 feat: add billing entitlement core`.
+- Image built and pushed: `localhost:5000/shop-assistant:latest`.
+- Source fingerprint: `9d9568f3cdb45dd5a0aaa16efbbf0ab1ac2fa6ab1814cfb9379a62e82d258c0f`.
+- Running image digest after rollout: `sha256:9c272a67b77e786d34ea4691a5ccd42c4e972e44a6db4aecc0830e4d8c60c343`.
+- Running pod: `shop-assistant-6bff8445cb-pcggk`, ready `1/1`, restarts `0`.
+- Prisma migration applied during container startup: `20260703_add_billing_entitlements`; logs showed all migrations successfully applied.
+- Live health: `https://shop-assistant.alfares.cz/health` returned HTTP 200 with status ok.
+- Standard post-deploy no-secret smoke passed with `Failures: 0`; optional token checks skipped in that script.
+- Strict token-file smoke passed with `Failures: 0`; `AGENT_FLOW_SESSION_ID` checks skipped only.
+- Focused billing smoke passed:
+  - `GET /api/billing/plans` -> 200.
+  - customer `GET /api/billing/entitlement` -> 200.
+  - customer `POST /api/billing/checkouts` -> 201 with `paymentConfigured:false`, proving live payment creation is still disabled until runtime config is supplied.
+  - admin `GET /api/admin/billing` -> 200.
+  - non-admin `GET /api/admin/billing` -> 403.
+  - unauthenticated callback without `SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN` -> 403.
+
+Deploy note: two deploy-script runs timed out while Kubernetes/containerd reported cluster-wide pod sandbox creation delays across unrelated workloads. The second rollout completed after the script timeout; manual post-deploy checks were then run and passed. Production remained served by the previous ready pod during the delayed rollout.
+
 ## Remaining Runtime Gates
 
 - [MISSING: deployed `PAYMENTS_API_KEY` or `SHOP_ASSISTANT_PAYMENTS_API_KEY` scoped to `payments:create` and `payments:read` for `shop-assistant`].
