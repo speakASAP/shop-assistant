@@ -6,8 +6,8 @@ export interface CreatePaymentPayload { orderId: string; applicationId: string; 
 export interface PaymentCreateResult { paymentId: string; status: string; redirectUrl?: string; expiresAt?: string; }
 @Injectable()
 export class PaymentsClientService {
-  private readonly baseUrl = (process.env.PAYMENTS_SERVICE_URL || '').replace(/\/$/, '');
-  private readonly apiKey = process.env.PAYMENTS_API_KEY || process.env.SHOP_ASSISTANT_PAYMENTS_API_KEY || '';
+  private readonly baseUrl = (process.env.PAYMENTS_SERVICE_URL || process.env.PAYMENT_SERVICE_URL || '').replace(/\/$/, '');
+  private readonly apiKey = process.env.PAYMENTS_API_KEY || process.env.SHOP_ASSISTANT_PAYMENTS_API_KEY || process.env.PAYMENT_API_KEY || '';
   private readonly timeout = Number(process.env.PAYMENTS_SERVICE_TIMEOUT || process.env.HTTP_TIMEOUT || 10000);
   private readonly enableCreate = String(process.env.SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE || '').toLowerCase() === 'true';
   constructor(private readonly http: HttpService, private readonly logging: LoggingService) {}
