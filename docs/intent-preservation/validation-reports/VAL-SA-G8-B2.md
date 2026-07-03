@@ -135,7 +135,17 @@ Limitation: this proves Shop Assistant can create Stripe-hosted checkout session
 
 The owner directed permanent enablement of `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`. The source-owned Kubernetes ConfigMap now sets the flag to `true`, so public paid checkout is enabled after deployment as long as the already-validated Payments service URL and scoped API key remain configured.
 
-Validation evidence is recorded in the deploy section for the final enablement commit.
+Final enablement deploy evidence:
+
+- Source commit: `2b5c29c chore: enable shop assistant payment creation`.
+- Kubernetes ConfigMap `shop-assistant-config` now stores `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`.
+- Deploy command: `./scripts/deploy.sh` completed successfully on 2026-07-03.
+- Independent final checks after rollout settled: `/` -> HTTP 200, `/health` -> HTTP 200, `/api/billing/plans` -> HTTP 200.
+- Public billing configuration now reports `hasPaymentsServiceUrl:true`, `hasPaymentsApiKey:true`, `paymentCreateEnabled:true`.
+- Public plans still expose `card`, `stripe`, and `invoice` methods for `shop-assistant-pro-monthly` and `shop-assistant-business-monthly`.
+- Running pod: `shop-assistant-695d76d5d4-gtbvk`, ready `1/1`, restarts `0`.
+
+Deploy note: the built-in frontend smoke observed one transient `HEAD /` HTTP 502 during rollout warm-up, while `/health` and other routes passed. Independent post-rollout verification returned HTTP 200 for `/`.
 
 ## Remaining Runtime Gates
 
