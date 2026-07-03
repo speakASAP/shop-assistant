@@ -49,3 +49,33 @@ No secrets, JWTs, raw production queries, lead contacts, raw profile data, raw d
 ## Result
 
 Pass for repo-owned dry-run-first anonymous-session TTL cleanup runner contract. Production apply and production deploy were intentionally not run.
+
+## Final Integrated Orchestrator Gate - 2026-07-03
+
+After merging `codex/sa-g8-p2-retention-runner` into `main`, the orchestrator reran focused integrated validation from `/home/ssf/Documents/Github/shop-assistant`.
+
+Integrated commit: `cd5e586 feat: add anonymous session retention runner`.
+
+Commands:
+
+```bash
+git diff --check
+npm run build
+DATABASE_URL=postgresql://user:pass@localhost:5432/shop_assistant npx prisma validate
+npm run retention:cleanup -- --help
+node -c scripts/retention-cleanup.js
+node scripts/sa-g8-s1-search-quality-probes.js
+git status --short --branch
+```
+
+Result summary:
+
+- `git diff --check`: pass.
+- `npm run build`: pass.
+- `npx prisma validate`: pass with non-secret placeholder `DATABASE_URL`.
+- `npm run retention:cleanup -- --help`: pass; help printed without DB connection or Prisma client initialization.
+- `node -c scripts/retention-cleanup.js`: pass.
+- `node scripts/sa-g8-s1-search-quality-probes.js`: pass; no-result path `rawQueryLogged=false`, result-preservation path `invalidUrlCount=0`.
+- Final repository status before this report append: `## main...origin/main`.
+
+Production apply and production deployment were intentionally not run. The remaining blocker is limited to `[MISSING: owner-approved production scheduling/deploy wiring]` for running the already implemented dry-run-first retention runner in production operations.
