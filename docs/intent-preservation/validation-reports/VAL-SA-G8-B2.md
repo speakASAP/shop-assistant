@@ -3,7 +3,7 @@
 Owner: Billing integration orchestrator
 Date: 2026-07-03
 Branch: `codex/sa-g8-b2-billing-entitlements`
-Status: passed for source integration, invoice checkout smoke, card/Stripe checkout-session smoke, approved synthetic terminal callback smoke, and permanent payment-create enablement
+Status: passed for source integration, invoice checkout smoke, card/Stripe checkout-session smoke, signed Stripe webhook completion smoke, and permanent payment-create enablement
 
 ## Intent Preservation Chain
 
@@ -147,9 +147,29 @@ Final enablement deploy evidence:
 
 Deploy note: the built-in frontend smoke observed one transient `HEAD /` HTTP 502 during rollout warm-up, while `/health` and other routes passed. Independent post-rollout verification returned HTTP 200 for `/`.
 
+## Signed Stripe Webhook Completion Smoke 2026-07-03
+
+After permanent payment creation was enabled, the owner approved the provider-path completion smoke. The orchestrator created a fresh Shop Assistant `stripe` checkout, then submitted a signed `checkout.session.completed` fixture to Payments `/webhooks/stripe`. The fixture used the runtime Stripe webhook secret for signature verification, was correlated to the persisted Shop Assistant payment by Stripe Checkout Session provider transaction id, and exercised the path Payments webhook -> Payments status update -> Shop Assistant callback -> entitlement activation. No secret values were printed. No card data was entered, no checkout URL was paid, and no real Stripe-hosted transaction was charged.
+
+Evidence:
+
+- Fresh Shop Assistant `stripe` checkout -> HTTP 201.
+- Checkout id: `0cf478d4-f557-4571-9e6c-af72fda4da5b`.
+- Order id: `sa-1783086052872-25c4d76e`.
+- Payment id: `ca2d411a-f0db-4d88-bba0-96b8285745f8`.
+- Stripe redirect origin was `https://checkout.stripe.com`; provider transaction id was present with `cs_` prefix.
+- Signed fixture event id: `evt_shop_assistant_provider_smoke_1783086087544`; type `checkout.session.completed`; webhook endpoint returned HTTP 201 with `{ success:true }`.
+- Payments read-only snapshot after webhook returned HTTP 200 with `status:completed`, method `stripe`, amount `19.00`, currency `EUR`, `completedAt:2026-07-03T13:41:28.554Z`, `source:payments_db_snapshot`, `providerCall:false`, `mutation:false`, `persistence:false`.
+- Shop Assistant customer entitlement returned HTTP 200 with `hasActiveEntitlement:true`; entitlement `59e6909f-b188-4558-9cc7-d1ce16605172`, active plan `shop-assistant-pro-monthly`, checkout id `0cf478d4-f557-4571-9e6c-af72fda4da5b`, expires `2026-08-03T13:41:28.985Z`.
+- Recent checkout moved to `status:completed`, `providerStatus:completed`.
+- Post-smoke health: Shop Assistant HTTP 200; Payments HTTP 200.
+
+Limitation: this verifies the signed Stripe webhook handling path and downstream application callback using a controlled fixture. It is not evidence that a real customer completed payment through Stripe Checkout, because the hosted checkout URL was intentionally not paid.
+
 ## Remaining Runtime Gates
 
 - Synthetic trusted callback smoke is complete; entitlement activation/idempotency passed for the smoke checkout.
 - Card/Stripe checkout-session creation smoke passed with Stripe-hosted redirect URLs; sessions were not paid.
 - `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` is now source-owned and deployed for public paid checkout.
-- [MISSING: provider-dispatched terminal callback smoke if the launch path requires paid Stripe completion before launch].
+- Signed Stripe webhook completion smoke passed for Payments -> Shop Assistant callback -> entitlement activation.
+- [MISSING: real Stripe Checkout paid-session evidence, if the launch policy requires evidence beyond signed webhook fixtures].

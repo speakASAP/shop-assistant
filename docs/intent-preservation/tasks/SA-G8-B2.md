@@ -45,4 +45,5 @@ Validation: `docs/intent-preservation/validation-reports/VAL-SA-G8-B2.md`.
 - Approved synthetic terminal callback smoke was completed on 2026-07-03; entitlement activation/idempotency passed for the smoke checkout.
 - Card/Stripe checkout-session creation smoke passed on 2026-07-03 with Stripe-hosted redirect URLs; sessions were not paid.
 - `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` is now source-owned and deployed for public paid checkout.
-- [MISSING: provider-dispatched terminal callback smoke if the launch path requires paid Stripe completion before launch].
+- Signed Stripe webhook completion smoke passed for Payments -> Shop Assistant callback -> entitlement activation on 2026-07-03.
+- [MISSING: real Stripe Checkout paid-session evidence, if the launch policy requires evidence beyond signed webhook fixtures].
