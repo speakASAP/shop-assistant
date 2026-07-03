@@ -3,7 +3,7 @@
 Owner: Billing integration orchestrator
 Date: 2026-07-03
 Branch: `codex/sa-g8-b2-billing-entitlements`
-Status: passed for source integration, first invoice checkout smoke, and approved synthetic terminal callback smoke; public payment creation remains runtime-gated
+Status: passed for source integration, invoice checkout smoke, card/Stripe checkout-session smoke, and approved synthetic terminal callback smoke; public payment creation remains runtime-gated
 
 ## Intent Preservation Chain
 
@@ -115,9 +115,25 @@ Callback smoke evidence:
 
 Limitation: this verifies Shop Assistant trusted callback authentication, checkout status transition, and entitlement activation/idempotency. It does not verify a real payment provider or Payments-dispatched provider completion event.
 
+## Marathon-Parity Card/Stripe Checkout Smoke 2026-07-03
+
+The owner approved using the Marathon payment parameters/solution for Shop Assistant. Runtime comparison confirmed Marathon uses the central Payments service with `PAYMENT_APPLICATION_ID=marathon`, `PAYMENT_DEFAULT_METHOD=stripe`, and a Marathon callback URL; Shop Assistant uses the same central Payments service with `PAYMENT_APPLICATION_ID=shop-assistant`, a Shop Assistant callback key, and the Shop Assistant public callback origin. Secret values were not printed; only presence, length, and fingerprints were inspected.
+
+The orchestrator temporarily enabled `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, created one `stripe` checkout and one `card` checkout through Shop Assistant, verified both returned Stripe-hosted checkout URLs, then restored payment creation to `false`. The checkout URLs were not followed and no payment was completed.
+
+Card/Stripe smoke evidence:
+
+- Public plans before the smoke reported `paymentCreateEnabled:true`; after restore reported `paymentCreateEnabled:false`.
+- `stripe` checkout -> HTTP 201, checkout `dcf7b455-39dd-4437-b2b6-bff9225a1daa`, order `sa-1783083465820-bca4a9b0`, payment `4b30169c-16b4-4727-943b-04c3844e0156`, status `payment_created`, provider status `processing`, redirect origin `https://checkout.stripe.com`.
+- `card` checkout -> HTTP 201, checkout `700e0c16-2851-47c4-a3cb-351f2c2742ae`, order `sa-1783083467289-d95bd909`, payment `31e643a3-5153-4d4f-abd1-20d1ca95c2a7`, status `payment_created`, provider status `processing`, redirect origin `https://checkout.stripe.com`.
+- Read-only Payments snapshots for both orders returned HTTP 200 with `applicationId:shop-assistant`, amount `19.00`, currency `EUR`, method `stripe` or `card`, status `processing`, source `payments_db_snapshot`, `providerCall:false`, `mutation:false`, `persistence:false`.
+- Post-smoke health settled to `https://shop-assistant.alfares.cz/health` HTTP 200 and `https://payments.alfares.cz/health` HTTP 200; Shop Assistant pod ready with restarts `0`; Payments pod ready with restarts `0`.
+
+Limitation: this proves Shop Assistant can create Stripe-hosted checkout sessions via the same central Payments solution used by Marathon. It does not prove provider-dispatched terminal webhook completion because the checkout sessions were intentionally not paid.
+
 ## Remaining Runtime Gates
 
-- [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
 - Synthetic trusted callback smoke is complete; entitlement activation/idempotency passed for the smoke checkout.
-- [MISSING: launch decision for card/Stripe checkout vs invoice-only initial sales path].
-- [MISSING: provider-dispatched terminal callback smoke if the launch path uses card/Stripe instead of invoice-only sales].
+- Card/Stripe checkout-session creation smoke passed with Stripe-hosted redirect URLs; sessions were not paid.
+- [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
+- [MISSING: provider-dispatched terminal callback smoke if the launch path requires paid Stripe completion before launch].
