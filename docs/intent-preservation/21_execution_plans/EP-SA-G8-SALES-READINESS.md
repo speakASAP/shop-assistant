@@ -33,9 +33,9 @@ Execution Plan: Run workstreams in separate Codex threads and separate remote gi
 
 Coding Prompt: See `docs/intent-preservation/coding-prompts/PROMPT-SA-G8-SALES-READINESS.md`.
 
-Code: [MISSING: worker branch outputs pending].
+Code: SA-G8-U1/B1/P1/S1/V1 merged; SA-G8-P2 retention runner pending.
 
-Validation: [MISSING: worker validation reports pending].
+Validation: SA-G8 integrated gate passed; SA-G8-P2 retention runner validation pending.
 
 ## Parallel Execution
 
@@ -45,6 +45,7 @@ Validation: [MISSING: worker validation reports pending].
 | SA-G8-B1 Billing and entitlements | ready_parallel | Commerce architecture agent | Inspect Alfares payment/contracts, design and implement minimal sellable entitlement gate if contracts exist; otherwise produce exact blockers. | payment integration docs, new billing/entitlement modules, admin/customer UI only if contract verified, IPS docs | product search algorithm, raw leads/session exports, auth credential forms | `[UNKNOWN: existing Alfares payment provider contract]` | build; contract evidence; sandbox/no-secret smoke or `[MISSING]` blocker | After contract design; before production sale |
 | SA-G8-P1 Privacy retention and rate limits | ready_parallel | Backend security/privacy agent | Implement or plan retention, deletion/anonymization, anonymous-session TTL, and per-IP/user search rate limiting. | `src/sessions/**`, `src/me/**`, `src/common/**`, `prisma/**`, legal/privacy docs, validation docs | billing UI, result UX styling except status messages | Business constraints in `BUSINESS.md`; GDPR/legal pages | `npm run build`; Prisma validate/generate if schema changes; privacy scan; rate-limit tests | Before sale gate |
 | SA-G8-S1 Search quality | ready_parallel | Search-quality agent | Reduce zero-result friction using aggregate/hashed evidence, better prompts, recovery/refine UX, no fabricated URLs. | `src/sessions/**`, `src/admin/prompts*`, search scripts/reports, focused public copy | billing/payment, auth session model, raw production data | Aggregate-only failed-search evidence | build; deterministic synthetic probes; no raw-query export scan | Can merge after U1 if overlapping UX files conflict |
+| SA-G8-P2 Retention runner | ready_parallel | Backend privacy operations agent | Close the scheduled anonymous-session retention runner contract with dry-run default and explicit apply mode. | `scripts/**`, `package.json`, privacy docs, validation docs, `TASKS.md`, `STATE.json` | billing/payment, Auth token model, production DB mutation | SA-G8-P1 implementation and privacy policy | build; Prisma validate; retention script dry-run/help; no production apply | After P1, before final sale gate |
 | SA-G8-V1 Release validation | dependency_gated | Validation/release agent | Run strict customer/admin/non-admin token-backed smoke and ownership negative tests using safe token files. | existing smoke scripts, validation report docs | application source unless fixing verifier bugs, raw token printing | `[MISSING: safe test token files/accounts]` | strict token smoke; non-admin forbidden; two-account ownership negative tests | Final gate after implementation branches |
 
 ## Shared Files And Conflict Rules

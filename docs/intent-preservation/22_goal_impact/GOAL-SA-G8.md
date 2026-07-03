@@ -16,6 +16,7 @@ downstream:
   - docs/intent-preservation/tasks/SA-G8-U1.md
   - docs/intent-preservation/tasks/SA-G8-B1.md
   - docs/intent-preservation/tasks/SA-G8-P1.md
+  - docs/intent-preservation/tasks/SA-G8-P2.md
   - docs/intent-preservation/tasks/SA-G8-S1.md
   - docs/intent-preservation/tasks/SA-G8-V1.md
 ```
@@ -41,6 +42,6 @@ A buyer can understand the offer, sign in, use the assistant, select or open mer
 
 - Result selection and refinement UX is implemented and measured.
 - Commercial billing/entitlement path is designed and either implemented with existing Alfares payment contracts or blocked with exact `[MISSING: ...]` dependencies.
-- Privacy retention and rate-limit policy is implemented or blocked only by verified upstream contracts.
+- Privacy retention and rate-limit policy is implemented, including a repo-owned scheduled retention runner or an exact external runner blocker.
 - Search quality work reduces zero-result friction without raw-data exposure.
 - Token-backed customer/admin/non-admin release smoke can run without exposing tokens.
