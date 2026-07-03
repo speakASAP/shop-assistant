@@ -326,6 +326,26 @@
       gap: 6px;
       flex-wrap: wrap;
     }
+    .btn.merchant {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: #f0fdfa;
+    }
+    .choice-followup {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .quick-refine {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
     .mini-form {
       display: grid;
       gap: 8px;
@@ -539,7 +559,7 @@
       <div class="page-head">
         <div>
           <h1>Your shopping dashboard</h1>
-          <p class="subhead">Search again, reopen merchant choices, and manage reusable requests without mixing your account data with public sessions.</p>
+          <p class="subhead">Search again, reopen merchant choices, refine the last request, and manage reusable requests without mixing your account data with public sessions.</p>
         </div>
         <a class="btn" href="test.html">Open advanced search</a>
       </div>
@@ -693,7 +713,7 @@
           <div class="panel-head">
             <div>
               <h2 class="panel-title">Selected products</h2>
-              <p class="panel-note">Recent merchant redirects you chose.</p>
+              <p class="panel-note">Recent merchant redirects you chose, with follow-up back to the original request.</p>
             </div>
           </div>
           <div class="panel-body">
@@ -1082,23 +1102,32 @@
             (searchRuns.length ? searchRuns.map((run) => '<div class="detail-item"><strong>' + escapeHtml(formatDate(run.createdAt)) + '</strong>' + escapeHtml(run.queryText || 'Search run') + '<div class="muted">' + escapeHtml(String((run.searchResults || []).length)) + ' result(s)</div></div>').join('') : '<div class="empty">No searches yet.</div>') +
           '</div></section>' +
           '<section class="detail-section"><h3>Latest results</h3><div class="detail-list">' +
-            (results.length ? results.map((result) => '<div class="detail-item"><strong>' + escapeHtml(result.title || 'Product') + '</strong>' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(result.source || 'merchant') + '<div class="row-actions" style="margin-top:6px;"><button class="btn small primary" data-select-product="' + escapeHtml(result.id || '') + '" data-session-id="' + escapeHtml(session.id) + '" type="button">Select</button><a class="btn small" href="' + escapeHtml(result.url || '#') + '" target="_blank" rel="noopener">Merchant</a></div></div>').join('') : '<div class="empty">No results in latest search.</div>') +
+            (results.length ? results.map((result) => '<div class="detail-item"><strong>' + escapeHtml(result.title || 'Product') + '</strong>' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(result.source || 'merchant') + '<div class="choice-followup">Select saves the product here; Open merchant takes you to the real seller page.</div><div class="row-actions" style="margin-top:6px;"><button class="btn small primary" data-select-product="' + escapeHtml(result.id || '') + '" data-session-id="' + escapeHtml(session.id) + '" type="button">Select</button><a class="btn small merchant" href="' + escapeHtml(result.url || '#') + '" target="_blank" rel="noopener">Open merchant</a><button class="btn small" data-refine-template="Find similar options with a better price, delivery, or quality tradeoff" type="button">Refine like this</button></div></div>').join('') : '<div class="empty">No results in latest search. Use refinement to broaden the category, budget, brand, or delivery region.</div>') +
           '</div></section>' +
           '<section class="detail-section"><h3>Refine request</h3><form class="mini-form" data-refine-session="' + escapeHtml(session.id) + '">' +
             '<label class="full">What should change?' +
               '<textarea data-refine-message="' + escapeHtml(session.id) + '" placeholder="Cheaper, different color, faster delivery, only local shops..."></textarea>' +
             '</label>' +
-            '<button class="btn small primary" type="submit">Refine</button>' +
+            '<div class="quick-refine"><button class="btn small" data-refine-template="Show cheaper offers with similar quality" type="button">Cheaper</button><button class="btn small" data-refine-template="Only show offers with faster delivery" type="button">Faster delivery</button><button class="btn small" data-refine-template="Find better quality alternatives" type="button">Better quality</button></div>' +
+            '<button class="btn small primary" type="submit">Refine request</button>' +
           '</form></section>' +
           '<section class="detail-section"><h3>Selected products</h3><div class="detail-list">' +
             (choices.length ? choices.map((choice) => {
               const result = choice.searchResult || {};
-              return '<div class="detail-item"><strong>' + escapeHtml(result.title || 'Selected product') + '</strong>' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(formatDate(choice.chosenAt)) + '<div class="row-actions" style="margin-top:6px;"><a class="btn small" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Merchant</a></div></div>';
+              return '<div class="detail-item"><strong>' + escapeHtml(result.title || 'Selected product') + '</strong>' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(formatDate(choice.chosenAt)) + '<div class="choice-followup">Use this saved choice to reopen the seller or refine the original request.</div><div class="row-actions" style="margin-top:6px;"><a class="btn small merchant" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Open merchant</a><button class="btn small" data-refine-template="Find alternatives to the selected product with a better price, delivery, or quality tradeoff" type="button">Refine alternatives</button></div></div>';
             }).join('') : '<div class="empty">No selected products yet.</div>') +
           '</div></section>' +
         '</div>';
       els.sessionDetail.querySelectorAll('[data-select-product]').forEach((button) => {
         button.addEventListener('click', () => selectProduct(button.getAttribute('data-session-id'), button.getAttribute('data-select-product')));
+      });
+      els.sessionDetail.querySelectorAll('[data-refine-template]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const input = els.sessionDetail.querySelector('[data-refine-message="' + CSS.escape(session.id) + '"]');
+          if (!input) return;
+          input.value = button.getAttribute('data-refine-template') || '';
+          input.focus();
+        });
       });
       els.sessionDetail.querySelectorAll('[data-refine-session]').forEach((form) => {
         form.addEventListener('submit', (event) => {
@@ -1247,7 +1276,8 @@
         return '<div class="list-row">' +
           '<div class="row-title">' + escapeHtml(result.title || 'Selected product') + '</div>' +
           '<div class="muted">' + escapeHtml(result.price || 'Price on merchant site') + ' · ' + escapeHtml(formatDate(choice.chosenAt)) + (profile ? ' · ' + escapeHtml(profile) : '') + '</div>' +
-          '<div class="row-actions"><a class="btn small" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Merchant</a>' + (session.id ? '<button class="btn small" data-choice-session="' + escapeHtml(session.id) + '" type="button">Request</button>' : '') + '</div>' +
+          '<div class="choice-followup">Reopen the seller, then follow up on the original request if the product is not right.</div>' +
+          '<div class="row-actions"><a class="btn small merchant" href="' + escapeHtml(choice.productUrl || result.url || '#') + '" target="_blank" rel="noopener">Open merchant</a>' + (session.id ? '<button class="btn small" data-choice-session="' + escapeHtml(session.id) + '" type="button">Follow up</button>' : '') + '</div>' +
         '</div>';
       }).join('');
       els.choiceList.querySelectorAll('[data-choice-session]').forEach((button) => {

@@ -298,6 +298,17 @@
       font-size: 16px;
       font-weight: 800;
     }
+    .result-action {
+      justify-self: end;
+      grid-column: 3;
+      color: #fff;
+      background: var(--teal);
+      border-radius: 7px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
     .preview-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -731,6 +742,10 @@
       .result-price {
         grid-column: 2;
       }
+      .result-action {
+        grid-column: 2;
+        justify-self: start;
+      }
       .section {
         padding: 54px 0;
       }
@@ -771,7 +786,7 @@
     <section class="container hero" id="product">
       <div class="hero-copy">
         <h1 id="landingHeadline">Shop Assistant</h1>
-        <p id="landingSubheadline">AI finds products, compares offers, and keeps every customer request in one secure workspace.</p>
+        <p id="landingSubheadline">AI finds products, compares offers, records selected merchant choices, and keeps follow-up refinements in one secure workspace.</p>
         <div class="hero-actions">
           <a class="btn primary" id="landingPrimaryCta" href="#search">Start a search</a>
           <a class="btn" id="landingSecondaryCta" href="dashboard.html">View dashboard</a>
@@ -812,6 +827,7 @@
                   <div class="result-meta">Merchant page verified, delivery available</div>
                 </div>
                 <div class="result-price">1 290 CZK</div>
+                <div class="result-action">Select</div>
               </div>
               <div class="result-row">
                 <div class="thumb"></div>
@@ -820,6 +836,7 @@
                   <div class="result-meta">Lower price, longer delivery window</div>
                 </div>
                 <div class="result-price">1 080 CZK</div>
+                <div class="result-action">Refine</div>
               </div>
             </div>
           </div>
@@ -856,12 +873,12 @@
           <article class="workflow-card">
             <div class="workflow-step">2</div>
             <h3>Compare</h3>
-            <p>AI extracts intent, searches merchant pages, ranks offers, and supports feedback when the first result needs refinement.</p>
+            <p>AI extracts intent, searches merchant pages, ranks offers, and keeps budget, delivery, quality, brand, or size refinements one click away.</p>
           </article>
           <article class="workflow-card">
             <div class="workflow-step">3</div>
             <h3>Decide</h3>
-            <p>Each session stores messages, selected products, saved criteria, and redirectable product choices for later review.</p>
+            <p>Each merchant redirect can save the selected product, so customers can reopen the seller or refine alternatives from the dashboard.</p>
           </article>
         </div>
       </div>
@@ -872,7 +889,7 @@
         <div>
           <div class="section-head" style="display:block;margin-bottom:0;">
             <h2>Every customer gets a private workspace.</h2>
-            <p style="margin-top:16px;">The dashboard is built around authenticated history: searches, selected offers, reusable saved criteria, and profiles for different buyers.</p>
+            <p style="margin-top:16px;">The dashboard is built around authenticated history: searches, selected offers, follow-up refinements, reusable saved criteria, and profiles for different buyers.</p>
           </div>
           <div class="list">
             <div class="list-item"><span class="check">✓</span><span>Authenticated `/api/me` endpoints keep dashboard data scoped to the signed-in customer.</span></div>
