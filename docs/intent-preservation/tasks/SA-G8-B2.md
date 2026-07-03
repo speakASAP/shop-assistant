@@ -43,5 +43,6 @@ Validation: `docs/intent-preservation/validation-reports/VAL-SA-G8-B2.md`.
 - Runtime payment API key, public URL, and callback-key wiring were validated on 2026-07-03.
 - First approved live checkout smoke was completed with a non-card `invoice` payment and then `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE` was restored to `false`.
 - [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
-- [MISSING: approved terminal payment completion/callback smoke to prove entitlement activation end to end].
+- Approved synthetic terminal callback smoke was completed on 2026-07-03; entitlement activation/idempotency passed for the smoke checkout.
 - [MISSING: launch decision for card/Stripe checkout vs invoice-only initial sales path].
+- [MISSING: provider-dispatched terminal callback smoke if the launch path uses card/Stripe instead of invoice-only sales].

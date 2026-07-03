@@ -3,7 +3,7 @@
 Owner: Billing integration orchestrator
 Date: 2026-07-03
 Branch: `codex/sa-g8-b2-billing-entitlements`
-Status: passed for source integration and first approved invoice checkout smoke; public payment creation remains runtime-gated
+Status: passed for source integration, first invoice checkout smoke, and approved synthetic terminal callback smoke; public payment creation remains runtime-gated
 
 ## Intent Preservation Chain
 
@@ -98,8 +98,26 @@ Smoke evidence:
 - Post-smoke health: `https://shop-assistant.alfares.cz/health` -> HTTP 200; `https://payments.alfares.cz/health` -> HTTP 200.
 - Post-smoke pods: Shop Assistant `shop-assistant-987c88787-dwlpd` ready, restarts `0`; Payments `payments-microservice-6694fd54d9-rgmbm` ready, restarts `0`.
 
+## Approved Terminal Callback Smoke 2026-07-03
+
+The owner approved the terminal callback/entitlement smoke after the invoice checkout smoke. The orchestrator used the existing smoke checkout and submitted a trusted synthetic callback directly to Shop Assistant. This did not call `/payments/create`, did not run card/Stripe checkout, did not invoke a payment provider, and did not print secret values.
+
+Callback smoke evidence:
+
+- First `POST https://shop-assistant.alfares.cz/api/billing/payments/callback` -> HTTP 201.
+- Payload identifiers: checkout `1aa4ab84-14ea-4b32-a12c-3a892ec713fb`, order `sa-1783082483623-830f4895`, payment `43c8c5c7-59f4-48e6-976c-c1bb14a7435c`, terminal status `completed`.
+- Checkout moved to `status:completed`, `providerStatus:completed`.
+- Entitlement activated: `08bec76f-7268-4ec2-8856-a25bf1f1ee00`, `status:active`, plan `shop-assistant-pro-monthly`, expires `2026-08-03T12:49:14.236Z`.
+- Second identical callback -> HTTP 201 and returned the same entitlement id, proving the activation path is idempotent for the same checkout.
+- Customer `GET /api/billing/entitlement` -> HTTP 200 with `hasActiveEntitlement:true`.
+- Public plans remained restored to `paymentCreateEnabled:false` after the smoke.
+- Shop Assistant health remained HTTP 200.
+
+Limitation: this verifies Shop Assistant trusted callback authentication, checkout status transition, and entitlement activation/idempotency. It does not verify a real payment provider or Payments-dispatched provider completion event.
+
 ## Remaining Runtime Gates
 
 - [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
-- [MISSING: approved terminal payment completion/callback smoke, either via real provider sandbox completion or explicitly authorized synthetic trusted callback, to prove entitlement activation end to end].
+- Synthetic trusted callback smoke is complete; entitlement activation/idempotency passed for the smoke checkout.
 - [MISSING: launch decision for card/Stripe checkout vs invoice-only initial sales path].
+- [MISSING: provider-dispatched terminal callback smoke if the launch path uses card/Stripe instead of invoice-only sales].
