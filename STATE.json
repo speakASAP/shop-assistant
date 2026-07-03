@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "sa-g8-p2-retention-runner-20260703",
-  "next_focus": "Integrate SA-G8 P2, then add owner-approved production scheduling/deploy wiring and run token-backed release validation before any production deploy.",
+  "last_milestone": "sa-g8-sales-readiness-deployed-20260703",
+  "next_focus": "Billing/entitlement contracts and owner-approved retention scheduling remain the only SA-G8 sale-readiness blockers after deployed source validation.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1654,6 +1654,25 @@
         ],
         "production_apply": "not run",
         "deployment": "not run"
+      },
+      "sa_g8_deploy_20260703": {
+        "date": "2026-07-03",
+        "status": "deployed_postdeploy_validation_passed",
+        "gitHead": "d1c2a17",
+        "sourceFingerprint": "0db2c5b4b4b1e061b5bff7cbe1e7aff5cb528b660da70ef417e8ad29c6194ff8",
+        "imageDigest": "sha256:d8006054708fe3f52b2cdf6e3f79cef4a07b625243fa581bf9fcc5602d40434d",
+        "pod": "shop-assistant-57bb56cf4-4g9lz",
+        "validation": [
+          "post-deploy no-secret smoke Failures=0",
+          "post-deploy strict token smoke Failures=0",
+          "post-deploy agent-flow strict token smoke Failures=0 Skipped=0",
+          "deployment READY 1/1 pod restarts=0"
+        ],
+        "remainingBlockers": [
+          "[MISSING: Shop Assistant billing/payment/entitlement contracts]",
+          "[MISSING: owner-approved production retention scheduling for automatic deletion]",
+          "[UNKNOWN: central logging retention duration]"
+        ]
       }
     }
   }

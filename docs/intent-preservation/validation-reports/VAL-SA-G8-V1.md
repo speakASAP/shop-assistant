@@ -203,3 +203,44 @@ Sensitive-data handling:
 - No raw production queries, lead contacts, profile PII, database URLs, Vault values, or JWT values were added to this report.
 
 Integrated release-gate status: PASS for source validation and live auth/API smoke. Production deployment of the newly merged source was not run in this orchestrator pass.
+
+## Production Deployment And Post-Deploy Gate - 2026-07-03
+
+The orchestrator packaged and deployed the integrated SA-G8 source to production.
+
+Deployment source:
+
+- Git HEAD: `d1c2a17 docs: record SA-G8 P2 integrated validation`.
+- Source fingerprint: `0db2c5b4b4b1e061b5bff7cbe1e7aff5cb528b660da70ef417e8ad29c6194ff8`.
+- Image: `localhost:5000/shop-assistant:latest`.
+- Pushed image digest: `sha256:d8006054708fe3f52b2cdf6e3f79cef4a07b625243fa581bf9fcc5602d40434d`.
+- Deployed pod after rollout: `shop-assistant-57bb56cf4-4g9lz`, `1/1 Running`, `0` restarts.
+
+Commands:
+
+```bash
+scripts/build-and-push-image.sh
+EXPECTED_SOURCE_FINGERPRINT=$(scripts/print-source-fingerprint.sh) ./scripts/deploy.sh
+BASE_URL=https://shop-assistant.alfares.cz REQUIRE_TOKEN_SMOKE=0 SMOKE_CURL_MAX_TIME=12 ./scripts/sa-g7-live-smoke.sh
+OUTPUT_ENV=/tmp/sa-g8-postdeploy-smoke.env TOKEN_DIR=/tmp/sa-g8-postdeploy-smoke-tokens BASE_URL=https://shop-assistant.alfares.cz REQUIRE_TOKEN_SMOKE=1 SMOKE_CURL_MAX_TIME=12 ./scripts/sa-g7-strict-token-smoke.sh
+OUTPUT_ENV=/tmp/sa-g8-postdeploy-agent-flow.env TOKEN_DIR=/tmp/sa-g8-postdeploy-agent-flow-tokens BASE_URL=https://shop-assistant.alfares.cz REQUIRE_TOKEN_SMOKE=1 SMOKE_CURL_MAX_TIME=12 ./scripts/sa-g7-agent-flow-strict-smoke.sh
+kubectl get pods -n statex-apps -l app=shop-assistant -o wide
+kubectl get deployment shop-assistant -n statex-apps -o wide
+```
+
+Result summary:
+
+- Docker build and push passed; image label matched the expected source fingerprint.
+- Kubernetes rollout completed successfully.
+- The deploy script embedded post-deploy smoke saw transient `502` responses for `HEAD /` and `HEAD /dashboard.html` immediately after rollout while `/health` was already `200`; this cleared on immediate rerun.
+- Post-deploy no-secret smoke rerun: `Failures: 0`, expected token sections skipped.
+- Post-deploy strict customer/admin/non-admin token smoke: `Failures: 0`; Agent Flow skipped in that run and covered by the dedicated wrapper.
+- Post-deploy Agent Flow strict token smoke: `Failures: 0`, `Skipped optional checks: 0`; admin Agent Flow API returned `200`, non-admin returned `403`.
+- Deployment status after validation: deployment `shop-assistant` `READY 1/1`, pod `shop-assistant-57bb56cf4-4g9lz` `READY 1/1`, `RESTARTS 0`.
+
+Sensitive-data handling:
+
+- Token-backed smoke used token-file envs under `/tmp` and did not print token values.
+- No raw production queries, lead contacts, profile PII, database URLs, Vault values, or JWT values were added to this report.
+
+Production deployment status: PASS for SA-G8 integrated source. Billing/entitlements remain contract-blocked as recorded in `VAL-SA-G8-B1.md`; retention scheduling remains owner-gated because automatic deletion requires explicit production operations approval.
