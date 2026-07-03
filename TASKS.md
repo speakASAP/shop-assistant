@@ -14,6 +14,7 @@
 
 ## Completed
 <!-- AI appends here. Never modifies previous entries. -->
+- [x] 2026-07-03 SA-G8-B2 billing/entitlement contract and safe core implemented with Prisma checkout/entitlement models, runtime-gated payments client, callback idempotency, dashboard billing panel, build/Prisma/diff/no-secret validation passed; live payment creation remains gated by runtime keys, callback token, public URL allowlist, and owner-approved checkout smoke.
 - [x] 2026-04-05 Documentation standard applied
 
 - [x] 2026-06-12 Intent Preservation System installed under docs/intent-preservation (SA-DOCS-T1)

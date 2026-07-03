@@ -205,3 +205,47 @@ model AppSetting {
 
   @@index([updatedAt])
 }
+
+
+/// Customer checkout attempts created by Shop Assistant before or during handoff to payments-microservice.
+model BillingCheckout {
+  id             String   @id @default(uuid())
+  userId         String
+  planCode       String   @db.VarChar(64)
+  orderId        String   @unique @db.VarChar(128)
+  paymentId      String?  @unique @db.VarChar(255)
+  status         String   @default("pending") @db.VarChar(32)
+  providerStatus String?  @db.VarChar(64)
+  amountCents    Int
+  currency       String   @db.VarChar(8)
+  paymentMethod  String?  @db.VarChar(64)
+  redirectUrl    String?  @db.Text
+  expiresAt      DateTime?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([planCode])
+}
+
+/// Shop Assistant-owned access grants keyed by hosted Auth user id.
+model UserEntitlement {
+  id         String    @id @default(uuid())
+  userId     String
+  planCode   String    @db.VarChar(64)
+  status     String    @default("active") @db.VarChar(32)
+  source     String    @db.VarChar(64)
+  checkoutId String?   @db.VarChar(255)
+  startsAt   DateTime  @default(now())
+  expiresAt  DateTime?
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([checkoutId])
+}

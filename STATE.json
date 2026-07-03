@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "sa-g8-sales-readiness-deployed-20260703",
-  "next_focus": "Billing/entitlement contracts and owner-approved retention scheduling remain the only SA-G8 sale-readiness blockers after deployed source validation.",
+  "last_milestone": "sa-g8-b2-billing-entitlement-core-20260703",
+  "next_focus": "Deploy SA-G8-B2 core, then configure payments runtime keys/callback token/public URL and run owner-approved checkout smoke before enabling live paid sales.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1672,6 +1672,29 @@
           "[MISSING: Shop Assistant billing/payment/entitlement contracts]",
           "[MISSING: owner-approved production retention scheduling for automatic deletion]",
           "[UNKNOWN: central logging retention duration]"
+        ]
+      },
+      "sa_g8_b2_billing_entitlement_core": {
+        "date": "2026-07-03",
+        "status": "implemented_build_passed",
+        "branch": "codex/sa-g8-b2-billing-entitlements",
+        "models": [
+          "BillingCheckout",
+          "UserEntitlement"
+        ],
+        "endpoints": [
+          "GET /api/billing/plans",
+          "GET /api/billing/entitlement",
+          "POST /api/billing/checkouts",
+          "POST /api/billing/payments/callback",
+          "GET /api/admin/billing"
+        ],
+        "validation": "npm run prisma:generate passed; prisma validate with dummy DATABASE_URL passed; npm run build passed; git diff --check passed; focused no-secret scan passed",
+        "runtime_gates": [
+          "PAYMENTS_API_KEY or SHOP_ASSISTANT_PAYMENTS_API_KEY with payments:create/read",
+          "SHOP_ASSISTANT_PUBLIC_BASE_URL allowlisted in payments",
+          "SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN configured in both services",
+          "owner-approved live checkout smoke before SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true"
         ]
       }
     }

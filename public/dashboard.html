@@ -654,6 +654,11 @@
       </section>
 
       <aside class="stack">
+        <div class="panel" id="billingPanel">
+          <div class="panel-head"><div><h2 class="panel-title">Billing</h2><p class="panel-note">Plan access and checkout status for your account.</p></div></div>
+          <div class="panel-body"><div class="side-list" id="billingStatus"></div><div class="side-list" id="billingPlans" style="margin-top: 10px;"></div></div>
+        </div>
+
         <div class="panel" id="saved">
           <div class="panel-head">
             <div>
@@ -803,6 +808,8 @@
       searchText: document.getElementById('searchText'),
       adminLink: document.getElementById('adminLink'),
       refreshBtn: document.getElementById('refreshBtn'),
+      billingStatus: document.getElementById('billingStatus'),
+      billingPlans: document.getElementById('billingPlans'),
     };
 
     const historyState = {
@@ -1362,19 +1369,35 @@
       return saved;
     }
 
+    function renderBilling(data) {
+      const entitlement = data && data.entitlement ? data.entitlement : null;
+      const recentCheckout = data && data.recentCheckout ? data.recentCheckout : null;
+      const statusLabel = entitlement ? '<span class="pill ok">Active</span>' : recentCheckout ? '<span class="pill warn">' + escapeHtml(recentCheckout.status || 'pending') + '</span>' : '<span class="pill warn">No paid plan</span>';
+      els.billingStatus.innerHTML = '<div class="list-row"><div class="row-top"><div><div class="row-title">Access</div><div class="muted">' + (entitlement ? escapeHtml(entitlement.planCode) : 'Choose a plan to enable paid access.') + '</div></div>' + statusLabel + '</div>' + (recentCheckout ? '<div class="muted">Latest checkout: ' + escapeHtml(recentCheckout.orderId || recentCheckout.id) + '</div>' : '') + '</div>';
+      const plans = Array.isArray(data && data.plans) ? data.plans : [];
+      els.billingPlans.innerHTML = plans.map((plan) => {
+        const amount = (Number(plan.amountCents || 0) / 100).toFixed(2) + ' ' + escapeHtml(plan.currency || 'EUR');
+        return '<div class="list-row"><div class="row-top"><div><div class="row-title">' + escapeHtml(plan.name || plan.code) + '</div><div class="muted">' + amount + ' / ' + escapeHtml(plan.billingPeriod || 'month') + '</div><div class="muted">' + escapeHtml(plan.searchLimitMonthly || 0) + ' searches per month</div></div></div><button class="btn small primary" type="button" data-checkout-plan="' + escapeHtml(plan.code) + '">Checkout</button></div>';
+      }).join('') || '<div class="empty">No billing plans are available.</div>';
+      els.billingPlans.querySelectorAll('[data-checkout-plan]').forEach((button) => { button.addEventListener('click', () => createCheckout(button.getAttribute('data-checkout-plan'))); });
+    }
+    async function loadBilling() { try { const billing = await api('/billing/entitlement'); renderBilling(billing); } catch (error) { if (els.billingStatus) els.billingStatus.innerHTML = '<div class="empty">Billing status is unavailable.</div>'; } }
     async function loadDashboard() {
       clearStatus();
-      const [me, dashboard, profiles] = await Promise.all([
-        api('/me'),
-        api('/me/dashboard'),
-        api('/profiles'),
-      ]);
+      const [me, dashboard, profiles] = await Promise.all([api('/me'), api('/me/dashboard'), api('/profiles')]);
       showDashboard(me.user);
       renderStats(dashboard.summary || {});
       renderProfiles(profiles.items || []);
-      await loadHistoryPage(1, false);
-      await loadChoicePage(1, false);
-      await loadSavedPage(1, false);
+      await Promise.all([loadHistoryPage(1, false), loadChoicePage(1, false), loadSavedPage(1, false), loadBilling()]);
+    }
+    async function createCheckout(planCode) {
+      try {
+        setStatus('Preparing checkout...', 'info');
+        const result = await api('/billing/checkouts', { method: 'POST', body: JSON.stringify({ planCode }) });
+        if (result.redirectUrl) { window.location.href = result.redirectUrl; return; }
+        await loadBilling();
+        setStatus(result.message || 'Checkout is prepared, but payment redirect is not configured yet.', 'info');
+      } catch (error) { setStatus(error.message || 'Could not create checkout.', 'error'); }
     }
 
     async function runSaved(id) {
