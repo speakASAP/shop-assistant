@@ -160,3 +160,46 @@ Result: passed with no output.
 Release validation gate status: PASS for current deployed `https://shop-assistant.alfares.cz` runtime.
 
 Evidence covers no-secret smoke, customer-token account checks, admin-token operations checks, non-admin forbidden checks, Agent Flow RBAC, and two-account ownership negative tests.
+
+## Final Integrated Orchestrator Gate - 2026-07-03
+
+After merging the SA-G8 workstreams into `main`, the orchestrator reran the release gate against the integrated source state.
+
+Integrated commits on `main` at validation time:
+
+- `4ed47cb docs: record SA-G8 billing entitlement blocker`
+- `b41ca52 Improve SA-G8 conversion UX`
+- `fbd1074 feat: add privacy retention and search rate limits`
+- `6085a13 Improve SA-G8 search recovery`
+
+Commands:
+
+```bash
+git status --short --branch
+git diff --check
+npm run build
+DATABASE_URL=postgresql://user:pass@localhost:5432/shop_assistant npx prisma validate
+node scripts/sa-g8-s1-search-quality-probes.js
+BASE_URL=https://shop-assistant.alfares.cz REQUIRE_TOKEN_SMOKE=0 SMOKE_CURL_MAX_TIME=12 ./scripts/sa-g7-live-smoke.sh
+OUTPUT_ENV=/tmp/sa-g8-final-smoke.env TOKEN_DIR=/tmp/sa-g8-final-smoke-tokens BASE_URL=https://shop-assistant.alfares.cz REQUIRE_TOKEN_SMOKE=1 SMOKE_CURL_MAX_TIME=12 ./scripts/sa-g7-strict-token-smoke.sh
+OUTPUT_ENV=/tmp/sa-g8-final-agent-flow.env TOKEN_DIR=/tmp/sa-g8-final-agent-flow-tokens BASE_URL=https://shop-assistant.alfares.cz REQUIRE_TOKEN_SMOKE=1 SMOKE_CURL_MAX_TIME=12 ./scripts/sa-g7-agent-flow-strict-smoke.sh
+git status --short --branch
+```
+
+Result summary:
+
+- `git diff --check`: pass.
+- `npm run build`: pass.
+- `npx prisma validate`: pass with non-secret placeholder `DATABASE_URL`.
+- `node scripts/sa-g8-s1-search-quality-probes.js`: pass; no-result path attempted 4 searches with 3 recovery queries and `rawQueryLogged=false`; result-preservation path kept 1 valid HTTP/HTTPS result, `invalidUrlCount=0`, `firstResultPosition=1`.
+- No-secret live smoke: `Failures: 0`, expected token sections skipped.
+- Strict token smoke: `Failures: 0`, only Agent Flow skipped in that run because it is covered by the dedicated agent-flow wrapper.
+- Agent Flow strict token smoke: `Failures: 0`, `Skipped optional checks: 0`; admin Agent Flow API returned `200`, non-admin returned `403`.
+- Final repository status: `## main...origin/main` with no dirty files before this report append.
+
+Sensitive-data handling:
+
+- Token-backed checks used token-file envs under `/tmp` and did not print token values.
+- No raw production queries, lead contacts, profile PII, database URLs, Vault values, or JWT values were added to this report.
+
+Integrated release-gate status: PASS for source validation and live auth/API smoke. Production deployment of the newly merged source was not run in this orchestrator pass.
