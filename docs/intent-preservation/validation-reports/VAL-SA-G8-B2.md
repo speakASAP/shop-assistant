@@ -3,7 +3,7 @@
 Owner: Billing integration orchestrator
 Date: 2026-07-03
 Branch: `codex/sa-g8-b2-billing-entitlements`
-Status: passed for source integration; live payment creation remains runtime-gated
+Status: passed for source integration and first approved invoice checkout smoke; public payment creation remains runtime-gated
 
 ## Intent Preservation Chain
 
@@ -73,9 +73,33 @@ Deployment date: 2026-07-03.
 
 Deploy note: two deploy-script runs timed out while Kubernetes/containerd reported cluster-wide pod sandbox creation delays across unrelated workloads. The second rollout completed after the script timeout; manual post-deploy checks were then run and passed. Production remained served by the previous ready pod during the delayed rollout.
 
+## Runtime Wiring Update 2026-07-03
+
+Payment runtime wiring was completed after the initial B2 deployment:
+
+- `PAYMENTS_SERVICE_URL` and scoped Payments API key are deployed for Shop Assistant; public `GET /api/billing/plans` reported `hasPaymentsServiceUrl:true`, `hasPaymentsApiKey:true`.
+- Shop Assistant public URL is deployed as `https://shop-assistant.alfares.cz`; `/payments/validate-create` accepted callback, success, and cancel origins for `applicationId=shop-assistant` with `mutation:false` and `providerCall:false`.
+- Payments callback key map now includes `shop-assistant`; no secret values were printed in validation output.
+
+## First Approved Checkout Smoke 2026-07-03
+
+The owner approved the first sandbox/live checkout smoke. The orchestrator temporarily set the live deployment env override `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, verified public plans reported `paymentCreateEnabled:true`, ran one customer checkout through Shop Assistant using the non-card `invoice` method, then removed the override and verified public plans returned to `paymentCreateEnabled:false`.
+
+Smoke evidence:
+
+- `POST https://shop-assistant.alfares.cz/api/billing/checkouts` -> HTTP 201.
+- Plan: `shop-assistant-pro-monthly`; method: `invoice`; amount: `1900` cents `EUR`.
+- Checkout id: `1aa4ab84-14ea-4b32-a12c-3a892ec713fb`.
+- Order id: `sa-1783082483623-830f4895`.
+- Payments id: `43c8c5c7-59f4-48e6-976c-c1bb14a7435c`.
+- Shop Assistant checkout status: `payment_created`; provider status: `processing`; redirect URL absent for invoice provider.
+- Customer `GET /api/billing/entitlement` -> HTTP 200 with `hasActiveEntitlement:false`, which is expected because no terminal payment callback was executed.
+- Payments read-only `GET /payments/status/by-order-id?applicationId=shop-assistant&orderId=...` -> HTTP 200 with `status:processing`, `paymentMethod:invoice`, `source:payments_db_snapshot`, `providerCall:false`, `mutation:false`, `persistence:false`.
+- Post-smoke health: `https://shop-assistant.alfares.cz/health` -> HTTP 200; `https://payments.alfares.cz/health` -> HTTP 200.
+- Post-smoke pods: Shop Assistant `shop-assistant-987c88787-dwlpd` ready, restarts `0`; Payments `payments-microservice-6694fd54d9-rgmbm` ready, restarts `0`.
+
 ## Remaining Runtime Gates
 
-- [MISSING: deployed `PAYMENTS_API_KEY` or `SHOP_ASSISTANT_PAYMENTS_API_KEY` scoped to `payments:create` and `payments:read` for `shop-assistant`].
-- [MISSING: deployed `SHOP_ASSISTANT_PUBLIC_BASE_URL` matching the payment service callback/success/cancel origin allowlist].
-- [MISSING: deployed `SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN` configured both in Shop Assistant and payment callback config].
-- [MISSING: owner approval for enabling `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` and running a real checkout smoke].
+- [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
+- [MISSING: approved terminal payment completion/callback smoke, either via real provider sandbox completion or explicitly authorized synthetic trusted callback, to prove entitlement activation end to end].
+- [MISSING: launch decision for card/Stripe checkout vs invoice-only initial sales path].

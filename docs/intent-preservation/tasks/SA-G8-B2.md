@@ -40,6 +40,8 @@ Validation: `docs/intent-preservation/validation-reports/VAL-SA-G8-B2.md`.
 
 ## Remaining Gates
 
-- [MISSING: production payment API key with `payments:create` and `payments:read` scopes for `shop-assistant` runtime].
-- [MISSING: production `SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN` shared with payments callback config].
-- [MISSING: owner approval to enable live `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` and run real checkout smoke].
+- Runtime payment API key, public URL, and callback-key wiring were validated on 2026-07-03.
+- First approved live checkout smoke was completed with a non-card `invoice` payment and then `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE` was restored to `false`.
+- [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
+- [MISSING: approved terminal payment completion/callback smoke to prove entitlement activation end to end].
+- [MISSING: launch decision for card/Stripe checkout vs invoice-only initial sales path].
