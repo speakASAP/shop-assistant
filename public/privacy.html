@@ -100,7 +100,7 @@
           <li><strong>Deletion:</strong> Signed-in users can delete their Shop Assistant session, profile, saved-search, message, result, and choice data from the account privacy endpoint.</li>
           <li><strong>Logs:</strong> Operational logs follow the central logging retention policy and should contain metadata only, not raw search text, JWTs, or secrets.</li>
         </ul>
-        <p>Automated scheduled retention jobs are not yet documented in this repository. Until that infrastructure is available, user-triggered deletion/anonymization is the implemented control.</p>
+        <p>A repository-owned retention runner is available for anonymous session cleanup: <code>npm run retention:cleanup</code> defaults to dry-run, targets only anonymous sessions, uses an environment-configurable TTL and batch size, and requires an explicit apply confirmation before deletion. Production scheduling and deployment of that runner still require owner-approved operations wiring.</p>
       </section>
 
       <section>

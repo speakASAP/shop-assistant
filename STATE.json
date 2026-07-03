@@ -8,8 +8,8 @@
   "tasks_active": 0,
   "tasks_failed_last_cycle": 0,
   "open_task_ids": [],
-  "last_milestone": "sa-g8-p1-privacy-ratelimit-core-20260703",
-  "next_focus": "Integrate SA-G8 worker branches, then run token-backed release validation before any production deploy.",
+  "last_milestone": "sa-g8-p2-retention-runner-20260703",
+  "next_focus": "Integrate SA-G8 P2, then add owner-approved production scheduling/deploy wiring and run token-backed release validation before any production deploy.",
   "blockers": [],
   "budget_units_used": 0,
   "metrics": {
@@ -1628,10 +1628,32 @@
         ],
         "validation": "npm run build; placeholder DATABASE_URL npx prisma validate; npm run prisma:generate; git diff --check; rate-limit smoke; focused static wiring scan",
         "remaining_blockers": [
-          "[MISSING: scheduled retention-job infrastructure/runner contract]",
+          "[IMPLEMENTED_BY_SA_G8_P2: repo-owned anonymous-session retention runner contract; production scheduling/deploy wiring still missing]",
           "[MISSING: production-safe token/account files for destructive privacy endpoint live smoke]",
           "[UNKNOWN: central logging retention duration]"
         ]
+      },
+      "sa_g8_p2_retention_runner": {
+        "date": "2026-07-03",
+        "status": "implemented_validated_no_deploy",
+        "branch": "codex/sa-g8-p2-retention-runner",
+        "runner": "scripts/retention-cleanup.js",
+        "npm_script": "retention:cleanup",
+        "contract": [
+          "dry-run default",
+          "targets only Session rows where userId is null",
+          "TTL env RETENTION_ANONYMOUS_SESSION_TTL_DAYS default 30",
+          "batch env RETENTION_CLEANUP_BATCH_SIZE default 100 max 1000",
+          "apply requires --apply and RETENTION_CLEANUP_APPLY_CONFIRM",
+          "aggregate-only output without raw query/message/result content"
+        ],
+        "validation": "npm run build; placeholder DATABASE_URL npx prisma validate; npm run retention:cleanup -- --help; synthetic Docker PostgreSQL dry-run/apply validation; git diff --check; sensitive-data scan",
+        "remaining_blockers": [
+          "[MISSING: owner-approved production scheduling/deploy wiring]",
+          "[UNKNOWN: central logging retention duration]"
+        ],
+        "production_apply": "not run",
+        "deployment": "not run"
       }
     }
   }

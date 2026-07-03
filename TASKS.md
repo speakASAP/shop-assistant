@@ -129,3 +129,4 @@
 - [x] 2026-06-21 SA-G4 current UX improvement report generated from aggregate production session metrics and static workflow inspection; no raw personal data exported.
 
 - [x] 2026-07-03 SA-G8-P1 privacy retention and rate-limit core implemented on worker branch; build, Prisma validate/generate, diff check, rate-limit smoke, and sensitive-data scan passed; scheduled retention jobs remain blocked by missing runner contract; no deploy run.
+- [x] 2026-07-03 SA-G8-P2 retention runner contract implemented with dry-run default, anonymous-session-only TTL cleanup, explicit apply confirmation, build/Prisma/help/synthetic retention validation, diff check, and sensitive-data scan passed; production apply/deploy not run; scheduling/deploy wiring remains blocked.
