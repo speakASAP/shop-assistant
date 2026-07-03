@@ -28,5 +28,5 @@ data:
   PAYMENTS_SERVICE_URL: "http://payments-microservice:3468"
   PAYMENT_SERVICE_URL: "http://payments-microservice:3468"
   SHOP_ASSISTANT_PUBLIC_BASE_URL: "https://shop-assistant.alfares.cz"
-  SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE: "false"
+  SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE: "true"
   # TIMEOUT_MS: "30000"

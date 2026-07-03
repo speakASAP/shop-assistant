@@ -3,7 +3,7 @@
 Owner: Billing integration orchestrator
 Date: 2026-07-03
 Branch: `codex/sa-g8-b2-billing-entitlements`
-Status: passed for source integration, invoice checkout smoke, card/Stripe checkout-session smoke, and approved synthetic terminal callback smoke; public payment creation remains runtime-gated
+Status: passed for source integration, invoice checkout smoke, card/Stripe checkout-session smoke, approved synthetic terminal callback smoke, and permanent payment-create enablement
 
 ## Intent Preservation Chain
 
@@ -83,7 +83,7 @@ Payment runtime wiring was completed after the initial B2 deployment:
 
 ## First Approved Checkout Smoke 2026-07-03
 
-The owner approved the first sandbox/live checkout smoke. The orchestrator temporarily set the live deployment env override `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, verified public plans reported `paymentCreateEnabled:true`, ran one customer checkout through Shop Assistant using the non-card `invoice` method, then removed the override and verified public plans returned to `paymentCreateEnabled:false`.
+The owner approved the first sandbox/live checkout smoke. The orchestrator temporarily set the live deployment env override `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, verified public plans reported `paymentCreateEnabled:true`, ran one customer checkout through Shop Assistant using the non-card `invoice` method, then removed the override and verified public plans returned to `paymentCreateEnabled:false`. On 2026-07-03 the owner then directed permanent enablement of `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout.
 
 Smoke evidence:
 
@@ -131,9 +131,15 @@ Card/Stripe smoke evidence:
 
 Limitation: this proves Shop Assistant can create Stripe-hosted checkout sessions via the same central Payments solution used by Marathon. It does not prove provider-dispatched terminal webhook completion because the checkout sessions were intentionally not paid.
 
+## Permanent Payment Create Enablement 2026-07-03
+
+The owner directed permanent enablement of `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`. The source-owned Kubernetes ConfigMap now sets the flag to `true`, so public paid checkout is enabled after deployment as long as the already-validated Payments service URL and scoped API key remain configured.
+
+Validation evidence is recorded in the deploy section for the final enablement commit.
+
 ## Remaining Runtime Gates
 
 - Synthetic trusted callback smoke is complete; entitlement activation/idempotency passed for the smoke checkout.
 - Card/Stripe checkout-session creation smoke passed with Stripe-hosted redirect URLs; sessions were not paid.
-- [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
+- `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` is now source-owned and deployed for public paid checkout.
 - [MISSING: provider-dispatched terminal callback smoke if the launch path requires paid Stripe completion before launch].

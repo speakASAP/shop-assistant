@@ -41,8 +41,8 @@ Validation: `docs/intent-preservation/validation-reports/VAL-SA-G8-B2.md`.
 ## Remaining Gates
 
 - Runtime payment API key, public URL, and callback-key wiring were validated on 2026-07-03.
-- First approved live checkout smoke was completed with a non-card `invoice` payment and then `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE` was restored to `false`.
+- First approved live checkout smoke was completed with a non-card `invoice` payment; payment creation was later permanently enabled by owner direction on 2026-07-03.
 - Approved synthetic terminal callback smoke was completed on 2026-07-03; entitlement activation/idempotency passed for the smoke checkout.
 - Card/Stripe checkout-session creation smoke passed on 2026-07-03 with Stripe-hosted redirect URLs; sessions were not paid.
-- [MISSING: owner decision to permanently enable `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` for public paid checkout].
+- `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` is now source-owned and deployed for public paid checkout.
 - [MISSING: provider-dispatched terminal callback smoke if the launch path requires paid Stripe completion before launch].
