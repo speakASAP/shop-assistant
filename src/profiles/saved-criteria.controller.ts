@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, Post, Put, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ShopAssistantEntitlementGuard } from '../auth/shop-assistant-entitlement.guard';
 import { SavedCriteriaService } from './saved-criteria.service';
 import { CreateSavedCriteriaDto, UpdateSavedCriteriaDto } from './dto/saved-criteria.dto';
 
 @Controller('saved-criteria')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ShopAssistantEntitlementGuard)
 export class SavedCriteriaController {
   constructor(private readonly savedCriteria: SavedCriteriaService) {}
 

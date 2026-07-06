@@ -10,6 +10,8 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
 import { LoggingModule } from '../logging/logging.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { ShopAssistantEntitlementGuard } from './shop-assistant-entitlement.guard';
 
 @Module({
   imports: [
@@ -18,9 +20,10 @@ import { LoggingModule } from '../logging/logging.module';
       maxRedirects: 5,
     }),
     LoggingModule,
+    PrismaModule,
   ],
   controllers: [],
-  providers: [AuthService, JwtAuthGuard, RolesGuard],
-  exports: [AuthService, JwtAuthGuard, RolesGuard],
+  providers: [AuthService, JwtAuthGuard, RolesGuard, ShopAssistantEntitlementGuard],
+  exports: [AuthService, JwtAuthGuard, RolesGuard, ShopAssistantEntitlementGuard],
 })
 export class AuthModule {}

@@ -1,10 +1,11 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ShopAssistantEntitlementGuard } from '../auth/shop-assistant-entitlement.guard';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto, UpdateProfileDto } from './dto/profile.dto';
 
 @Controller('profiles')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ShopAssistantEntitlementGuard)
 export class ProfilesController {
   constructor(private readonly profiles: ProfilesService) {}
 
@@ -32,4 +33,3 @@ export class ProfilesController {
     return this.profiles.deleteProfile(userId, id);
   }
 }
-

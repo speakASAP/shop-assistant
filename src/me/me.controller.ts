@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ShopAssistantEntitlementGuard } from '../auth/shop-assistant-entitlement.guard';
 import { CreateSessionDto } from '../sessions/dto/create-session.dto';
 import { QueryDto } from '../sessions/dto/query.dto';
 import { FeedbackDto } from '../sessions/dto/feedback.dto';
@@ -7,7 +8,7 @@ import { MeService } from './me.service';
 import { SearchRateLimitService } from '../common/search-rate-limit.service';
 
 @Controller('me')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ShopAssistantEntitlementGuard)
 export class MeController {
   constructor(
     private readonly me: MeService,
