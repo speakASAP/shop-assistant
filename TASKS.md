@@ -18,11 +18,11 @@
 - [x] 2026-04-05 Documentation standard applied
 
 - [x] 2026-06-12 Intent Preservation System installed under docs/intent-preservation (SA-DOCS-T1)
-- [x] 2026-06-12 SA-G1-T1 bounded failed-search recovery and real URL filtering implemented; validation recorded in docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md
-- [x] 2026-06-12 SA-G4-T1 UX improvement report generated from aggregate session metrics and static workflow inspection; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-12.md
-- [x] 2026-06-12 SA-G4-T1 synthetic usage fixture generated and aggregate UX metrics rerun; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-12-synthetic-rerun.md
-- [x] 2026-06-12 SA-G4-T1 production aggregate metrics compared with synthetic baseline; production persisted UX funnel remains zero; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-12-production-comparison.md
-- [x] 2026-06-13 SA-G4-T1 production session write path verified with one namespaced synthetic health-check session; report: docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-13-write-path-check.md
+- [x] 2026-06-12 SA-G1-T1 bounded failed-search recovery and real URL filtering implemented; validation recorded in docs/12_validation/VAL-SA-BACKLOG.md
+- [x] 2026-06-12 SA-G4-T1 UX improvement report generated from aggregate session metrics and static workflow inspection; report: docs/16_operations/UX-SA-G4-T1-2026-06-12.md
+- [x] 2026-06-12 SA-G4-T1 synthetic usage fixture generated and aggregate UX metrics rerun; report: docs/16_operations/UX-SA-G4-T1-2026-06-12-synthetic-rerun.md
+- [x] 2026-06-12 SA-G4-T1 production aggregate metrics compared with synthetic baseline; production persisted UX funnel remains zero; report: docs/16_operations/UX-SA-G4-T1-2026-06-12-production-comparison.md
+- [x] 2026-06-13 SA-G4-T1 production session write path verified with one namespaced synthetic health-check session; report: docs/16_operations/UX-SA-G4-T1-2026-06-13-write-path-check.md
 - [x] 2026-06-13 SA-G7-T1 frontend goal saved with task, execution plan, context package, coding prompt, and validation draft; implementation pending scoped coding gate
 - [x] 2026-06-13 SA-G7 backend foundation implemented for authenticated current-user dashboard APIs and profile ownership checks; build passed; frontend/dashboard/admin UI work remains open
 - [x] 2026-06-13 SA-G7 customer dashboard static frontend added and linked from landing page; build and static desktop/mobile visual QA passed for unauthenticated gate; live authenticated QA remains pending
@@ -82,7 +82,7 @@
 - [x] 2026-06-13 SA-G7 explicit image packaging step added with scripts/build-and-push-image.sh, and deploy now prints source dirty-state reminder before rollout; script syntax checks passed and build passed
 - [x] 2026-06-13 SA-G7 image packaging now uses .dockerignore and labels Docker images with a source fingerprint over frontend/API/deploy inputs; fingerprint calculation, script syntax checks, and build passed
 - [x] 2026-06-13 SA-G7 image packaging now verifies source-fingerprint label after Docker build and deploy preflight can enforce EXPECTED_SOURCE_FINGERPRINT before rollout; script syntax checks and build passed
-- [x] 2026-06-13 SA-G7 rollout runbook added under docs/intent-preservation/16_operations with image build/push, fingerprint-enforced deploy, no-secret smoke, token-backed smoke, browser verification, diagnostics, and evidence checklist; references/build validated
+- [x] 2026-06-13 SA-G7 rollout runbook added under docs/16_operations with image build/push, fingerprint-enforced deploy, no-secret smoke, token-backed smoke, browser verification, diagnostics, and evidence checklist; references/build validated
 - [x] 2026-06-13 SA-G7 source fingerprint helper added and image packaging now reuses scripts/print-source-fingerprint.sh; runbook updated; script syntax checks, fingerprint calculation, and build passed
 - [x] 2026-06-13 SA-G7 read-only rollout preflight script added; preflight passed build, script syntax, fingerprint, Kubernetes readiness, registry reachability, and confirmed current image label is missing before owner-approved build/push
 - [x] 2026-06-13 SA-G3 saved criteria session traceability implemented with Prisma migration, runCriteria linkage, and current-user dashboard/session response fields; prisma generate/build passed; deploy/migration apply pending owner approval
@@ -115,7 +115,7 @@
 - [x] 2026-06-13 SA-G1 failed-search live validation harness added; sanitized public and in-pod validators prove live zero-result guidance is present without raw query text, but production table-message suppression remains blocked until owner-approved deploy of current source.
 - [x] 2026-06-13 SA-G1 failed-search live validation deployed after approval; rebuilt/pushed image sha256:87c45f1a73e2316856721999e95e357ec2131aae1c5696f70601194b172eedb9, rollout/post-deploy smoke passed, constrained zero-result live probe and in-pod validator passed with guidance present, tableMessages=0, and no invalid URLs.
 
-- [x] 2026-06-14 SA-G2-T1 parallel audit completed and integrated into docs/intent-preservation/validation-reports/VAL-SA-G2-LEGAL-PRIVACY-AUDIT.md; next fix task SA-G2-FIX-T1 selected.
+- [x] 2026-06-14 SA-G2-T1 parallel audit completed and integrated into docs/12_validation/VAL-SA-G2-LEGAL-PRIVACY-AUDIT.md; next fix task SA-G2-FIX-T1 selected.
 
 - [x] 2026-06-14 SA-G2-FIX-T1 documentation and legal/privacy surface hardening completed; build and focused scans passed; next fix task SA-G2-FIX-T2 selected.
 

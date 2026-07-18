@@ -17,10 +17,10 @@ Read those first, then follow the repository-specific notes below and the curren
 
 Before any implementation work, agents must read and follow the Shop Assistant Intent Preservation System:
 
-- `docs/intent-preservation/README.md`
-- `docs/intent-preservation/TRACEABILITY_MATRIX.md`
-- `docs/intent-preservation/PRE_CODING_GATE.md`
-- the selected task document under `docs/intent-preservation/tasks/`
+- `docs/README.md`
+- `docs/TRACEABILITY_MATRIX.md`
+- `docs/PRE_CODING_GATE.md`
+- the selected task document under `docs/11_tasks/`
 - the matching execution plan, context package, coding prompt, and validation report
 
 Coding must not start until the pre-coding gate has traceability, invariant impact, sensitive-data classification, contract/schema impact, privacy/legal impact, replay/determinism impact, external-service boundary impact, validation commands, and a pass or pass-with-documented-risk result.

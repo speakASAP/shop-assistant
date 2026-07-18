@@ -57,11 +57,11 @@
       "sa_g7_t1_frontend_goal": {
         "date": "2026-06-13",
         "status": "planned",
-        "task": "docs/intent-preservation/tasks/SA-G7-T1.md",
-        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md",
-        "context_package": "docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md",
-        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md",
-        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md",
+        "task": "docs/11_tasks/SA-G7-T1.md",
+        "execution_plan": "docs/21_execution_plans/EP-SA-G7-FRONTEND.md",
+        "context_package": "docs/13_context_packages/CP-SA-G7-FRONTEND.md",
+        "coding_prompt": "docs/14_prompts/PROMPT-SA-G7-FRONTEND.md",
+        "validation_report": "docs/12_validation/VAL-SA-G7-FRONTEND.md",
         "first_implementation_slice": "SA-G7-B auth shell and SA-G7-C current-user dashboard APIs"
       },
       "sa_g7_t1_current_user_api_foundation": {
@@ -631,11 +631,11 @@
       "sa_g5_lead_forwarding_resilience": {
         "date": "2026-06-13",
         "status": "implemented_build_passed_pending_deploy",
-        "task": "docs/intent-preservation/tasks/SA-G5-T1.md",
-        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G5-LEAD-FORWARDING.md",
-        "context_package": "docs/intent-preservation/context-packages/CP-SA-G5-LEAD-FORWARDING.md",
-        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G5-LEAD-FORWARDING.md",
-        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G5-LEAD-FORWARDING.md",
+        "task": "docs/11_tasks/SA-G5-T1.md",
+        "execution_plan": "docs/21_execution_plans/EP-SA-G5-LEAD-FORWARDING.md",
+        "context_package": "docs/13_context_packages/CP-SA-G5-LEAD-FORWARDING.md",
+        "coding_prompt": "docs/14_prompts/PROMPT-SA-G5-LEAD-FORWARDING.md",
+        "validation_report": "docs/12_validation/VAL-SA-G5-LEAD-FORWARDING.md",
         "migration": "prisma/migrations/20260613_add_lead_forwarding_status/migration.sql",
         "validation": "npm run prisma:generate passed; npm run build passed; npx prisma validate passed; static secret scan found no embedded secret values",
         "deployment_pending": "owner approval required before production deploy and migration apply"
@@ -1033,7 +1033,7 @@
       "sa_g7_t1_rollout_runbook": {
         "date": "2026-06-13",
         "status": "implemented_build_passed_reference_validation_passed",
-        "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "document": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "scope": [
           "source/build preflight",
           "owner-approved image build and push",
@@ -1054,7 +1054,7 @@
           "scripts/print-source-fingerprint.sh",
           "scripts/build-and-push-image.sh"
         ],
-        "document": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "document": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "source_fingerprint": "8f8760fb016ba36a6245d3f5f7fe941dbb7deae9626475b3fdb11ea50b42bfa3",
         "scope": [
           "standalone helper computes the source fingerprint over frontend, backend, Prisma, scripts, and build config inputs",
@@ -1068,7 +1068,7 @@
         "date": "2026-06-13",
         "status": "implemented_preflight_passed_no_deploy",
         "script": "scripts/sa-g7-rollout-preflight.sh",
-        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "runbook": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "source_fingerprint": "51cce4faa044fd1c908098a2fb54014e68b92a30ce7953493cc02970d6628ee6",
         "scope": [
           "checks source state, script syntax, source fingerprint, and npm build",
@@ -1127,7 +1127,7 @@
         "status": "source_audit_passed_combined_preflight_passed_no_deploy",
         "script": "scripts/sa-g7-source-audit.sh",
         "preflight": "scripts/sa-g7-rollout-preflight.sh",
-        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "runbook": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "checks_passed": 86,
         "git_head": "36481a9",
         "source_fingerprint": "ac30026de4509d65977c09de4a9544a85aff7ef4d74f3bb9dc8040e847c03a9f",
@@ -1155,7 +1155,7 @@
         "status": "implemented_validated_negative_missing_tokens",
         "script": "scripts/sa-g7-live-smoke.sh",
         "source_audit": "scripts/sa-g7-source-audit.sh",
-        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "runbook": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "mode": "REQUIRE_TOKEN_SMOKE=1",
         "normal_no_secret_smoke": "Failures: 0; Skipped optional checks: 3",
         "strict_missing_token_result": "STRICT_STATUS=1; failures for missing CUSTOMER_TOKEN, ADMIN_TOKEN, and NON_ADMIN_TOKEN",
@@ -1172,7 +1172,7 @@
         "status": "implemented_node_check_passed_source_audit_passed_playwright_missing_on_remote",
         "script": "scripts/sa-g7-browser-verify.js",
         "source_audit": "scripts/sa-g7-source-audit.sh",
-        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "runbook": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "source_audit_checks": 90,
         "coverage": [
           "public landing renders commercial/customer-dashboard copy",
@@ -1223,7 +1223,7 @@
           "scripts/sa-g7-browser-verify.js",
           "scripts/sa-g7-source-audit.sh"
         ],
-        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "runbook": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "token_file_env": [
           "CUSTOMER_TOKEN_FILE",
           "ADMIN_TOKEN_FILE",
@@ -1249,7 +1249,7 @@
           "scripts/sa-g7-strict-token-smoke.sh",
           "scripts/sa-g7-source-audit.sh"
         ],
-        "runbook": "docs/intent-preservation/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
+        "runbook": "docs/16_operations/SA-G7-FRONTEND-ROLLOUT-RUNBOOK.md",
         "token_dir_default": "/tmp/sa-g7-smoke-tokens",
         "output_env_default": ".env.sa-g7-smoke",
         "source_audit_checks": 103,
@@ -1297,8 +1297,8 @@
         "blocked_or_skipped": [
           "SA-G7 token-backed live customer/admin/non-admin checks require safe tokens and are intentionally skipped"
         ],
-        "validation_path": "docs/intent-preservation/validation-reports/VAL-SA-BACKLOG.md",
-        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-BACKLOG.md"
+        "validation_path": "docs/12_validation/VAL-SA-BACKLOG.md",
+        "execution_plan": "docs/21_execution_plans/EP-SA-BACKLOG.md"
       },
       "sa_g1_t1_feedback_zero_result_guidance": {
         "date": "2026-06-13",
@@ -1432,11 +1432,11 @@
       "sa_g2_t1_parallel_audit_plan": {
         "date": "2026-06-13",
         "status": "planned_parallel_ready",
-        "task": "docs/intent-preservation/tasks/SA-G2-T1.md",
-        "execution_plan": "docs/intent-preservation/execution-plans/EP-SA-G2-LEGAL-PRIVACY-AUDIT.md",
-        "context_package": "docs/intent-preservation/context-packages/CP-SA-G2-LEGAL-PRIVACY-AUDIT.md",
-        "coding_prompt": "docs/intent-preservation/coding-prompts/PROMPT-SA-G2-LEGAL-PRIVACY-AUDIT.md",
-        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "task": "docs/11_tasks/SA-G2-T1.md",
+        "execution_plan": "docs/21_execution_plans/EP-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "context_package": "docs/13_context_packages/CP-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "coding_prompt": "docs/14_prompts/PROMPT-SA-G2-LEGAL-PRIVACY-AUDIT.md",
+        "validation_report": "docs/12_validation/VAL-SA-G2-LEGAL-PRIVACY-AUDIT.md",
         "parallel_workstreams": [
           "documentation_and_ips_audit",
           "public_legal_surface_audit",
@@ -1452,7 +1452,7 @@
           "019ec2dd-1270-7f33-aeb9-c00bbca040bc",
           "019ec2dd-1782-7352-91b5-47d4ccfde693"
         ],
-        "next_task": "docs/intent-preservation/tasks/SA-G2-FIX-T1.md"
+        "next_task": "docs/11_tasks/SA-G2-FIX-T1.md"
       },
       "sa_g2_fix_t1_completed": {
         "date": "2026-06-14",
@@ -1463,7 +1463,7 @@
           "node --check scripts/sa-g7-chrome-browser-verify.js passed",
           "focused placeholder/token guidance scan passed"
         ],
-        "next_task": "docs/intent-preservation/tasks/SA-G2-FIX-T2.md"
+        "next_task": "docs/11_tasks/SA-G2-FIX-T2.md"
       },
       "sa_g2_fix_t2_completed": {
         "date": "2026-06-14",
@@ -1479,7 +1479,7 @@
       "sa_g2_fix_t3_completed": {
         "date": "2026-06-15",
         "status": "completed_build_passed_not_deployed",
-        "task": "docs/intent-preservation/tasks/SA-G2-FIX-T3.md",
+        "task": "docs/11_tasks/SA-G2-FIX-T3.md",
         "changed_source": [
           "src/admin/operations.controller.ts",
           "public/admin.html"
@@ -1496,7 +1496,7 @@
       "sa_g2_fix_t4_extensionless_legal_routes": {
         "date": "2026-06-21",
         "status": "deployed_strict_token_smoke_passed",
-        "task": "docs/intent-preservation/tasks/SA-G2-FIX-T4.md",
+        "task": "docs/11_tasks/SA-G2-FIX-T4.md",
         "changed_source": [
           "src/legal/legal.controller.ts",
           "src/main.ts",
@@ -1564,7 +1564,7 @@
         "evidence": [
           "reports/search/sa-g1-failed-search-top20-2026-06-21.json",
           "reports/search/sa-g1-live-no-results-validate-2026-06-21-constrained.json",
-          "docs/intent-preservation/handoffs/SA-G1-failed-search-refresh-handoff-2026-06-21.md"
+          "docs/16_operations/SA-G1-failed-search-refresh-handoff-2026-06-21.md"
         ],
         "sampled_zero_result_runs": 6,
         "unique_query_fingerprints": 6,
@@ -1579,7 +1579,7 @@
       "sa_g4_ux_report_refresh_20260621": {
         "date": "2026-06-21",
         "status": "complete_current_aggregate_report_generated",
-        "report": "docs/intent-preservation/reports/UX-SA-G4-T1-2026-06-21.md",
+        "report": "docs/16_operations/UX-SA-G4-T1-2026-06-21.md",
         "metrics": "reports/ux/sa-g4-t1-production-aggregate-metrics-2026-06-21.json",
         "sessions": 21,
         "search_runs": 15,
@@ -1592,7 +1592,7 @@
       "sa_g7_umbrella_closeout_20260621": {
         "date": "2026-06-21",
         "status": "complete_closed_from_existing_deployed_validation_evidence",
-        "validation_report": "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md",
+        "validation_report": "docs/12_validation/VAL-SA-G7-FRONTEND.md",
         "evidence": [
           "strict token-file smoke passed with Failures: 0 and Skipped optional checks: 0",
           "source audit passed 119 checks",
@@ -1604,10 +1604,10 @@
         "status": "complete_docs_only_no_deploy",
         "reason": "Align downstream SA-G7 execution plan, context package, coding prompt, and validation report metadata with closed SA-G7-T1 umbrella task.",
         "files": [
-          "docs/intent-preservation/execution-plans/EP-SA-G7-FRONTEND.md",
-          "docs/intent-preservation/context-packages/CP-SA-G7-FRONTEND.md",
-          "docs/intent-preservation/coding-prompts/PROMPT-SA-G7-FRONTEND.md",
-          "docs/intent-preservation/validation-reports/VAL-SA-G7-FRONTEND.md"
+          "docs/21_execution_plans/EP-SA-G7-FRONTEND.md",
+          "docs/13_context_packages/CP-SA-G7-FRONTEND.md",
+          "docs/14_prompts/PROMPT-SA-G7-FRONTEND.md",
+          "docs/12_validation/VAL-SA-G7-FRONTEND.md"
         ],
         "validation": [
           "metadata no longer marks SA-G7 downstream artifacts as draft/planning",
