@@ -21,7 +21,7 @@ data:
   # LOG_LEVEL: "info"
   DB_HOST: "db-server-postgres"
   DB_PORT: "5432"
-  DB_USER: "dbadmin"
+  DB_USER: "shop_assistant"
   DB_NAME: "shop_assistant"
   DB_SYNC: "false"
   DB_AUTO_CREATE: "true"
