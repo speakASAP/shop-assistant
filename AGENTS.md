@@ -1,47 +1,56 @@
-# Repository Agent Instructions
+# Agents: Shop Assistant
 
-Shared rules live here:
+## required reading
 
-- Codex profile: `/home/ssf/.codex/AGENTS.md`
-- Cross-agent standard: `/home/ssf/.ai-agent-standards/CROSS_AGENT_AUTOMATION_STANDARD.md`
-- Repository operations: `AGENT_OPERATIONS.md`
+Before implementation, read:
 
-Read those first, then follow the repository-specific notes below and the current planning/status files.
+- `README.md`
+- `BUSINESS.md`
+- `SYSTEM.md`
+- `AGENTS.md`
+- `AGENT_OPERATIONS.md`
+- `TASKS.md`
+- `STATE.json`
+- `docs/17_governance/PROJECT_INVARIANTS.md`
+- `docs/01_vision/VISION.md`
 
+## authority
 
-## Repository-Specific Notes
+Operators and agent workers may act only within the approved project intent, scope boundaries, and validation gates in this repository. Human approval is required for scope changes or production deployment decisions.
 
-# Agents: shop-assistant
+## intent preservation system
 
-## Intent Preservation System
+The project preserves the chain:
 
-Before any implementation work, agents must read and follow the Shop Assistant Intent Preservation System:
+`Vision -> Goal Impact -> System -> Feature -> Task -> Execution Plan -> Coding Prompt -> Code -> Validation`
 
-- `docs/README.md`
-- `docs/TRACEABILITY_MATRIX.md`
-- `docs/PRE_CODING_GATE.md`
-- the selected task document under `docs/11_tasks/`
-- the matching execution plan, context package, coding prompt, and validation report
+This is the binding requirement for planning, coding, and validation work.
 
-Coding must not start until the pre-coding gate has traceability, invariant impact, sensitive-data classification, contract/schema impact, privacy/legal impact, replay/determinism impact, external-service boundary impact, validation commands, and a pass or pass-with-documented-risk result.
+## safety and operations
 
-Preserve the product intent from `BUSINESS.md`, `SYSTEM.md`, `README.md`, `TASKS.md`, and `STATE.json`. Do not fabricate merchant URLs, expose secrets or raw production personal data, weaken admin JWT protection, remove GDPR/ePrivacy/EU AI Act transparency, or deploy to production without explicit owner approval in the active session.
+- Never commit secrets, credentials, or raw production data
+- Keep the system grounded in proven repository facts
+- Use `[MISSING: ...]` or `[UNKNOWN: ...]` instead of inventing facts
+- Keep validation debt separate from current-task failures
+- Prefer the narrowest valid validation command before broad test suites
 
-## Coordinator Config
+## project-specific rules
 
-```yaml
-model_tier: cheap
-cycle_interval_minutes: 60
-max_tasks_per_cycle: 5
-```
+- AI must not store user voice/text searches beyond session (privacy constraint)
+- External search API calls must be rate-limited
+- Search results must link to real merchant URLs — never fabricate links
+- Never commit `.env`; back it up before changes
+- Billing/payment creation must remain runtime-gated (SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE) until owner-approved checkout smoke passes
+- Consult docs/DEVELOPMENT.md, docs/API.md, docs/INTEGRATION.md before changing agent/search/admin behavior
 
-## Worker Pool Config
+## required final report
 
-```yaml
-max_concurrent_workers: 2
-default_model_tier: free
-allowed_mcp_servers: [filesystem, postgres]
-```
+The final task report must include:
 
-## Active Agents
-<!-- Coordinator-maintained -->
+- files changed
+- documents created or revised
+- validation commands and results
+- validation debt used or created
+- active blockers as `[MISSING: ...]` or `[UNKNOWN: ...]`
+- deviations from scope
+- next concrete action

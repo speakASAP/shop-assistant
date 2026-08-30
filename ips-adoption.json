@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "profile": "runtime-service",
+  "project": {
+    "name": "shop-assistant",
+    "repository": "https://github.com/speakASAP/shop-assistant.git"
+  },
+  "standard": {
+    "repository": "https://github.com/speakASAP/intent-preservation-system",
+    "revision": "3e36f64c11e31b878fd2fe09267426738b25ae7f"
+  },
+  "artifacts": {
+    "readme": "README.md",
+    "business": "BUSINESS.md",
+    "system": "SYSTEM.md",
+    "agents": "AGENTS.md",
+    "operations": "AGENT_OPERATIONS.md",
+    "claude": "CLAUDE.md",
+    "tasks": "TASKS.md",
+    "state": "STATE.json",
+    "constitution": "docs/00_constitution/CONSTITUTION.md",
+    "vision": "docs/01_vision/VISION.md",
+    "integrationContract": "docs/06_architecture/INTEGRATION_CONTRACT.md",
+    "projectInvariants": "docs/17_governance/PROJECT_INVARIANTS.md",
+    "validationDebt": "docs/orchestrator/VALIDATION_DEBT.md",
+    "bootstrapTask": "docs/11_tasks/TASK-001-bootstrap-service.md",
+    "bootstrapGoalImpact": "docs/22_goal_impact/GOAL-IMPACT-TASK-001.md",
+    "bootstrapExecutionPlan": "docs/21_execution_plans/EP-TASK-001-bootstrap-service.md",
+    "bootstrapValidation": "docs/12_validation/VAL-TASK-001-bootstrap-service.md"
+  },
+  "integrationReview": [
+    {
+      "capability": "auth",
+      "component": "auth-microservice",
+      "decision": "required",
+      "reason": "README.md and SYSTEM.md document AUTH_SERVICE_URL for JWT validation of admin and optional user-bound sessions.",
+      "contract": "JWT validation for admin routes and optional per-user session/profile association",
+      "configuration": "AUTH_SERVICE_URL",
+      "failureMode": "Auth outage blocks admin panel access; anonymous/public session search may continue depending on session ownership rules.",
+      "validation": "Admin JWT validation smoke checks."
+    },
+    {
+      "capability": "postgres",
+      "component": "database-server (db-server-postgres)",
+      "decision": "required",
+      "reason": "README.md/SYSTEM.md document PostgreSQL via DB_*/DATABASE_URL and Prisma for sessions, messages, search runs, results, choices, agent prompts, and lead requests.",
+      "contract": "Prisma-managed relational storage for sessions, messages, search state, prompts, and lead requests",
+      "configuration": "DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME or DATABASE_URL via database-server:5432",
+      "failureMode": "A database outage blocks session creation, search history, and lead storage.",
+      "validation": "Prisma migration status and connectivity checks."
+    },
+    {
+      "capability": "redis",
+      "component": "database-server (db-server-redis)",
+      "decision": "not-applicable",
+      "reason": ".env.example declares optional REDIS_HOST/REDIS_PORT/REDIS_PASSWORD/REDIS_DB variables, but no code reference to Redis was found in src/; the service does not currently use Redis."
+    },
+    {
+      "capability": "logging",
+      "component": "logging-microservice",
+      "decision": "required",
+      "reason": "README.md/SYSTEM.md document LOGGING_SERVICE_URL for centralized logging of operations and errors.",
+      "contract": "Structured log delivery per the platform logging contract",
+      "configuration": "LOGGING_SERVICE_URL",
+      "failureMode": "Logging outage degrades observability without blocking search or session operations.",
+      "validation": "Structured log delivery checks."
+    },
+    {
+      "capability": "notifications",
+      "component": "notifications-microservice",
+      "decision": "not-applicable",
+      "reason": "No notifications-microservice integration is documented in README.md, SYSTEM.md, or .env.example; lead notifications are delegated via leads-microservice, not a direct notifications integration."
+    },
+    {
+      "capability": "ai",
+      "component": "ai-microservice",
+      "decision": "required",
+      "reason": "README.md/SYSTEM.md document AI_SERVICE_URL for ASR, LLM query extraction/refinement, agent prompts, delegated external web search, and lead analysis (POST /api/process-submission).",
+      "contract": "ASR, LLM refinement, agent orchestration (COMMUNICATION/SEARCH/COMPARISON/LOCATION/PRESENTATION agents), and delegated Serper web search",
+      "configuration": "AI_SERVICE_URL",
+      "failureMode": "AI outage blocks voice transcription, query refinement, agent orchestration, and web search entirely, since search is delegated to ai-microservice.",
+      "validation": "ASR/LLM/agent-orchestration smoke tests via ai-microservice."
+    },
+    {
+      "capability": "payments",
+      "component": "payments-microservice",
+      "decision": "required",
+      "reason": "TASKS.md documents SA-G8-B2 billing/entitlement implementation with Prisma checkout/entitlement models and a runtime-gated payments client, and .env.example declares PAYMENTS_SERVICE_URL/PAYMENTS_API_KEY plus unified PAYMENT_* variables.",
+      "contract": "Checkout/entitlement flow with callback idempotency, gated by SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE",
+      "configuration": "PAYMENTS_SERVICE_URL, PAYMENTS_API_KEY, PAYMENT_CALLBACK_URL, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE",
+      "failureMode": "When payments-microservice is unavailable or the runtime gate is disabled, live payment creation is blocked; this is the intended safe default until owner-approved checkout smoke passes.",
+      "validation": "Build/Prisma/diff/no-secret validation passed per TASKS.md; live checkout smoke remains pending owner approval."
+    },
+    {
+      "capability": "catalog",
+      "component": "catalog-microservice",
+      "decision": "not-applicable",
+      "reason": "shop-assistant searches the open internet for products via ai-microservice-delegated search; it does not integrate with the internal catalog-microservice for its own product data."
+    },
+    {
+      "capability": "orders",
+      "component": "orders-microservice",
+      "decision": "not-applicable",
+      "reason": "No orders-microservice integration is documented; shop-assistant redirects users to external merchant pages rather than creating internal orders."
+    },
+    {
+      "capability": "warehouse",
+      "component": "warehouse-microservice",
+      "decision": "not-applicable",
+      "reason": "No warehouse/inventory integration exists in this repository."
+    },
+    {
+      "capability": "invoices",
+      "component": "invoices-microservice",
+      "decision": "not-applicable",
+      "reason": "No invoicing integration exists in this repository; billing uses payments-microservice's checkout/entitlement model directly."
+    },
+    {
+      "capability": "object-storage",
+      "component": "minio-microservice",
+      "decision": "not-applicable",
+      "reason": "No object-storage environment variable or code reference was found in .env.example or src/."
+    },
+    {
+      "capability": "event-bus",
+      "component": "RabbitMQ",
+      "decision": "not-applicable",
+      "reason": "No message-broker environment variable or code reference was found in .env.example or src/."
+    },
+    {
+      "capability": "docs-rag",
+      "component": "docs-rag-microservice",
+      "decision": "required",
+      "reason": "This service is a documentation-onboarded ecosystem repository and should be discoverable via docs-rag-microservice, consistent with other onboarded services.",
+      "contract": "Direct Git repository ingestion and repository-scoped retrieval",
+      "configuration": "Tracked in the canonical repository registry and docs-RAG index",
+      "failureMode": "When docs-RAG is unavailable, Git remains authoritative.",
+      "validation": "Repository documents resolve to the owning repository path and remain discoverable."
+    },
+    {
+      "capability": "monitoring",
+      "component": "monitoring-microservice",
+      "decision": "required",
+      "reason": "Runtime health and rollout readiness must be observable through the shared monitoring model, consistent with the documented GET /health endpoint and blue/green deployment.",
+      "contract": "GET /health and Kubernetes readiness checks for rollout control",
+      "configuration": "Deployment probes and health endpoint in k8s manifests",
+      "failureMode": "An unhealthy service is prevented from passing rollout readiness and is reported to the owner.",
+      "validation": "The monitoring stack confirms health, readiness, and service availability."
+    },
+    {
+      "capability": "backups",
+      "component": "backups-microservice",
+      "decision": "required",
+      "reason": "This service's PostgreSQL database (shop_assistant) holds production session, search, lead, and billing/entitlement data and requires backup coverage consistent with other ecosystem databases.",
+      "contract": "Scheduled/manual PostgreSQL backups for the shop_assistant database",
+      "configuration": "backup-db.sh or equivalent invoked against the shop_assistant database",
+      "failureMode": "Missed backups increase data-loss risk on failure; this must be flagged as an operational blocker if backup automation lapses.",
+      "validation": "Backup script execution and restore-drill evidence."
+    }
+  ]
+}
