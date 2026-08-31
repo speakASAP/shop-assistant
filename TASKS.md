@@ -2,16 +2,13 @@
 
 This file is the concise human-readable work queue. Detailed task contracts live under `docs/11_tasks/` and execution records remain linked there.
 
-## active
-
+## Active
 - None currently active per STATE.json (tasks_active not reported as nonzero; last_milestone reflects completed work).
 
-## ready next
-
+## Ready Next
 - Live authenticated checkout smoke for the SA-G8-B2 billing/entitlement flow, gated by runtime keys, callback token, public URL allowlist, and owner approval.
 
-## blocked
-
+## Blocked
 - Live payment creation remains gated by runtime keys, callback token, public URL allowlist, and an owner-approved checkout smoke test (TASKS.md SA-G8-B2).
 
 ## completed
