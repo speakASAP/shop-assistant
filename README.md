@@ -46,7 +46,7 @@ shop-assistant is an active production service (STATE.json: stage active) provid
 ## deployment
 
 - Deploy command: `./scripts/deploy.sh`
-- Uses docker-compose.blue.yml and docker-compose.green.yml; calls nginx-microservice/scripts/blue-green/deploy-smart.sh shop-assistant
+- Deployment and ingress routing are automatic through the serialized deploy queue and Traefik; the retired nginx-microservice blue-green script no longer exists
 - Target: Kubernetes (k3s) `statex-apps` namespace
 - First deploy requires creating the `shop_assistant` PostgreSQL database before `prisma migrate deploy` runs on container start
 
