@@ -1,20 +1,4 @@
 {
-  "schemaVersion": 1,
-  "project": "shop-assistant",
-  "lifecycle": "active",
-  "health": "healthy",
-  "activeTask": "None active; monitoring the owner-gated SA-G8-B2 billing/entitlement checkout follow-up",
-  "lastUpdated": "2026-08-30",
-  "deployment": {
-    "status": "commit-triggered-auto-queue",
-    "image": null,
-    "revision": null
-  },
-  "blockers": [],
-  "followUps": [
-    "Live authenticated checkout smoke for the SA-G8-B2 billing/entitlement flow remains pending owner approval",
-    "IPS adoption profile completed 2026-08-30; run the planning validator before further scope changes"
-  ],
   "schema_version": "1.0",
   "repository": "shop-assistant",
   "service": {

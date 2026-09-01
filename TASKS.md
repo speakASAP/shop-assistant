@@ -7,6 +7,7 @@ This file is the concise human-readable work queue. Detailed task contracts live
 
 ## Ready Next
 - Live authenticated checkout smoke for the SA-G8-B2 billing/entitlement flow, gated by runtime keys, callback token, public URL allowlist, and owner approval.
+- IPS adoption profile completed 2026-08-30; run the planning validator before further scope changes
 
 ## Blocked
 - Live payment creation remains gated by runtime keys, callback token, public URL allowlist, and an owner-approved checkout smoke test (TASKS.md SA-G8-B2).
