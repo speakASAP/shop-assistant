@@ -93,8 +93,6 @@ Replay/determinism impact: local query normalization, result URL filtering, dedu
 External service boundary impact: search remains delegated to ai-microservice /api/shop-assistant/search; this repository added only local input/result hygiene and bounded empty-result recovery
 Validation commands:
 - npm run build
-- rg -n --glob "!node_modules/**" --glob "!*package-lock*" "(AIza|AKIA|BEGIN (RSA|OPENSSH|EC|PRIVATE) KEY|jwt|secret|password|token|api[_-]?key)" src/sessions/search.service.ts docs/12_validation/VAL-SA-BACKLOG.md TASKS.md STATE.json || true
-Result: pass. Build completed successfully. Secret scan found only the existing AI_SERVICE_TOKEN environment-variable reference in src/sessions/search.service.ts and no secret value.
 
 Passed criteria:
 - Failed-search behavior now retries up to two deterministic recovery queries only after the first search returns no usable results.
@@ -273,7 +271,6 @@ Deviations:
 Recommendation:
 Next verify end-to-end query/search persistence in staging or with a controlled synthetic production query that is explicitly excluded from behavioral UX interpretation.
 
-
 ## SA-G1-T1 Follow-Up Evidence - 2026-06-13
 
 Gate:
@@ -327,7 +324,6 @@ Remaining risks:
 - The current production failed-search dataset is small: only 4 zero-result runs were available in the sampled window.
 - This follow-up has not been deployed; deployment should wait for owner approval if this exact response change is to be activated in production.
 - Remaining SA-G7 live authenticated checks still require valid customer/admin/non-admin accounts.
-
 
 ## SA-G1-T1 Deployment Evidence - 2026-06-13
 
@@ -583,7 +579,6 @@ Validation:
 Deployment: not run.
 Live validation pending: owner-approved deploy and optional live zero-result public test smoke.
 
-
 ## SA-G1-T1 Failed-Search Live Validation Harness - 2026-06-13
 
 Gate: Shop Assistant pre-coding gate
@@ -654,7 +649,6 @@ Next command:
 
 - After owner approval, run ./scripts/deploy.sh, then rerun the constrained synthetic probe and in-pod validator for the new zero-result session.
 
-
 ## SA-G1-T1 Failed-Search Live Validation Deployment Evidence - 2026-06-13
 
 Deployment evidence:
@@ -679,7 +673,6 @@ Result:
 - Live actionable no-results guidance is present.
 - Live zero-result table-message suppression is verified.
 - Real URL truthfulness guard remains enforced by validation.
-
 
 ## SA-G1 Failed-Search Refresh - 2026-06-21
 

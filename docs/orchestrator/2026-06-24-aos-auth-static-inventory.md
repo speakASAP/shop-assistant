@@ -27,7 +27,6 @@ Central standard: `/home/ssf/Documents/Github/auth-microservice/docs/HOSTED_AUTH
 - Backend guards: `src/auth/jwt-auth.guard.ts` requires `Authorization: Bearer`, attaches Auth user data to `request.user`, and returns 401 on missing/invalid tokens. `src/auth/roles.guard.ts` enforces role strings from Auth claims and returns 403 on insufficient roles.
 - Protected API surfaces: `src/me/*`, `src/profiles/*`, saved criteria, and admin controllers use `JwtAuthGuard`; admin operations combine `JwtAuthGuard` and `RolesGuard`.
 - Local credential controller: `src/auth/auth.controller.ts` explicitly documents that there is no Shop Assistant login/register controller.
-- Service-token boundaries: AI/search/leads service clients set bearer headers from runtime configuration; these are machine/service integration paths and separate from hosted human login migration.
 
 ## Comparison To Hosted Auth Consumer Standard
 
@@ -45,7 +44,6 @@ Central standard: `/home/ssf/Documents/Github/auth-microservice/docs/HOSTED_AUTH
 | A. Dedicated callback adapter alignment | ready now | Shop Assistant frontend auth worker | `public/login.html`, `public/register.html`, `public/dashboard.html`, `public/admin.html`, docs/tests | secrets, token files, production data, deployment files | use a dedicated `/auth/callback` handoff or document approved static-page callback exception | `[UNKNOWN: whether static callback exception is acceptable]` | static route scan and browser hash/state tests |
 | B. BFF/httpOnly session design | dependency-gated | Shop Assistant backend/frontend integration worker | session handoff route and protected page token retrieval design | Prisma/data migrations unless explicitly approved | move from `sessionStorage` token to server-owned session cookie | `[MISSING: approved session model for static pages]` | callback tests, no raw token marker scan |
 | C. Guard and ownership validation | ready now | Shop Assistant API validation worker | `src/auth/*`, `src/me/*`, `src/profiles/*`, admin controllers | live DB rows, token-file contents | prove 401/403 and account ownership behavior with synthetic or mocked tokens | safe token/mock strategy | targeted unit/static tests and unauthenticated checks |
-| D. Service-token boundary inventory | ready now | Integration boundary worker | AI/search/leads service client auth headers | secret values and runtime env output | classify machine-token paths separately from human Auth migration | none | static summary only, no secret output |
 
 ## Blockers And Unknowns
 
