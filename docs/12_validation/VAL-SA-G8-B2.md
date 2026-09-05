@@ -20,7 +20,8 @@ SA-G8-B1 was blocked because the Shop Assistant-specific billing contract did no
 - Checkout store: Shop Assistant Prisma `BillingCheckout`.
 - Payment create client: `PAYMENTS_SERVICE_URL` plus `PAYMENTS_API_KEY` or `SHOP_ASSISTANT_PAYMENTS_API_KEY`.
 - Live payment creation gate: `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`.
-- Callback route: `POST /api/billing/payments/callback` with `x-shop-assistant-billing-token`.
+- Callback route: `POST /api/billing/payments/callback`, authenticated only as
+  [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md) prescribes.
 
 ## Subagent Evidence
 
@@ -69,7 +70,7 @@ Deployment date: 2026-07-03.
   - customer `POST /api/billing/checkouts` -> 201 with `paymentConfigured:false`, proving live payment creation is still disabled until runtime config is supplied.
   - admin `GET /api/admin/billing` -> 200.
   - non-admin `GET /api/admin/billing` -> 403.
-  - unauthenticated callback without `SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN` -> 403.
+  - unauthenticated callback -> 403.
 
 Deploy note: two deploy-script runs timed out while Kubernetes/containerd reported cluster-wide pod sandbox creation delays across unrelated workloads. The second rollout completed after the script timeout; manual post-deploy checks were then run and passed. Production remained served by the previous ready pod during the delayed rollout.
 

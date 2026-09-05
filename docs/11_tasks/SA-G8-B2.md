@@ -25,7 +25,9 @@ Validation: `docs/12_validation/VAL-SA-G8-B2.md`.
 - Checkout source of truth: Shop Assistant Prisma `BillingCheckout` correlated by `orderId` and optional `paymentId`.
 - Payment provider source: `payments-microservice` `POST /payments/create` and callback payloads.
 - Payment callback route: `POST /api/billing/payments/callback`.
-- Callback authentication: `x-shop-assistant-billing-token` matched to `SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN`.
+- Callback authentication: the payments callback is a service-to-service call, authenticated only as
+  [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md) prescribes. A static shared token or a
+  custom `x-*-token` header is not an accepted substitute.
 - Runtime payment creation is disabled unless `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, `PAYMENTS_SERVICE_URL`, and `PAYMENTS_API_KEY` or `SHOP_ASSISTANT_PAYMENTS_API_KEY` are configured.
 - Plans are source-owned non-secret defaults: `shop-assistant-pro-monthly` and `shop-assistant-business-monthly`.
 
