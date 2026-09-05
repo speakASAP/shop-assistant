@@ -2,7 +2,17 @@
   "schema_version": "1.0",
   "repository": "shop-assistant",
   "generated_at": "2026-08-31T18:25:00Z",
-  "artifacts": [],
+  "artifacts": [
+    {
+      "id": "EP-SA-G8-SALES-READINESS",
+      "type": "execution_plan",
+      "status": "active",
+      "title": "Sales Readiness",
+      "path": "docs/21_execution_plans/EP-SA-G8-SALES-READINESS.md",
+      "parent_ids": [],
+      "updated_at": "2026-07-03T00:00:00Z"
+    }
+  ],
   "warnings": [
     "MISSING_RUNLAYER_PROJECT_MAPPING: RunLayer mapping is not yet verified for shop-assistant."
   ]

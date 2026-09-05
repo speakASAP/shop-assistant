@@ -11,9 +11,10 @@
     "AGENTS.md",
     "AGENT_OPERATIONS.md",
     "BUSINESS.md",
+    "STATE.json",
     "SYSTEM.md",
     "TASKS.md",
-    "STATE.json",
+    "docs/21_execution_plans/EP-SA-G8-SALES-READINESS.md",
     "docs/registry/ARTIFACT_INDEX.json",
     "docs/registry/REPOSITORY_PROFILE.json"
   ],
