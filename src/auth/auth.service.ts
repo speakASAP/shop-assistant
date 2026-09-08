@@ -27,7 +27,7 @@ export class AuthService {
    */
   async validateToken(token: string): Promise<AuthUser> {
     if (!this.authServiceUrl) {
-      this.logging.warn('AUTH_SERVICE_URL not set, cannot validate token', { context: 'AuthService.validateToken' });
+      this.logging.error('AUTH_SERVICE_URL not set, cannot validate token', { context: 'AuthService.validateToken' });
       throw new UnauthorizedException('Authentication service not configured');
     }
     const url = `${this.authServiceUrl.replace(/\/$/, '')}/auth/validate`;
