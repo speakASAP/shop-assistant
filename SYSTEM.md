@@ -56,7 +56,7 @@ shop-assistant is the ecosystem's AI shopping assistant, orchestrating voice/tex
 - PostgreSQL via DB_*/DATABASE_URL and Prisma for sessions, messages, search data, lead requests, and (future) profiles/saved criteria
 - logging-microservice via LOGGING_SERVICE_URL for central logging
 - leads-microservice via LEADS_SERVICE_URL for contact/voice lead submissions
-- payments-microservice via PAYMENTS_SERVICE_URL/PAYMENTS_API_KEY (or unified PAYMENT_* variables), gated by SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE
+- payments-microservice via `PAYMENTS_SERVICE_URL` and an Auth-issued pair RS256 Bearer per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md), gated by `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE`
 - Optional Redis via REDIS_HOST/REDIS_PORT/REDIS_PASSWORD/REDIS_DB (declared in .env.example but no code reference found)
 
 ## upstream traceability

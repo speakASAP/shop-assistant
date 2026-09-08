@@ -18,7 +18,7 @@ SA-G8-B1 was blocked because the Shop Assistant-specific billing contract did no
 - Auth identity: hosted Auth `user.id`.
 - Entitlement store: Shop Assistant Prisma `UserEntitlement`.
 - Checkout store: Shop Assistant Prisma `BillingCheckout`.
-- Payment create client: `PAYMENTS_SERVICE_URL` plus `PAYMENTS_API_KEY` or `SHOP_ASSISTANT_PAYMENTS_API_KEY`.
+- Payment create client: `PAYMENTS_SERVICE_URL` plus Auth-issued pair RS256 Bearer per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md) (not `PAYMENTS_API_KEY` / `X-API-Key`).
 - Live payment creation gate: `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`.
 - Callback route: `POST /api/billing/payments/callback`, authenticated only as
   [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md) prescribes.
@@ -37,7 +37,7 @@ npm run prisma:generate
 DATABASE_URL=postgresql://user:pass@localhost:5432/shop_assistant npx prisma validate
 npm run build
 git diff --check
-rg -n "sk_live|pk_live|PAYMENTS_API_KEY=|SHOP_ASSISTANT_PAYMENTS_API_KEY=|SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN=|Bearer [A-Za-z0-9._-]+|BEGIN (RSA|OPENSSH|PRIVATE) KEY" src/billing public/dashboard.html prisma/schema.prisma docs/11_tasks/SA-G8-B2.md docs/12_validation/VAL-SA-G8-B2.md || true
+rg -n "sk_live|pk_live|SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN=|Bearer [A-Za-z0-9._-]+|BEGIN (RSA|OPENSSH|PRIVATE) KEY" src/billing public/dashboard.html prisma/schema.prisma docs/11_tasks/SA-G8-B2.md docs/12_validation/VAL-SA-G8-B2.md || true
 ```
 
 Results:
@@ -78,9 +78,9 @@ Deploy note: two deploy-script runs timed out while Kubernetes/containerd report
 
 Payment runtime wiring was completed after the initial B2 deployment:
 
-- `PAYMENTS_SERVICE_URL` and scoped Payments API key are deployed for Shop Assistant; public `GET /api/billing/plans` reported `hasPaymentsServiceUrl:true`, `hasPaymentsApiKey:true`.
+- `PAYMENTS_SERVICE_URL` and Auth-issued pair RS256 Bearer (per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md)) are the live Payments S2S lane for Shop Assistant; public `GET /api/billing/plans` reported `hasPaymentsServiceUrl:true` and payment-create readiness. Historical probe field `hasPaymentsApiKey` is not the S2S protocol.
 - Shop Assistant public URL is deployed as `https://shop-assistant.alfares.cz`; `/payments/validate-create` accepted callback, success, and cancel origins for `applicationId=shop-assistant` with `mutation:false` and `providerCall:false`.
-- Payments callback key map now includes `shop-assistant`; no secret values were printed in validation output.
+- Payments application allowlist includes `shop-assistant`; no secret values were printed in validation output.
 
 ## First Approved Checkout Smoke 2026-07-03
 
@@ -118,7 +118,7 @@ Limitation: this verifies Shop Assistant trusted callback authentication, checko
 
 ## Marathon-Parity Card/Stripe Checkout Smoke 2026-07-03
 
-The owner approved using the Marathon payment parameters/solution for Shop Assistant. Runtime comparison confirmed Marathon uses the central Payments service with `PAYMENT_APPLICATION_ID=marathon`, `PAYMENT_DEFAULT_METHOD=stripe`, and a Marathon callback URL; Shop Assistant uses the same central Payments service with `PAYMENT_APPLICATION_ID=shop-assistant`, a Shop Assistant callback key, and the Shop Assistant public callback origin. Secret values were not printed; only presence, length, and fingerprints were inspected.
+The owner approved using the Marathon payment parameters/solution for Shop Assistant. Runtime comparison confirmed Marathon uses the central Payments service with `PAYMENT_APPLICATION_ID=marathon`, `PAYMENT_DEFAULT_METHOD=stripe`, and a Marathon callback URL; Shop Assistant uses the same central Payments service with `PAYMENT_APPLICATION_ID=shop-assistant`, Auth-issued pair RS256 Bearer S2S per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md), and the Shop Assistant public callback origin. Secret values were not printed; only presence, length, and fingerprints were inspected.
 
 The orchestrator temporarily enabled `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, created one `stripe` checkout and one `card` checkout through Shop Assistant, verified both returned Stripe-hosted checkout URLs, then restored payment creation to `false`. The checkout URLs were not followed and no payment was completed.
 
@@ -134,7 +134,7 @@ Limitation: this proves Shop Assistant can create Stripe-hosted checkout session
 
 ## Permanent Payment Create Enablement 2026-07-03
 
-The owner directed permanent enablement of `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`. The source-owned Kubernetes ConfigMap now sets the flag to `true`, so public paid checkout is enabled after deployment as long as the already-validated Payments service URL and scoped API key remain configured.
+The owner directed permanent enablement of `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`. The source-owned Kubernetes ConfigMap now sets the flag to `true`, so public paid checkout is enabled after deployment as long as the already-validated `PAYMENTS_SERVICE_URL` and Auth-issued pair RS256 Bearer remain configured per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md).
 
 Final enablement deploy evidence:
 
@@ -142,7 +142,7 @@ Final enablement deploy evidence:
 - Kubernetes ConfigMap `shop-assistant-config` now stores `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`.
 - Deploy command: `./scripts/deploy.sh` completed successfully on 2026-07-03.
 - Independent final checks after rollout settled: `/` -> HTTP 200, `/health` -> HTTP 200, `/api/billing/plans` -> HTTP 200.
-- Public billing configuration now reports `hasPaymentsServiceUrl:true`, `hasPaymentsApiKey:true`, `paymentCreateEnabled:true`.
+- Public billing configuration now reports `hasPaymentsServiceUrl:true`, `paymentCreateEnabled:true` (S2S auth is Auth-issued pair RS256 Bearer per SPOT above; do not treat `hasPaymentsApiKey` as the live protocol).
 - Public plans still expose `card`, `stripe`, and `invoice` methods for `shop-assistant-pro-monthly` and `shop-assistant-business-monthly`.
 - Running pod: `shop-assistant-695d76d5d4-gtbvk`, ready `1/1`, restarts `0`.
 

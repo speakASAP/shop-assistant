@@ -41,7 +41,7 @@ shop-assistant is an active production service (STATE.json: stage active) provid
 - All configuration via `.env`; see `.env.example` for keys (no secrets in example)
 - Backup `.env` before changes; never commit `.env`
 - Company/legal info loaded from `.env` at runtime (COMPANY_LEGAL_NAME, COMPANY_ICO, COMPANY_DIC, COMPANY_ADDRESS, COMPANY_PHONE, LEGAL_EMAIL, PRIVACY_EMAIL, DPO_EMAIL, LEGAL_JURISDICTION)
-- Billing/payments gated by SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE, PAYMENTS_SERVICE_URL/PAYMENTS_API_KEY (or PAYMENT_* unified variables)
+- Billing/payments gated by `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE` and `PAYMENTS_SERVICE_URL`; machine auth is Auth-issued pair RS256 Bearer only — [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md)
 
 ## deployment
 

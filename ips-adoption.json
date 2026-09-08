@@ -85,9 +85,9 @@
       "capability": "payments",
       "component": "payments-microservice",
       "decision": "required",
-      "reason": "TASKS.md documents SA-G8-B2 billing/entitlement implementation with Prisma checkout/entitlement models and a runtime-gated payments client, and .env.example declares PAYMENTS_SERVICE_URL/PAYMENTS_API_KEY plus unified PAYMENT_* variables.",
+      "reason": "SA-G8-B2 billing/entitlement via Prisma checkout models and a runtime-gated payments client. Machine auth is Auth-issued pair RS256 Bearer only (SERVICE_IDENTITY_CONSUMER_STANDARD.md).",
       "contract": "Checkout/entitlement flow with callback idempotency, gated by SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE",
-      "configuration": "PAYMENTS_SERVICE_URL, PAYMENTS_API_KEY, PAYMENT_CALLBACK_URL, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE",
+      "configuration": "PAYMENTS_SERVICE_URL, Auth-issued pair RS256 Bearer env key (Vault→ESO), PAYMENT_CALLBACK_URL, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE",
       "failureMode": "When payments-microservice is unavailable or the runtime gate is disabled, live payment creation is blocked; this is the intended safe default until owner-approved checkout smoke passes.",
       "validation": "Build/Prisma/diff/no-secret validation passed per TASKS.md; live checkout smoke remains pending owner approval."
     },

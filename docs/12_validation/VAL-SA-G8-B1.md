@@ -43,19 +43,19 @@ Verified gaps for Shop Assistant:
 - Read-only searches in `payments-microservice`, `auth-microservice`, `orders-microservice`, `invoices-microservice`, and `shop-assistant` found no Shop Assistant-specific payment, entitlement, subscription, quota, or billing-profile contract.
 - Shop Assistant `prisma/schema.prisma` has no billing, checkout, subscription, entitlement, plan, quota, or payment callback model.
 - Shop Assistant has no billing module, payment client, entitlement guard, checkout endpoint, payment callback endpoint, or admin/customer billing UI.
-- No non-secret source document verified `shop-assistant` in the payments application allowlist, callback origin allowlist, payment API key scope, pricing/SKU registry, entitlement lifecycle, or hosted Auth user-to-billing mapping.
+- No non-secret source document verified `shop-assistant` in the payments application allowlist, callback origin allowlist, service-identity roles for `payments:create` / `payments:read`, pricing/SKU registry, entitlement lifecycle, or hosted Auth user-to-billing mapping.
 
 ## Decision
 
 Implementation is blocked. The verified Alfares payment service is sufficient to design against, but not sufficient to safely implement a sellable entitlement gate for Shop Assistant because the Shop Assistant-specific commercial contract is missing.
 
-Adding source now would require inventing at least one behavior-affecting contract: paid plan identity, amount/currency/payment method, `applicationId`, callback URL authorization, runtime API key scope, webhook/callback verification, entitlement activation semantics, and free-vs-paid limits. The SA-G8-B1 prompt explicitly forbids inventing those contracts.
+Adding source now would require inventing at least one behavior-affecting contract: paid plan identity, amount/currency/payment method, `applicationId`, callback URL authorization, Auth-issued pair RS256 Bearer service-identity roles, webhook/callback verification, entitlement activation semantics, and free-vs-paid limits. The SA-G8-B1 prompt explicitly forbids inventing those contracts.
 
 ## Required Blockers
 
-- [MISSING: Shop Assistant payment application contract in payments-microservice, including canonical `applicationId`, allowed callback/success/cancel origins, and runtime API key scopes `payments:create` and `payments:read`].
+- [MISSING: Shop Assistant payment application contract in payments-microservice, including canonical `applicationId`, allowed callback/success/cancel origins, and Auth-issued pair RS256 Bearer roles `payments:create` and `payments:read` per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md)].
 - [MISSING: sellable plan catalog for Shop Assistant, including plan codes, price amounts, currency, allowed payment methods, billing period, trial/free tier, refund/cancellation policy, and entitlement limits].
-- [MISSING: payment callback contract for Shop Assistant, including route, auth/signature/shared-secret model, retry/idempotency requirements, terminal statuses that activate/deactivate access, and duplicate-callback handling].
+- [MISSING: payment callback contract for Shop Assistant, including route, Auth-issued pair RS256 Bearer auth per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md), retry/idempotency requirements, terminal statuses that activate/deactivate access, and duplicate-callback handling].
 - [MISSING: hosted Auth billing identity mapping, including whether entitlements key by Auth user id, account id, tenant id, or organization id].
 - [MISSING: source of truth for entitlement storage: Shop Assistant Prisma models vs Auth/customer wallet vs another billing service].
 - [MISSING: admin operation rules for granting, revoking, extending, or viewing entitlements without exposing payment secrets or raw provider payloads].
@@ -67,7 +67,7 @@ Minimum sellable path:
 
 1. Add Shop Assistant billing config with a hardcoded non-secret plan allowlist loaded from source or safe `AppSetting` values. Do not place prices or provider credentials in frontend code unless they are public display values.
 2. Add Prisma persistence owned by Shop Assistant only if the owner confirms this service owns entitlements: `BillingCheckout` and `UserEntitlement`, with unique/idempotency indexes on `orderId`, `paymentId`, and active entitlement per `userId` where practical.
-3. Add a server-only `PaymentsClient` using runtime-only `PAYMENTS_SERVICE_URL`, `PAYMENTS_API_KEY`, `SHOP_ASSISTANT_PUBLIC_BASE_URL`, and optional `SHOP_ASSISTANT_PAYMENT_METHODS`; never log or expose the API key.
+3. Add a server-only `PaymentsClient` using runtime-only `PAYMENTS_SERVICE_URL`, Auth-issued pair RS256 Bearer per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md), `SHOP_ASSISTANT_PUBLIC_BASE_URL`, and optional `SHOP_ASSISTANT_PAYMENT_METHODS`; never log or expose the credential.
 4. Add authenticated customer endpoints: `GET /api/billing/plans`, `POST /api/billing/checkouts`, and `GET /api/billing/entitlement`.
 5. Add `POST /api/billing/payments/callback` only after callback auth is verified; make it idempotent and activate entitlements only from trusted terminal `completed` status.
 6. Add `EntitlementsGuard` or service checks only after entitlement persistence exists. Keep anonymous public search compatible unless owner explicitly changes it.

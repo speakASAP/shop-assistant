@@ -27,7 +27,7 @@ Validation: `docs/12_validation/VAL-SA-G8-B2.md`.
 - Payment callback route: `POST /api/billing/payments/callback`.
 - Callback authentication: the payments callback is a service-to-service call governed only by
   [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md).
-- Runtime payment creation is disabled unless `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true`, `PAYMENTS_SERVICE_URL`, and `PAYMENTS_API_KEY` or `SHOP_ASSISTANT_PAYMENTS_API_KEY` are configured.
+- Runtime payment creation is disabled unless `SHOP_ASSISTANT_BILLING_ENABLE_PAYMENT_CREATE=true` and `PAYMENTS_SERVICE_URL` are set, with Auth-issued pair RS256 Bearer per the standard above (not API-key / `X-API-Key`).
 - Plans are source-owned non-secret defaults: `shop-assistant-pro-monthly` and `shop-assistant-business-monthly`.
 
 ## Parallel Execution
@@ -41,7 +41,7 @@ Validation: `docs/12_validation/VAL-SA-G8-B2.md`.
 
 ## Remaining Gates
 
-- Runtime payment API key, public URL, and callback-key wiring were validated on 2026-07-03.
+- Runtime `PAYMENTS_SERVICE_URL`, public URL, and Auth-issued pair RS256 Bearer wiring (per [`SERVICE_IDENTITY_CONSUMER_STANDARD.md`](../../../auth-microservice/docs/SERVICE_IDENTITY_CONSUMER_STANDARD.md)) were validated on 2026-07-03.
 - First approved live checkout smoke was completed with a non-card `invoice` payment; payment creation was later permanently enabled by owner direction on 2026-07-03.
 - Approved synthetic terminal callback smoke was completed on 2026-07-03; entitlement activation/idempotency passed for the smoke checkout.
 - Card/Stripe checkout-session creation smoke passed on 2026-07-03 with Stripe-hosted redirect URLs; sessions were not paid.
