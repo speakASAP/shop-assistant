@@ -1,18 +1,24 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoggingService } from '../logging/logging.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthUser } from '../auth/auth.interface';
 import { BILLING_PLANS, BillingPlan, getBillingPlan, SHOP_ASSISTANT_APPLICATION_ID } from './plans';
 import { PaymentsClientService } from './payments-client.service';
 const ACTIVE_PAYMENT_STATUSES = new Set(['completed', 'paid', 'succeeded', 'success']);
 const FAILED_PAYMENT_STATUSES = new Set(['failed', 'cancelled', 'canceled', 'expired', 'refunded']);
+const BILLING_CALLBACK_SERVICE_ROLES = ['internal:shop-assistant:service', 'internal:shop-assistant:admin'] as const;
 @Injectable()
 export class BillingService {
   private readonly publicBaseUrl = (process.env.SHOP_ASSISTANT_PUBLIC_BASE_URL || process.env.PUBLIC_BASE_URL || '').replace(/\/$/, '');
-  private readonly callbackToken = process.env.SHOP_ASSISTANT_BILLING_CALLBACK_TOKEN || process.env.PAYMENT_WEBHOOK_API_KEY || '';
-  constructor(private readonly prisma: PrismaService, private readonly payments: PaymentsClientService, private readonly logging: LoggingService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly payments: PaymentsClientService,
+    private readonly logging: LoggingService,
+    private readonly auth: AuthService,
+  ) {}
   listPlans() { return { applicationId: SHOP_ASSISTANT_APPLICATION_ID, plans: BILLING_PLANS, paymentConfiguration: this.payments.configurationStatus() }; }
   async getEntitlement(userId: string) {
     const now = new Date();
@@ -37,7 +43,7 @@ export class BillingService {
     return { paymentConfigured: true, checkout: updated, redirectUrl: payment.redirectUrl };
   }
   async handlePaymentCallback(headers: Record<string, string | string[] | undefined>, body: any) {
-    this.assertCallbackAuthorized(headers);
+    await this.assertCallbackAuthorized(headers);
     const paymentId = String(body?.paymentId || '').trim();
     const orderId = String(body?.orderId || '').trim();
     const status = String(body?.status || '').trim().toLowerCase();
@@ -57,6 +63,24 @@ export class BillingService {
   async listAdminBilling(limit = 50) { const take = Math.max(1, Math.min(100, limit)); const [checkouts, entitlements] = await Promise.all([this.prisma.billingCheckout.findMany({ orderBy: { createdAt: 'desc' }, take }), this.prisma.userEntitlement.findMany({ orderBy: { updatedAt: 'desc' }, take })]); return { checkouts, entitlements, plans: BILLING_PLANS }; }
   private checkoutPreview(orderId: string, plan: BillingPlan, paymentMethod: string) { return { orderId, planCode: plan.code, amountCents: plan.amountCents, currency: plan.currency, paymentMethod, applicationId: SHOP_ASSISTANT_APPLICATION_ID }; }
   private buildUrl(path: string): string { if (!this.publicBaseUrl) return ''; return `${this.publicBaseUrl}${path.startsWith('/') ? path : `/${path}`}`; }
-  private assertCallbackAuthorized(headers: Record<string, string | string[] | undefined>) { if (!this.callbackToken) throw new ForbiddenException('Billing callback token is not configured'); const supplied = headers['x-shop-assistant-billing-token'] || headers['x-api-key']; const value = Array.isArray(supplied) ? supplied[0] : supplied; if (!value || value !== this.callbackToken) throw new ForbiddenException('Billing callback is not authorized'); }
+  private async assertCallbackAuthorized(headers: Record<string, string | string[] | undefined>) {
+    const supplied = headers['authorization'] || headers['Authorization'];
+    const value = Array.isArray(supplied) ? supplied[0] : supplied;
+    if (!value || typeof value !== 'string' || !value.toLowerCase().startsWith('bearer ')) {
+      this.logging.error('Billing callback rejected: missing Authorization Bearer', { context: 'BillingService.assertCallbackAuthorized' });
+      throw new UnauthorizedException('Missing Authorization Bearer');
+    }
+    const token = value.slice(7).trim();
+    if (!token) {
+      this.logging.error('Billing callback rejected: empty Authorization Bearer', { context: 'BillingService.assertCallbackAuthorized' });
+      throw new UnauthorizedException('Missing Authorization Bearer');
+    }
+    const user = await this.auth.validateToken(token);
+    const roles = Array.isArray(user.roles) ? user.roles.filter((role): role is string => typeof role === 'string') : [];
+    if (!BILLING_CALLBACK_SERVICE_ROLES.some((role) => roles.includes(role))) {
+      this.logging.error('Billing callback rejected: missing required service role', { context: 'BillingService.assertCallbackAuthorized', required: BILLING_CALLBACK_SERVICE_ROLES });
+      throw new ForbiddenException('Principal lacks the required billing callback role');
+    }
+  }
   private async activateEntitlement(userId: string, planCode: string, checkoutId: string, providerStatus: string) { const now = new Date(); const expiresAt = new Date(now); expiresAt.setMonth(expiresAt.getMonth() + 1); const existing = await this.prisma.userEntitlement.findFirst({ where: { userId, checkoutId, status: 'active' } }); if (existing) return existing; return this.prisma.userEntitlement.create({ data: { userId, planCode, status: 'active', source: 'payments-microservice', checkoutId, startsAt: now, expiresAt, metadata: { providerStatus } as Prisma.InputJsonValue } }); }
 }
