@@ -69,7 +69,6 @@ export class LeadsService {
         this.httpService.post(url, payload, {
           headers: {
             'Content-Type': 'application/json',
-            'X-Service-Name': 'shop-assistant',
           },
           timeout: 15000,
         }),
@@ -133,7 +132,7 @@ export class LeadsService {
     try {
       const response = await lastValueFrom(
         this.httpService.post(url, aiPayload, {
-          headers: { 'Content-Type': 'application/json', 'X-Service-Name': 'shop-assistant' },
+          headers: { 'Content-Type': 'application/json' },
           timeout: this.aiTimeout,
         }),
       );
