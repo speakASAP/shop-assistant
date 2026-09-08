@@ -1,6 +1,8 @@
 /**
  * Roles Guard - checks request.user.roles (set by JwtAuthGuard) against @Roles().
  * Use after JwtAuthGuard: @UseGuards(JwtAuthGuard, RolesGuard) @Roles('...')
+ *
+ * Undecorated routes are denied (SERVICE_IDENTITY_CONSUMER_STANDARD.md).
  */
 
 import {
@@ -8,6 +10,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator';
@@ -15,6 +18,7 @@ import { ROLES_KEY } from './roles.decorator';
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
+  private readonly logger = new Logger(RolesGuard.name);
 
   canActivate(context: ExecutionContext): boolean {
     const rolesMetadata = this.reflector.getAllAndOverride<{
@@ -22,11 +26,17 @@ export class RolesGuard implements CanActivate {
       requireAll?: boolean;
     }>(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
+    const request = context.switchToHttp().getRequest();
+    const path = request.url || request.path || 'unknown';
+    const method = request.method || 'UNKNOWN';
+
     if (!rolesMetadata?.roles?.length) {
-      return true;
+      this.logger.error(
+        `Undecorated route denied (RolesGuard without @Roles): ${method} ${path}`,
+      );
+      throw new ForbiddenException('Route missing required role declaration');
     }
 
-    const request = context.switchToHttp().getRequest();
     const user = request.user;
     const userRoles: string[] = Array.isArray(user?.roles) ? user.roles : [];
 
